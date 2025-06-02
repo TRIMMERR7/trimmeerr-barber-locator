@@ -24,7 +24,7 @@ interface MapProviderProps {
 }
 
 const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
-  const [mapType, setMapType] = useState<'leaflet' | 'apple'>('leaflet');
+  const [mapType, setMapType] = useState<'leaflet' | 'apple'>('apple');
   const [appleApiKey, setAppleApiKey] = useState('');
   const [isLoadingApiKey, setIsLoadingApiKey] = useState(false);
 
@@ -39,6 +39,8 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
         }
       } catch (error) {
         console.error('Error fetching Apple Maps API key:', error);
+        // If Apple Maps API key fails to load, fallback to Leaflet
+        setMapType('leaflet');
       }
     };
 
@@ -58,14 +60,6 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
       {/* Map Type Selector */}
       <div className="absolute top-4 right-4 z-50 flex gap-2">
         <Button
-          variant={mapType === 'leaflet' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => handleMapTypeChange('leaflet')}
-          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
-        >
-          OpenStreetMap
-        </Button>
-        <Button
           variant={mapType === 'apple' ? 'default' : 'outline'}
           size="sm"
           onClick={() => handleMapTypeChange('apple')}
@@ -74,17 +68,25 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
         >
           Apple Maps
         </Button>
+        <Button
+          variant={mapType === 'leaflet' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => handleMapTypeChange('leaflet')}
+          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
+        >
+          OpenStreetMap
+        </Button>
       </div>
 
       {/* Render appropriate map */}
-      {mapType === 'leaflet' ? (
-        <MapboxMap nearbyBarbers={nearbyBarbers} onBarberSelect={onBarberSelect} />
-      ) : (
+      {mapType === 'apple' && appleApiKey ? (
         <AppleMap 
           nearbyBarbers={nearbyBarbers} 
           onBarberSelect={onBarberSelect}
           apiKey={appleApiKey}
         />
+      ) : (
+        <MapboxMap nearbyBarbers={nearbyBarbers} onBarberSelect={onBarberSelect} />
       )}
     </div>
   );
