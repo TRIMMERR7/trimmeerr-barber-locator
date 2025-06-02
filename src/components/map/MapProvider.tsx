@@ -22,20 +22,33 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
       try {
         console.log('MapProvider: Calling Supabase function...');
         
-        // Get the current session
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log('MapProvider: Session check:', { hasSession: !!session });
+        // Get the current session with fresh token
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        console.log('MapProvider: Session check:', { 
+          hasSession: !!session, 
+          sessionError: sessionError?.message,
+          hasAccessToken: !!session?.access_token
+        });
         
-        if (!session) {
-          console.log('MapProvider: No session found, user needs to login');
+        if (sessionError || !session?.access_token) {
+          console.log('MapProvider: No valid session found, user needs to login');
           setError('Please log in to access the map');
           setIsLoadingApiKey(false);
           return;
         }
         
-        const { data, error } = await supabase.functions.invoke('get-apple-maps-key');
+        // Call the edge function with proper authorization
+        const { data, error } = await supabase.functions.invoke('get-apple-maps-key', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          }
+        });
         
-        console.log('MapProvider: Supabase response:', { data, error });
+        console.log('MapProvider: Supabase response:', { 
+          data, 
+          error: error?.message,
+          hasApiKey: !!data?.apiKey 
+        });
         
         if (error) {
           console.error('MapProvider: Supabase function error:', error);

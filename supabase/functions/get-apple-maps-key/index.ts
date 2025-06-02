@@ -36,18 +36,21 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Verify the user
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    )
+    // Extract token from Bearer header
+    const token = authHeader.replace('Bearer ', '')
+    console.log('get-apple-maps-key: Token extracted, length:', token.length)
+
+    // Verify the user with proper token handling
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
 
     console.log('get-apple-maps-key: User verification result:', { 
       hasUser: !!user, 
-      userError: userError?.message 
+      userError: userError?.message,
+      userId: user?.id
     })
 
     if (userError || !user) {
-      console.log('get-apple-maps-key: User verification failed')
+      console.log('get-apple-maps-key: User verification failed, error:', userError?.message)
       return new Response(
         JSON.stringify({ error: 'Unauthorized: ' + (userError?.message || 'Invalid token') }),
         { 
@@ -72,7 +75,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    console.log('get-apple-maps-key: Returning API key successfully')
+    console.log('get-apple-maps-key: Returning API key successfully for user:', user.id)
     return new Response(
       JSON.stringify({ apiKey: appleApiKey }),
       { 
