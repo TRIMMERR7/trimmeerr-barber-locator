@@ -26,23 +26,23 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             <img 
               src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
               alt="TRIMMERR Logo" 
-              className="w-12 h-12"
+              className="w-10 h-10 sm:w-12 sm:h-12"
             />
-            <h1 className="text-4xl font-bold text-white">TRIMMERR</h1>
+            <h1 className="text-3xl sm:text-4xl font-bold text-white">TRIMMERR</h1>
           </div>
-          <p className="text-gray-400">Find your perfect barber</p>
+          <p className="text-gray-400 text-sm sm:text-base">Find your perfect barber</p>
         </div>
 
         <Card className="bg-white">
-          <CardHeader className="text-center">
-            <CardTitle className="text-black">Welcome</CardTitle>
+          <CardHeader className="text-center pb-4">
+            <CardTitle className="text-black text-lg sm:text-xl">Welcome</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* User Type Toggle */}
             <div className="flex rounded-lg bg-gray-100 p-1">
               <button
                 onClick={() => setUserType('client')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all touch-manipulation ${
                   userType === 'client' 
                     ? 'bg-white text-black shadow-sm' 
                     : 'text-gray-600'
@@ -52,7 +52,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               </button>
               <button
                 onClick={() => setUserType('barber')}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all touch-manipulation ${
                   userType === 'barber' 
                     ? 'bg-red-600 text-white shadow-sm' 
                     : 'text-gray-600'
@@ -68,7 +68,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="border-gray-300"
+              className="border-gray-300 h-12 text-base"
             />
 
             {/* Password */}
@@ -77,13 +77,13 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="border-gray-300"
+              className="border-gray-300 h-12 text-base"
             />
 
             {/* Login Button */}
             <Button 
               onClick={handleLogin}
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
+              className="w-full bg-red-600 hover:bg-red-700 text-white h-12 text-base touch-manipulation"
             >
               Sign In
             </Button>
@@ -99,17 +99,17 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             </div>
 
             {/* Social Login */}
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full">
+            <div className="space-y-3">
+              <Button variant="outline" className="w-full h-12 text-base touch-manipulation">
                 Continue with Google
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full h-12 text-base touch-manipulation">
                 Continue with Apple
               </Button>
               <Button 
                 variant="ghost" 
                 onClick={() => onLogin('guest')}
-                className="w-full text-gray-600"
+                className="w-full text-gray-600 h-12 text-base touch-manipulation"
               >
                 Continue as Guest
               </Button>
