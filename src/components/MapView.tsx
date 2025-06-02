@@ -7,6 +7,7 @@ import BarberDashboard from './BarberDashboard';
 import BarberList from './map/BarberList';
 import MapContainer from './map/MapContainer';
 import FilterPage from './FilterPage';
+import FindYourBarberPage from './FindYourBarberPage';
 import FloatingAIAssistant from './FloatingAIAssistant';
 
 interface Barber {
@@ -36,6 +37,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showFilterPage, setShowFilterPage] = useState(false);
+  const [showFindBarberPage, setShowFindBarberPage] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
   // Enhanced barber data with video URLs
@@ -145,7 +147,7 @@ const MapView = ({ userType }: MapViewProps) => {
   };
 
   const handleMenuClick = () => {
-    setShowFilterPage(true);
+    setShowFindBarberPage(true);
   };
 
   if (showDashboard && userType === 'barber') {
@@ -157,6 +159,17 @@ const MapView = ({ userType }: MapViewProps) => {
       <FilterPage
         barbers={nearbyBarbers}
         onBack={() => setShowFilterPage(false)}
+        onBarberSelect={handleBarberSelect}
+        onNavigate={openInAppleMaps}
+      />
+    );
+  }
+
+  if (showFindBarberPage) {
+    return (
+      <FindYourBarberPage
+        barbers={nearbyBarbers}
+        onBack={() => setShowFindBarberPage(false)}
         onBarberSelect={handleBarberSelect}
         onNavigate={openInAppleMaps}
       />
