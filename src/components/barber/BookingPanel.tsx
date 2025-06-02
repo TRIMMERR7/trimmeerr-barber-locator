@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar, Clock, CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Calendar, Clock, CreditCard, Phone } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -28,25 +30,34 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [selectedTime, setSelectedTime] = useState<string>('');
+  const [userPhone, setUserPhone] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const availableTimes = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM'];
 
   const handleBookingAndPayment = async () => {
     if (!selectedTime) {
-      alert('Please select a time slot');
+      toast({
+        title: "Missing Information",
+        description: "Please select a time slot",
+        variant: "destructive",
+      });
       return;
     }
     
     if (!user) {
-      alert('Please sign in to book an appointment');
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to book an appointment",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsProcessingPayment(true);
     
     try {
-      // Convert price string to amount in cents (e.g., "$35" -> 3500)
+      // Convert price string to amount in cents
       const priceAmount = parseInt(barber.price.replace('$', '')) * 100;
       
       const { data, error } = await supabase.functions.invoke('create-payment', {
@@ -55,15 +66,16 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
           currency: 'usd',
           serviceType: `barber_service_${barber.id}`,
           barberName: barber.name,
-          appointmentTime: selectedTime
+          appointmentTime: selectedTime,
+          userPhone: userPhone
         }
       });
 
       if (error) throw error;
 
       if (data?.url) {
-        // Open payment in new tab
-        window.open(data.url, '_blank');
+        // Redirect to payment page
+        window.location.href = data.url;
         
         toast({
           title: "Redirecting to Payment",
@@ -72,6 +84,7 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
         
         setIsOpen(false);
         setSelectedTime('');
+        setUserPhone('');
       }
     } catch (error) {
       console.error('Payment error:', error);
@@ -146,6 +159,23 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Phone Number Input */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <Phone className="w-4 h-4" />
+                Phone Number (for SMS confirmation)
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+1 (555) 123-4567"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+                className="w-full"
+              />
+              <p className="text-xs text-gray-500">Optional - We'll send appointment confirmations</p>
             </div>
 
             {/* Service Summary */}

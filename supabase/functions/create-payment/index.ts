@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { amount, currency = "usd", serviceType = "barber_service", barberName, appointmentTime } = await req.json();
+    const { amount, currency = "usd", serviceType = "barber_service", barberName, appointmentTime, userPhone } = await req.json();
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -36,16 +36,18 @@ serve(async (req) => {
       user = data.user;
     }
 
+    if (!user?.email) {
+      throw new Error("User authentication required");
+    }
+
     // Check if customer exists or create new one
     let customerId;
-    if (user?.email) {
-      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-      if (customers.data.length > 0) {
-        customerId = customers.data[0].id;
-      } else {
-        const customer = await stripe.customers.create({ email: user.email });
-        customerId = customer.id;
-      }
+    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    if (customers.data.length > 0) {
+      customerId = customers.data[0].id;
+    } else {
+      const customer = await stripe.customers.create({ email: user.email });
+      customerId = customer.id;
     }
 
     // Create service description
@@ -53,10 +55,9 @@ serve(async (req) => {
       ? `Barber appointment with ${barberName} at ${appointmentTime}`
       : "Barber Service Payment";
 
-    // Create payment session with Apple Pay and Google Pay enabled
+    // Create payment session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user?.email || "guest@example.com",
       line_items: [
         {
           price_data: {
@@ -65,34 +66,38 @@ serve(async (req) => {
               name: "Barber Service",
               description: serviceDescription
             },
-            unit_amount: amount, // Amount in cents
+            unit_amount: amount,
           },
           quantity: 1,
         },
       ],
       mode: "payment",
-      payment_method_types: ["card", "apple_pay", "google_pay"],
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      payment_method_types: ["card"],
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&barber=${encodeURIComponent(barberName || '')}&time=${encodeURIComponent(appointmentTime || '')}`,
       cancel_url: `${req.headers.get("origin")}/payment-canceled`,
+      metadata: {
+        barber_name: barberName || '',
+        appointment_time: appointmentTime || '',
+        user_email: user.email,
+        user_phone: userPhone || ''
+      }
     });
 
     // Record payment in database
-    if (user) {
-      const supabaseService = createClient(
-        Deno.env.get("SUPABASE_URL") ?? "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-        { auth: { persistSession: false } }
-      );
+    const supabaseService = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { persistSession: false } }
+    );
 
-      await supabaseService.from("payments").insert({
-        user_id: user.id,
-        stripe_session_id: session.id,
-        amount: amount,
-        currency: currency,
-        service_type: serviceType,
-        status: "pending",
-      });
-    }
+    await supabaseService.from("payments").insert({
+      user_id: user.id,
+      stripe_session_id: session.id,
+      amount: amount,
+      currency: currency,
+      service_type: serviceType,
+      status: "pending",
+    });
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
