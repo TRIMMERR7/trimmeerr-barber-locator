@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -190,14 +191,13 @@ const MapView = ({ userType }: MapViewProps) => {
             </h1>
           </div>
           <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-            {/* Filter Menu Button */}
+            {/* Find Your Barber Button */}
             <Button 
               variant="ghost" 
-              size="icon"
               onClick={handleMenuClick}
-              className="text-white hover:bg-gray-800 rounded-xl touch-manipulation h-8 w-8 sm:h-9 sm:w-9"
+              className="text-red-500 hover:text-red-400 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
             >
-              <Menu className="h-3 w-3 sm:h-4 sm:w-4" />
+              Find Your Barber
             </Button>
 
             {userType === 'barber' && (
