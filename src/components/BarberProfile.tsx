@@ -20,7 +20,7 @@ interface Barber {
   experience: string;
   lat: number;
   lng: number;
-  videoUrl?: string; // Add video URL support
+  videoUrl?: string;
 }
 
 interface BarberProfileProps {
@@ -32,7 +32,7 @@ interface BarberProfileProps {
 
 const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfileProps) => {
   return (
-    <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-black flex flex-col backdrop-blur-sm">
       <ProfileHeader onBack={onBack} onNavigate={onNavigate} />
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">

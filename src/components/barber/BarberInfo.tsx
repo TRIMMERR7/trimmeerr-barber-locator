@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, MapPin, Clock, Award } from "lucide-react";
@@ -13,7 +14,7 @@ interface Barber {
   experience: string;
   lat: number;
   lng: number;
-  videoUrl?: string; // New optional video URL
+  videoUrl?: string;
 }
 
 interface BarberInfoProps {
@@ -22,7 +23,7 @@ interface BarberInfoProps {
 
 const BarberInfo = ({ barber }: BarberInfoProps) => {
   return (
-    <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+    <Card className="glass-card border-white/20 shadow-2xl">
       <CardContent className="p-4 md:p-6">
         <div className="flex flex-col space-y-4">
           {/* Mobile-first layout */}
@@ -35,9 +36,8 @@ const BarberInfo = ({ barber }: BarberInfoProps) => {
                   loop
                   muted
                   playsInline
-                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg"
+                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg border border-white/20"
                   onError={(e) => {
-                    // Fallback to image if video fails to load
                     const target = e.target as HTMLVideoElement;
                     const img = document.createElement('img');
                     img.src = barber.image;
@@ -50,23 +50,23 @@ const BarberInfo = ({ barber }: BarberInfoProps) => {
                 <img
                   src={barber.image}
                   alt={barber.name}
-                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg"
+                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg border border-white/20"
                 />
               )}
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full shadow-lg"></div>
             </div>
             
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-1 truncate">{barber.name}</h2>
-              <p className="text-red-600 font-semibold text-base md:text-lg mb-2">{barber.specialty}</p>
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-1 truncate">{barber.name}</h2>
+              <p className="text-red-400 font-semibold text-base md:text-lg mb-2">{barber.specialty}</p>
               
-              <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
+              <div className="flex items-center gap-4 text-sm text-gray-300 flex-wrap">
                 <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                  <span className="font-medium">{barber.rating}</span>
+                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                  <span className="font-medium text-white">{barber.rating}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
+                  <MapPin className="w-4 h-4 text-gray-400" />
                   <span>{barber.distance}</span>
                 </div>
               </div>
@@ -74,19 +74,19 @@ const BarberInfo = ({ barber }: BarberInfoProps) => {
           </div>
 
           {/* Price and experience section */}
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-gray-500" />
+                <Clock className="w-5 h-5 text-gray-400" />
                 <div>
-                  <p className="text-sm text-gray-600">Experience</p>
-                  <p className="font-semibold text-gray-900">{barber.experience}</p>
+                  <p className="text-sm text-gray-400">Experience</p>
+                  <p className="font-semibold text-white">{barber.experience}</p>
                 </div>
               </div>
               
               <div className="text-right">
-                <p className="text-sm text-gray-600">Starting from</p>
-                <p className="text-2xl font-bold text-red-600">{barber.price}</p>
+                <p className="text-sm text-gray-400">Starting from</p>
+                <p className="text-2xl font-bold text-red-400">{barber.price}</p>
               </div>
             </div>
           </div>
@@ -94,27 +94,27 @@ const BarberInfo = ({ barber }: BarberInfoProps) => {
           {/* Quick stats */}
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-full mx-auto mb-2">
-                <Award className="w-4 h-4 text-green-600" />
+              <div className="flex items-center justify-center w-8 h-8 bg-green-500/20 backdrop-blur-sm rounded-full mx-auto mb-2 border border-green-400/30">
+                <Award className="w-4 h-4 text-green-400" />
               </div>
-              <p className="text-xs text-gray-600">Licensed</p>
-              <p className="text-sm font-semibold text-gray-900">Certified</p>
+              <p className="text-xs text-gray-400">Licensed</p>
+              <p className="text-sm font-semibold text-white">Certified</p>
             </div>
             
             <div className="text-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full mx-auto mb-2">
-                <Clock className="w-4 h-4 text-blue-600" />
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-500/20 backdrop-blur-sm rounded-full mx-auto mb-2 border border-blue-400/30">
+                <Clock className="w-4 h-4 text-blue-400" />
               </div>
-              <p className="text-xs text-gray-600">Avg. Time</p>
-              <p className="text-sm font-semibold text-gray-900">30 min</p>
+              <p className="text-xs text-gray-400">Avg. Time</p>
+              <p className="text-sm font-semibold text-white">30 min</p>
             </div>
             
             <div className="text-center">
-              <div className="flex items-center justify-center w-8 h-8 bg-yellow-100 rounded-full mx-auto mb-2">
-                <Star className="w-4 h-4 text-yellow-600" />
+              <div className="flex items-center justify-center w-8 h-8 bg-yellow-500/20 backdrop-blur-sm rounded-full mx-auto mb-2 border border-yellow-400/30">
+                <Star className="w-4 h-4 text-yellow-400" />
               </div>
-              <p className="text-xs text-gray-600">Reviews</p>
-              <p className="text-sm font-semibold text-gray-900">127+</p>
+              <p className="text-xs text-gray-400">Reviews</p>
+              <p className="text-sm font-semibold text-white">127+</p>
             </div>
           </div>
         </div>

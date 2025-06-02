@@ -37,17 +37,17 @@ const Portfolio = () => {
   ];
 
   return (
-    <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+    <Card className="glass-card border-white/20 shadow-2xl">
       <CardContent className="p-3 md:p-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base md:text-lg font-semibold text-gray-900">Recent Work</h3>
-          <span className="text-xs md:text-sm text-gray-500">Portfolio</span>
+          <h3 className="text-base md:text-lg font-semibold text-white">Recent Work</h3>
+          <span className="text-xs md:text-sm text-gray-400">Portfolio</span>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
           {portfolioImages.map((image) => (
             <div key={image.id} className="relative group cursor-pointer">
-              <div className="aspect-square w-full overflow-hidden rounded-lg md:rounded-xl">
+              <div className="aspect-square w-full overflow-hidden rounded-lg md:rounded-xl border border-white/20">
                 <img
                   src={image.url}
                   alt={image.title}
@@ -62,7 +62,7 @@ const Portfolio = () => {
                   }}
                 />
               </div>
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 rounded-lg md:rounded-xl transition-colors flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 rounded-lg md:rounded-xl transition-colors flex items-center justify-center backdrop-blur-sm">
                 <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity text-center px-2">
                   {image.title}
                 </span>
@@ -71,7 +71,7 @@ const Portfolio = () => {
           ))}
         </div>
         
-        <button className="w-full mt-3 md:mt-4 py-2 text-red-600 font-medium text-sm hover:bg-red-50 rounded-lg transition-colors">
+        <button className="w-full mt-3 md:mt-4 py-2 text-red-400 font-medium text-sm hover:bg-red-500/10 rounded-lg transition-colors border border-red-500/30 backdrop-blur-sm">
           View Full Portfolio
         </button>
       </CardContent>
