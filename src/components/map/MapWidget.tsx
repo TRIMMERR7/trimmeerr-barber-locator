@@ -65,12 +65,10 @@ const MapWidget = () => {
             onClick={() => setIsExpanded(!isExpanded)}
           >
             <div className="flex items-center p-3 md:p-4 flex-1 min-w-0">
-              {/* Modern Ad Icon with Pulse Animation */}
+              {/* Modern Ad Icon */}
               <div className={`${
                 isMobile ? 'w-10 h-10' : 'w-12 h-12'
-              } bg-gradient-to-br from-blue-500/90 via-purple-600/90 to-pink-600/90 rounded-xl flex items-center justify-center mr-3 shadow-lg transition-all duration-300 group-hover:scale-110 ${
-                !isPaused ? 'animate-pulse' : ''
-              }`}>
+              } bg-gradient-to-br from-blue-500/90 via-purple-600/90 to-pink-600/90 rounded-xl flex items-center justify-center mr-3 shadow-lg transition-all duration-300 group-hover:scale-110`}>
                 <Zap className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
               </div>
               
@@ -91,7 +89,7 @@ const MapWidget = () => {
               {/* Live Indicator */}
               <div className="flex items-center gap-2 mr-3">
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                   <span className="text-white/80 text-xs font-medium">LIVE</span>
                 </div>
                 {!isPaused ? (
