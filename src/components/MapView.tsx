@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, CreditCard } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import BarberList from './map/BarberList';
 import MapContainer from './map/MapContainer';
 import FilterPage from './FilterPage';
+import PaymentPage from './PaymentPage';
 
 interface Barber {
   id: string;
@@ -34,6 +35,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showFilterPage, setShowFilterPage] = useState(false);
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
   // Enhanced barber data with ethnicity, age, languages, and personality traits
@@ -158,6 +160,10 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
+  if (showPaymentPage) {
+    return <PaymentPage onBack={() => setShowPaymentPage(false)} />;
+  }
+
   if (selectedBarber) {
     console.log('MapView: Rendering BarberProfile for:', selectedBarber.name);
     return (
@@ -197,6 +203,16 @@ const MapView = ({ userType }: MapViewProps) => {
               className="text-yellow-500 hover:text-yellow-400 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
             >
               Find Your Barber
+            </Button>
+
+            {/* Premium Services Button */}
+            <Button 
+              variant="ghost" 
+              onClick={() => setShowPaymentPage(true)}
+              className="text-green-500 hover:text-green-400 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
+            >
+              <CreditCard className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span className="hidden sm:inline">Premium</span>
             </Button>
 
             {userType === 'barber' && (
