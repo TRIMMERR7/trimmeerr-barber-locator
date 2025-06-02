@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar, ArrowLeft, X } from "lucide-react";
@@ -125,14 +126,17 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
       }
 
       if (data?.url) {
-        console.log('BookingDialog: Setting payment URL and moving to payment step');
-        setPaymentUrl(data.url);
-        setPaymentLoading(true);
-        setStep('payment');
+        console.log('BookingDialog: Opening payment in new tab');
+        // Open payment in new tab instead of iframe
+        window.open(data.url, '_blank', 'noopener,noreferrer');
+        
+        // Close dialog and reset
+        setIsOpen(false);
+        resetBooking();
         
         toast({
-          title: "Payment Page Ready",
-          description: `Secure checkout loaded for ${selectedService.name}`,
+          title: "Payment Window Opened",
+          description: "Complete your payment in the new tab",
         });
       } else {
         throw new Error('No payment URL received');
@@ -188,13 +192,6 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
     }
   };
 
-  const getDialogClassName = () => {
-    if (step === 'payment') {
-      return 'sm:max-w-6xl max-w-[98vw] h-[95vh]';
-    }
-    return 'sm:max-w-lg max-w-[95vw]';
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       console.log('BookingDialog: Dialog open state changed:', open);
@@ -205,26 +202,17 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         {children}
       </DialogTrigger>
       
-      <DialogContent className={`${getDialogClassName()} max-h-[95vh] overflow-hidden shadow-2xl border-0`}>
-        <DialogHeader className={`space-y-4 border-b border-gray-100 pb-4 ${step === 'payment' ? 'flex-shrink-0' : ''}`}>
+      <DialogContent className="sm:max-w-lg max-w-[95vw] max-h-[95vh] overflow-hidden shadow-2xl border-0">
+        <DialogHeader className="space-y-4 border-b border-gray-100 pb-4">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {step !== 'service' && step !== 'payment' && (
+              {step !== 'service' && (
                 <button 
                   onClick={handleStepBack}
                   className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-105"
                   aria-label="Go back"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                </button>
-              )}
-              {step === 'payment' && (
-                <button 
-                  onClick={handleStepBack}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-105"
-                  aria-label="Close payment"
-                >
-                  <X className="w-4 h-4" />
                 </button>
               )}
               <div className="flex items-center gap-2">
@@ -240,7 +228,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
           <BookingProgressBar step={step} />
         </DialogHeader>
         
-        <div className={step === 'payment' ? 'flex-1 overflow-hidden' : 'flex-shrink-0'}>
+        <div className="flex-shrink-0 max-h-[60vh] overflow-y-auto">
           <BookingStepContent
             step={step}
             selectedService={selectedService}
