@@ -30,6 +30,8 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
   useEffect(() => {
     if (!mapContainer.current) return;
 
+    console.log('MapboxMap: Initializing map...');
+
     // Initialize Leaflet map
     map.current = L.map(mapContainer.current, {
       zoomControl: false // Disable default zoom control
@@ -45,11 +47,16 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map.current);
 
+    console.log('MapboxMap: Map initialized, checking for geolocation...');
+
     // Get user's current location
     if (navigator.geolocation) {
+      console.log('MapboxMap: Geolocation is available, requesting position...');
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          console.log('MapboxMap: Got user location:', { latitude, longitude });
           setUserLocation([latitude, longitude]);
           
           // Create user location marker with profile picture
@@ -69,20 +76,55 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
           });
 
           if (map.current) {
-            L.marker([latitude, longitude], { icon: userIcon })
+            console.log('MapboxMap: Adding user location marker to map');
+            const userMarker = L.marker([latitude, longitude], { icon: userIcon })
               .addTo(map.current)
               .bindPopup('<div class="p-2"><strong>Your Location</strong></div>');
+            
+            console.log('MapboxMap: User location marker added successfully');
+            
+            // Center map on user location
+            map.current.setView([latitude, longitude], 14);
+            console.log('MapboxMap: Map centered on user location');
           }
         },
         (error) => {
-          console.log('Could not get user location:', error);
+          console.error('MapboxMap: Geolocation error:', error);
+          console.log('MapboxMap: Error code:', error.code);
+          console.log('MapboxMap: Error message:', error.message);
+          
+          // Provide more detailed error information
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              console.log('MapboxMap: User denied the request for Geolocation.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              console.log('MapboxMap: Location information is unavailable.');
+              break;
+            case error.TIMEOUT:
+              console.log('MapboxMap: The request to get user location timed out.');
+              break;
+            default:
+              console.log('MapboxMap: An unknown error occurred.');
+              break;
+          }
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000
         }
       );
+    } else {
+      console.log('MapboxMap: Geolocation is not supported by this browser.');
     }
 
     // Add markers for barbers with profile pictures
+    console.log('MapboxMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
     nearbyBarbers.forEach((barber) => {
       if (!map.current) return;
+
+      console.log('MapboxMap: Adding marker for barber:', barber.name);
 
       const barberIcon = L.divIcon({
         className: 'barber-marker',
@@ -126,8 +168,11 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
       markers.current.push(marker);
     });
 
+    console.log('MapboxMap: All markers added successfully');
+
     // Cleanup function
     return () => {
+      console.log('MapboxMap: Cleaning up...');
       markers.current.forEach(marker => marker.remove());
       map.current?.remove();
     };
