@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const TopBarbersSlider = () => {
   const [currentBarber, setCurrentBarber] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
 
   const topBarbers = [
     {
@@ -38,57 +37,37 @@ const TopBarbersSlider = () => {
   }, [topBarbers.length]);
 
   return (
-    <div 
-      className="group relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Hover trigger area - always visible but subtle */}
-      <div className={`absolute inset-0 transition-all duration-500 ${
-        isHovered ? 'opacity-0' : 'opacity-100'
-      }`}>
-        <div className="bg-black/20 backdrop-blur-sm rounded-lg p-2 border border-white/10">
-          <div className="text-white/60 text-xs font-medium flex items-center gap-1">
-            🏆 <span>Top Barbers</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Full content - shown on hover */}
-      <Card className={`bg-white shadow-2xl border-0 overflow-hidden w-64 relative z-[100] transition-all duration-500 ${
-        isHovered ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
-      }`}>
-        <CardContent className="p-0">
-          <div className="relative h-16 overflow-hidden">
-            {topBarbers.map((barber, index) => (
-              <div
-                key={barber.id}
-                className={`absolute inset-0 transition-all duration-500 ease-in-out ${
-                  index === currentBarber ? 'translate-x-0 opacity-100' : 
-                  index < currentBarber ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'
-                }`}
-              >
-                <div className="h-full bg-gradient-to-r from-red-600 to-red-700 flex items-center p-3">
-                  <img
-                    src={barber.image}
-                    alt={barber.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white/50 mr-3"
-                  />
-                  <div className="flex-1">
-                    <div className="text-white/90 text-xs font-medium">{barber.title}</div>
-                    <h4 className="text-white font-bold text-sm">{barber.name}</h4>
-                  </div>
-                  <div className="text-white text-xs font-bold">⭐ {barber.rating}</div>
+    <Card className="bg-white shadow-2xl border-0 overflow-hidden w-64 relative z-[100]">
+      <CardContent className="p-0">
+        <div className="relative h-16 overflow-hidden">
+          {topBarbers.map((barber, index) => (
+            <div
+              key={barber.id}
+              className={`absolute inset-0 transition-all duration-500 ease-in-out ${
+                index === currentBarber ? 'translate-x-0 opacity-100' : 
+                index < currentBarber ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'
+              }`}
+            >
+              <div className="h-full bg-gradient-to-r from-red-600 to-red-700 flex items-center p-3">
+                <img
+                  src={barber.image}
+                  alt={barber.name}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white/50 mr-3"
+                />
+                <div className="flex-1">
+                  <div className="text-white/90 text-xs font-medium">{barber.title}</div>
+                  <h4 className="text-white font-bold text-sm">{barber.name}</h4>
                 </div>
+                <div className="text-white text-xs font-bold">⭐ {barber.rating}</div>
               </div>
-            ))}
-          </div>
-          <div className="bg-gray-50 px-3 py-1 text-center">
-            <div className="text-xs font-semibold text-gray-800">🏆 Top Barbers of the Year</div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            </div>
+          ))}
+        </div>
+        <div className="bg-gray-50 px-3 py-1 text-center">
+          <div className="text-xs font-semibold text-gray-800">🏆 Top Barbers of the Year</div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

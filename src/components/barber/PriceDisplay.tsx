@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Barber } from '@/types/barber';
 
 interface Service {
   id: string;
@@ -10,6 +9,19 @@ interface Service {
   icon: React.ComponentType<{ className?: string }>;
   popular: boolean;
   description: string;
+}
+
+interface Barber {
+  id: string;
+  name: string;
+  rating: number;
+  specialty: string;
+  image: string;
+  price: string;
+  distance: string;
+  experience: string;
+  lat: number;
+  lng: number;
 }
 
 interface PriceDisplayProps {

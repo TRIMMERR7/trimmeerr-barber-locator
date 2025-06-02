@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ProfileHeader from './barber/ProfileHeader';
 import StepsIndicator from './barber/StepsIndicator';
@@ -8,7 +7,20 @@ import ContactInfo from './barber/ContactInfo';
 import Portfolio from './barber/Portfolio';
 import Reviews from './barber/Reviews';
 import BookingPanel from './barber/BookingPanel';
-import { Barber } from '@/types/barber';
+
+interface Barber {
+  id: string;
+  name: string;
+  rating: number;
+  specialty: string;
+  image: string;
+  price: string;
+  distance: string;
+  experience: string;
+  lat: number;
+  lng: number;
+  videoUrl?: string;
+}
 
 interface BarberProfileProps {
   barber: Barber;

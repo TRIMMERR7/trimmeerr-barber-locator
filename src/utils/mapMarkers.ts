@@ -1,6 +1,18 @@
 
 import L from 'leaflet';
-import { Barber } from '@/types/barber';
+
+interface Barber {
+  id: string;
+  name: string;
+  rating: number;
+  specialty: string;
+  image: string;
+  price: string;
+  distance: string;
+  experience: string;
+  lat: number;
+  lng: number;
+}
 
 export const createUserLocationMarker = (latitude: number, longitude: number) => {
   console.log('createUserLocationMarker: Creating user location marker');

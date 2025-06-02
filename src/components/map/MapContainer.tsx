@@ -1,9 +1,21 @@
 
 import React from 'react';
-import MapboxMap from './MapboxMap';
+import MapProvider from './MapProvider';
 import AdSlider from '../AdSlider';
 import TopBarbersSlider from '../TopBarbersSlider';
-import { Barber } from '@/types/barber';
+
+interface Barber {
+  id: string;
+  name: string;
+  rating: number;
+  specialty: string;
+  image: string;
+  price: string;
+  distance: string;
+  experience: string;
+  lat: number;
+  lng: number;
+}
 
 interface MapContainerProps {
   nearbyBarbers: Barber[];
@@ -12,22 +24,22 @@ interface MapContainerProps {
 
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   return (
-    <div className="w-full h-full relative overflow-hidden">
-      {/* Leaflet Map - Full container */}
-      <div className="absolute inset-0 w-full h-full">
-        <MapboxMap 
+    <div className="flex-1 relative overflow-hidden">
+      {/* Map Provider with switching capability - Lower z-index */}
+      <div className="absolute inset-0 z-10">
+        <MapProvider 
           nearbyBarbers={nearbyBarbers}
           onBarberSelect={onBarberSelect}
         />
       </div>
 
-      {/* Top Barbers Slideshow - Overlay */}
-      <div className="absolute top-4 left-4 z-[60] pointer-events-auto">
+      {/* Top Barbers Slideshow - Higher z-index and absolute positioning within map container */}
+      <div className="absolute top-4 left-4 z-[100] pointer-events-auto">
         <TopBarbersSlider />
       </div>
 
-      {/* Advertising Slideshow - Overlay */}
-      <div className="absolute bottom-4 left-4 right-4 z-[60] pointer-events-auto">
+      {/* Advertising Slideshow - Higher z-index and absolute positioning within map container */}
+      <div className="absolute bottom-4 left-4 right-4 z-[100] pointer-events-auto">
         <AdSlider />
       </div>
     </div>

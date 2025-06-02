@@ -2,7 +2,24 @@
 import React from 'react';
 import MapContainer from './MapContainer';
 import BarberList from './BarberList';
-import { Barber } from '@/types/barber';
+
+interface Barber {
+  id: string;
+  name: string;
+  rating: number;
+  specialty: string;
+  image: string;
+  price: string;
+  distance: string;
+  experience: string;
+  lat: number;
+  lng: number;
+  ethnicity: string;
+  age: number;
+  languages: string[];
+  personalityTraits: string[];
+  videoUrl?: string;
+}
 
 interface MapLayoutProps {
   displayBarbers: Barber[];
