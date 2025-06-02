@@ -6,6 +6,7 @@ import BarberInfo from './barber/BarberInfo';
 import ServicesList from './barber/ServicesList';
 import ContactInfo from './barber/ContactInfo';
 import Portfolio from './barber/Portfolio';
+import Reviews from './barber/Reviews';
 import BookingPanel from './barber/BookingPanel';
 
 interface Barber {
@@ -34,16 +35,20 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
       <ProfileHeader onBack={onBack} onNavigate={onNavigate} />
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
-          <StepsIndicator />
-          <BarberInfo barber={barber} />
-          
-          <div className="grid sm:grid-cols-2 gap-4 mb-6">
-            <ServicesList />
-            <ContactInfo />
-          </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 space-y-4">
+            <StepsIndicator />
+            <BarberInfo barber={barber} />
+            
+            {/* Mobile-optimized layout */}
+            <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+              <ServicesList />
+              <ContactInfo />
+            </div>
 
-          <Portfolio />
+            <Portfolio />
+            <Reviews />
+          </div>
         </div>
 
         <BookingPanel barber={barber} />
