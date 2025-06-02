@@ -1,9 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Barber {
   id: string;
@@ -27,33 +25,6 @@ interface BarberProfileProps {
 const BarberProfile = ({ barber, onBack, userType }: BarberProfileProps) => {
   const [selectedTime, setSelectedTime] = useState<string>('');
 
-  // Mock data - in real app would come from API
-  const reviews = [
-    {
-      id: '1',
-      author: 'Mike Chen',
-      rating: 5,
-      comment: 'Amazing fade! Marcus really knows his craft. Will definitely be back.',
-      date: '2 days ago',
-      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'
-    },
-    {
-      id: '2',
-      author: 'David Rodriguez',
-      rating: 5,
-      comment: 'Best barber in the area. Professional, clean, and great conversation.',
-      date: '1 week ago',
-      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=100&h=100&fit=crop&crop=face'
-    }
-  ];
-
-  const portfolio = [
-    'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1503951458645-643d911bc19c?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=400&h=400&fit=crop'
-  ];
-
   const availableTimes = ['9:00 AM', '10:30 AM', '12:00 PM', '2:30 PM', '4:00 PM', '6:00 PM'];
 
   const handleBooking = () => {
@@ -67,196 +38,138 @@ const BarberProfile = ({ barber, onBack, userType }: BarberProfileProps) => {
       return;
     }
     
-    // Simulate booking success
-    alert(`Appointment booked with ${barber.name} at ${selectedTime}!\n\nA confirmation will be sent to your email.`);
+    alert(`Appointment booked with ${barber.name} at ${selectedTime}!`);
   };
 
   return (
-    <div className="min-h-screen bg-trimmer-dark">
+    <div className="h-screen bg-black flex flex-col">
       {/* Header */}
-      <div className="bg-trimmer-slate border-b border-slate-700 p-4">
-        <div className="flex items-center gap-4 max-w-4xl mx-auto">
+      <div className="bg-black border-b border-gray-800 p-4 flex-shrink-0">
+        <div className="flex items-center gap-4 max-w-6xl mx-auto">
           <Button 
             variant="ghost" 
             onClick={onBack}
-            className="text-slate-400 hover:text-white"
+            className="text-gray-400 hover:text-white"
           >
-            ← Back to Map
+            ← Back
           </Button>
-          <h1 className="text-xl font-semibold text-white">Barber Profile</h1>
+          <h1 className="text-xl font-semibold text-white">Book Appointment</h1>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Profile Header */}
-        <Card className="glass-card">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row items-start gap-6">
-              <div className="relative">
+      {/* Main Content */}
+      <div className="flex-1 flex">
+        {/* Profile Info - Left Side */}
+        <div className="flex-1 p-6 overflow-y-auto">
+          {/* Steps Indicator */}
+          <div className="bg-gray-900 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">✓</div>
+                <span className="text-white">Find</span>
+              </div>
+              <div className="w-8 h-px bg-white"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-white text-black rounded-full flex items-center justify-center font-bold">2</div>
+                <span className="text-white">Select</span>
+              </div>
+              <div className="w-8 h-px bg-gray-600"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gray-600 text-gray-400 rounded-full flex items-center justify-center font-bold">3</div>
+                <span className="text-gray-400">Book</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Barber Info */}
+          <Card className="bg-white mb-6">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
                 <img
                   src={barber.image}
                   alt={barber.name}
-                  className="w-32 h-32 rounded-2xl object-cover border-4 border-trimmer-red"
+                  className="w-20 h-20 rounded-full object-cover"
                 />
-                <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-trimmer-dark flex items-center justify-center">
-                  <span className="text-xs text-white">✓</span>
-                </div>
-              </div>
-              
-              <div className="flex-1 space-y-4">
-                <div>
-                  <h2 className="text-3xl font-bold text-white">{barber.name}</h2>
-                  <p className="text-trimmer-blue text-lg font-medium">{barber.specialty}</p>
-                </div>
-                
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-400 text-xl">⭐</span>
-                    <span className="text-white font-semibold">{barber.rating}</span>
-                    <span className="text-slate-400">(127 reviews)</span>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-black">{barber.name}</h2>
+                  <p className="text-red-600 font-medium">{barber.specialty}</p>
+                  <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
+                    <span>★ {barber.rating}</span>
+                    <span>•</span>
+                    <span>{barber.distance}</span>
+                    <span>•</span>
+                    <span>{barber.experience}</span>
                   </div>
-                  <Badge variant="outline" className="border-trimmer-blue text-trimmer-blue">
-                    {barber.experience} experience
-                  </Badge>
-                  <Badge variant="outline" className="border-green-500 text-green-500">
-                    Available Today
-                  </Badge>
                 </div>
-                
-                <div className="flex items-center gap-6 text-sm">
-                  <span className="text-slate-400">Distance: <span className="text-white">{barber.distance}</span></span>
-                  <span className="text-slate-400">Price Range: <span className="text-trimmer-blue font-semibold">{barber.price}</span></span>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button className="bg-trimmer-red hover:bg-red-600 text-white">
-                    📞 Call Now
-                  </Button>
-                  <Button variant="outline" className="border-trimmer-blue text-trimmer-blue hover:bg-trimmer-blue hover:text-white">
-                    💬 Message
-                  </Button>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-red-600">{barber.price}</div>
+                  <div className="text-sm text-gray-500">30 minutes</div>
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Portfolio */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-white">Portfolio</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-3">
-                {portfolio.map((image, index) => (
+          <Card className="bg-white">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold text-black mb-4">Recent Work</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
                   <img
-                    key={index}
-                    src={image}
-                    alt={`Work ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
+                    key={i}
+                    src={`https://images.unsplash.com/photo-${1621605815971 + i}?w=200&h=200&fit=crop`}
+                    alt={`Work ${i}`}
+                    className="w-full h-20 object-cover rounded-lg"
                   />
                 ))}
               </div>
             </CardContent>
           </Card>
-
-          {/* Booking */}
-          <Card className="glass-card">
-            <CardHeader>
-              <CardTitle className="text-white">Book Appointment</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-300 mb-2 block">
-                  Available Times Today
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {availableTimes.map((time) => (
-                    <Button
-                      key={time}
-                      variant={selectedTime === time ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedTime(time)}
-                      className={selectedTime === time 
-                        ? "bg-trimmer-blue hover:bg-blue-600" 
-                        : "border-slate-600 text-slate-300 hover:bg-slate-700"
-                      }
-                    >
-                      {time}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-              
-              <Separator className="bg-slate-600" />
-              
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Service Fee</span>
-                  <span className="text-white">$35</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">App Fee (3.5%)</span>
-                  <span className="text-white">$1.23</span>
-                </div>
-                <Separator className="bg-slate-600" />
-                <div className="flex justify-between font-semibold">
-                  <span className="text-white">Total</span>
-                  <span className="text-trimmer-blue">$36.23</span>
-                </div>
-              </div>
-              
-              <Button 
-                onClick={handleBooking}
-                className="w-full bg-trimmer-red hover:bg-red-600 text-white font-semibold"
-                disabled={!selectedTime}
-              >
-                {userType === 'guest' ? 'Sign In to Book' : 'Book Appointment'}
-              </Button>
-            </CardContent>
-          </Card>
         </div>
 
-        {/* Reviews */}
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-white">Reviews & Ratings</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {reviews.map((review) => (
-              <div key={review.id} className="space-y-2">
-                <div className="flex items-start gap-3">
-                  <img
-                    src={review.avatar}
-                    alt={review.author}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-white">{review.author}</span>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <span 
-                            key={i} 
-                            className={i < review.rating ? 'text-yellow-400' : 'text-slate-600'}
-                          >
-                            ⭐
-                          </span>
-                        ))}
-                      </div>
-                      <span className="text-xs text-slate-400">{review.date}</span>
-                    </div>
-                    <p className="text-slate-300 text-sm">{review.comment}</p>
-                  </div>
-                </div>
-                {review.id !== reviews[reviews.length - 1].id && (
-                  <Separator className="bg-slate-700" />
-                )}
-              </div>
+        {/* Booking - Right Side */}
+        <div className="w-80 bg-white border-l border-gray-200 p-6">
+          <h3 className="text-lg font-semibold text-black mb-4">Select Time</h3>
+          
+          <div className="space-y-2 mb-6">
+            {availableTimes.map((time) => (
+              <button
+                key={time}
+                onClick={() => setSelectedTime(time)}
+                className={`w-full p-3 text-left rounded-lg border transition-colors ${
+                  selectedTime === time 
+                    ? 'border-red-600 bg-red-50 text-red-600' 
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                {time}
+              </button>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="border-t border-gray-200 pt-4 mb-6">
+            <div className="flex justify-between text-sm mb-2">
+              <span>Service</span>
+              <span>{barber.price}</span>
+            </div>
+            <div className="flex justify-between text-sm mb-2">
+              <span>App Fee (3.5%)</span>
+              <span>$1.23</span>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <span>Total</span>
+              <span>${(parseInt(barber.price.replace('$', '')) + 1.23).toFixed(2)}</span>
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleBooking}
+            disabled={!selectedTime}
+            className="w-full bg-red-600 hover:bg-red-700 text-white"
+          >
+            {userType === 'guest' ? 'Sign In to Book' : 'Book Appointment'}
+          </Button>
+        </div>
       </div>
     </div>
   );
