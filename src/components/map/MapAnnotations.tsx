@@ -34,97 +34,117 @@ const MapAnnotations = ({
   // Add user location marker (blue)
   useEffect(() => {
     if (!map || !userLocation || !mapInitialized) return;
+    
+    // Additional safety check to ensure map is ready
+    if (!map._map || typeof map.addAnnotation !== 'function') {
+      console.log('Map not ready for annotations yet, waiting...');
+      return;
+    }
 
     console.log('Adding blue client location marker at:', userLocation);
 
-    const userAnnotation = new window.mapkit.MarkerAnnotation(
-      new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
-      {
-        color: '#007AFF',
-        glyphColor: '#FFFFFF',
-        title: 'Your Location',
-        subtitle: 'Client position',
-        displayPriority: 1000 // High priority to ensure visibility
-      }
-    );
-
-    map.addAnnotation(userAnnotation);
-    
-    const region = new window.mapkit.CoordinateRegion(
-      new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
-      new window.mapkit.CoordinateSpan(0.005, 0.005)
-    );
-    map.setRegionAnimated(region, true);
-
-    return () => {
-      if (map && userAnnotation) {
-        try {
-          map.removeAnnotation(userAnnotation);
-        } catch (error) {
-          console.error('Error removing user annotation:', error);
+    try {
+      const userAnnotation = new window.mapkit.MarkerAnnotation(
+        new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
+        {
+          color: '#007AFF',
+          glyphColor: '#FFFFFF',
+          title: 'Your Location',
+          subtitle: 'Client position',
+          displayPriority: 1000 // High priority to ensure visibility
         }
-      }
-    };
+      );
+
+      map.addAnnotation(userAnnotation);
+      
+      const region = new window.mapkit.CoordinateRegion(
+        new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
+        new window.mapkit.CoordinateSpan(0.005, 0.005)
+      );
+      map.setRegionAnimated(region, true);
+
+      return () => {
+        if (map && userAnnotation) {
+          try {
+            map.removeAnnotation(userAnnotation);
+          } catch (error) {
+            console.error('Error removing user annotation:', error);
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error adding user location marker:', error);
+    }
   }, [map, userLocation, mapInitialized]);
 
   // Add barber markers (red, clickable)
   useEffect(() => {
     if (!map || !nearbyBarbers.length || !mapInitialized) return;
+    
+    // Additional safety check to ensure map is ready
+    if (!map._map || typeof map.addAnnotations !== 'function') {
+      console.log('Map not ready for barber annotations yet, waiting...');
+      return;
+    }
 
     console.log('Adding clickable red barber markers...', nearbyBarbers.length, 'barbers');
 
-    const annotations = nearbyBarbers.map((barber) => {
-      console.log(`Creating clickable marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
-      
-      const markerElement = createCustomBarberMarker(barber);
-      
-      // Add click event to the marker element
-      markerElement.addEventListener('click', (event) => {
-        event.stopPropagation();
-        console.log('Red barber marker clicked:', barber.name);
-        onBarberSelect(barber);
+    try {
+      const annotations = nearbyBarbers.map((barber) => {
+        console.log(`Creating clickable marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
+        
+        const markerElement = createCustomBarberMarker(barber);
+        
+        // Add click event to the marker element
+        markerElement.addEventListener('click', (event) => {
+          event.stopPropagation();
+          console.log('Red barber marker clicked:', barber.name);
+          onBarberSelect(barber);
+        });
+
+        const annotation = new window.mapkit.Annotation(
+          new window.mapkit.Coordinate(barber.lat, barber.lng),
+          () => markerElement,
+          {
+            animates: true,
+            title: barber.name,
+            subtitle: `${barber.specialty} - ${barber.price}`,
+            data: barber,
+            displayPriority: 500
+          }
+        );
+
+        return annotation;
       });
 
-      const annotation = new window.mapkit.Annotation(
-        new window.mapkit.Coordinate(barber.lat, barber.lng),
-        () => markerElement,
-        {
-          animates: true,
-          title: barber.name,
-          subtitle: `${barber.specialty} - ${barber.price}`,
-          data: barber,
-          displayPriority: 500
+      map.addAnnotations(annotations);
+
+      // Also listen for map-level select events as backup
+      const handleMapSelect = (event: any) => {
+        const annotation = event.annotation;
+        if (annotation.data) {
+          console.log('Map select event - barber marker:', annotation.data.name);
+          onBarberSelect(annotation.data);
         }
-      );
+      };
 
-      return annotation;
-    });
+      map.addEventListener('select', handleMapSelect);
 
-    map.addAnnotations(annotations);
+      console.log('All clickable red barber markers added successfully');
 
-    // Also listen for map-level select events as backup
-    const handleMapSelect = (event: any) => {
-      const annotation = event.annotation;
-      if (annotation.data) {
-        console.log('Map select event - barber marker:', annotation.data.name);
-        onBarberSelect(annotation.data);
-      }
-    };
-
-    map.addEventListener('select', handleMapSelect);
-
-    console.log('All clickable red barber markers added successfully');
-
-    return () => {
-      if (map && annotations.length > 0) {
-        try {
-          map.removeAnnotations(annotations);
-          map.removeEventListener('select', handleMapSelect);
-        } catch (error) {
-          console.error('Error removing barber annotations:', error);
+      return () => {
+        if (map && annotations.length > 0) {
+          try {
+            map.removeAnnotations(annotations);
+            map.removeEventListener('select', handleMapSelect);
+          } catch (error) {
+            console.error('Error removing barber annotations:', error);
+          }
         }
-      }
-    };
+      };
+    } catch (error) {
+      console.error('Error adding barber markers:', error);
+    }
   }, [map, nearbyBarbers, onBarberSelect, mapInitialized]);
 
   return null;
