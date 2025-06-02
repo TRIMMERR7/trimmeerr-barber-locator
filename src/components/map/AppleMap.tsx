@@ -154,20 +154,91 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     };
   }, [map.current, userLocation, mapInitialized]);
 
-  // Add barber markers
+  // Add barber markers with custom red markers showing profile picture and price
   useEffect(() => {
     if (!map.current || !nearbyBarbers.length || !mapInitialized) return;
 
-    console.log('AppleMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
+    console.log('AppleMap: Adding custom barber markers...', nearbyBarbers.length, 'barbers');
 
     const annotations = nearbyBarbers.map((barber) => {
-      console.log(`AppleMap: Creating marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
+      console.log(`AppleMap: Creating custom marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
       
-      const annotation = new window.mapkit.MarkerAnnotation(
+      // Create custom HTML element for the marker
+      const markerElement = document.createElement('div');
+      markerElement.className = 'custom-barber-marker';
+      markerElement.innerHTML = `
+        <div style="
+          position: relative;
+          width: 60px;
+          height: 80px;
+          cursor: pointer;
+          transform: translateX(-50%) translateY(-100%);
+        ">
+          <!-- Red pin background -->
+          <div style="
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #dc2626;
+          "></div>
+          
+          <!-- Main marker container -->
+          <div style="
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dc2626;
+            border: 3px solid white;
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            min-width: 60px;
+          ">
+            <!-- Profile picture -->
+            <div style="
+              width: 36px;
+              height: 36px;
+              border-radius: 50%;
+              overflow: hidden;
+              margin: 0 auto 4px auto;
+              border: 2px solid white;
+            ">
+              <img src="${barber.image}" alt="${barber.name}" style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+              " />
+            </div>
+            
+            <!-- Price -->
+            <div style="
+              background: white;
+              color: #dc2626;
+              font-weight: bold;
+              font-size: 12px;
+              padding: 2px 6px;
+              border-radius: 6px;
+              text-align: center;
+              white-space: nowrap;
+            ">
+              ${barber.price}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const annotation = new window.mapkit.Annotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
+        () => markerElement,
         {
-          color: '#DC2626',
-          glyphColor: '#FFFFFF',
+          anchorOffset: new window.mapkit.DOMPoint(0, -40),
+          animates: true,
           title: barber.name,
           subtitle: `${barber.specialty} - ${barber.price}`,
           data: barber
@@ -183,14 +254,14 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     const handleMarkerSelect = (event: any) => {
       const annotation = event.annotation;
       if (annotation.data) {
-        console.log('AppleMap: Barber marker clicked:', annotation.data.name);
+        console.log('AppleMap: Custom barber marker clicked:', annotation.data.name);
         onBarberSelect(annotation.data);
       }
     };
 
     map.current.addEventListener('select', handleMarkerSelect);
 
-    console.log('AppleMap: All barber markers added successfully');
+    console.log('AppleMap: All custom barber markers added successfully');
 
     return () => {
       if (map.current && annotations.length > 0) {
