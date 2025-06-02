@@ -53,15 +53,14 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     const annotations = nearbyBarbers.map((barber) => {
       console.log('useBarberMarkers: Creating marker for barber:', barber.name, 'at', barber.lat, barber.lng);
 
-      // Create marker annotation with custom styling
+      // Create marker annotation with correct Apple MapKit API
       const annotation = new window.mapkit.MarkerAnnotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         {
-          color: '#EF4444', // Tailwind red-500
-          glyphColor: '#FFFFFF',
+          color: '#EF4444', // Red color
+          glyphColor: '#FFFFFF', // White glyph
           title: barber.name,
           subtitle: `${barber.specialty} • ${barber.price}`,
-          size: window.mapkit.Annotation.Size.Large,
           data: { barber }
         }
       );
@@ -72,7 +71,7 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
         onBarberSelect(barber);
       });
 
-      // Add additional click event for better reliability
+      // Add deselect event for debugging
       annotation.addEventListener('deselect', () => {
         console.log('useBarberMarkers: Barber marker deselected:', barber.name);
       });
