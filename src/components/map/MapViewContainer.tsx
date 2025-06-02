@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import MapHeader from './MapHeader';
 import MapLayout from './MapLayout';
-import AIBookingAssistant from '../AIBookingAssistant';
 import { Barber } from '@/types/barber';
 import { nearbyBarbers } from '@/data/barbersData';
 import { openInAppleMaps } from '@/utils/mapNavigation';
@@ -50,12 +49,6 @@ const MapViewContainer = ({
           displayBarbers={displayBarbers}
           onBarberSelect={handleBarberSelect}
           onNavigate={openInAppleMaps}
-        />
-        
-        <AIBookingAssistant
-          currentStep="find"
-          nearbyBarbers={displayBarbers}
-          onBarberSelect={handleBarberSelect}
         />
       </div>
     </div>

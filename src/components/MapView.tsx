@@ -5,7 +5,6 @@ import BarberDashboard from './BarberDashboard';
 import FilterPage from './FilterPage';
 import AIGeminiPage from './AIGeminiPage';
 import MapViewContainer from './map/MapViewContainer';
-import AIBookingAssistant from './AIBookingAssistant';
 import { Barber } from '@/types/barber';
 import { nearbyBarbers } from '@/data/barbersData';
 import { openInAppleMaps } from '@/utils/mapNavigation';
@@ -64,11 +63,6 @@ const MapView = ({ userType }: MapViewProps) => {
           }}
           userType={userType}
           onNavigate={() => openInAppleMaps(selectedBarber)}
-        />
-        <AIBookingAssistant
-          currentStep="select"
-          selectedBarber={selectedBarber}
-          onBarberSelect={handleBarberSelect}
         />
       </div>
     );
