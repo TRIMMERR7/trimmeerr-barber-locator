@@ -1,7 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import { useMapInitialization } from '@/hooks/useMapInitialization';
 import { createUserLocationMarker, createBarberMarker } from '@/utils/mapMarkers';
 import { mapStyles } from '@/utils/mapStyles';
 import { Barber } from '@/types/barber';
@@ -15,8 +14,29 @@ interface MapboxMapProps {
 const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const markers = useRef<L.Marker[]>([]);
-  const map = useMapInitialization(mapContainer);
+  const [map, setMap] = useState<L.Map | null>(null);
   const { userLocation, error, loading } = useGeolocation();
+
+  // Initialize Leaflet map
+  useEffect(() => {
+    if (!mapContainer.current || map) return;
+
+    console.log('MapboxMap: Initializing Leaflet map');
+    
+    const leafletMap = L.map(mapContainer.current).setView([29.7604, -95.3698], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(leafletMap);
+
+    setMap(leafletMap);
+    
+    return () => {
+      if (leafletMap) {
+        leafletMap.remove();
+      }
+    };
+  }, [map]);
 
   // Handle user location marker
   useEffect(() => {
