@@ -97,31 +97,32 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
   return (
     <div className="h-screen bg-black flex flex-col">
       {/* Header */}
-      <div className="bg-black border-b border-gray-800 p-4 flex-shrink-0">
+      <div className="bg-black border-b border-gray-800 p-2 sm:p-4 flex-shrink-0">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button 
               variant="ghost" 
               onClick={onBack}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-400 hover:text-white h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
             >
               ← Back
             </Button>
-            <h1 className="text-xl font-semibold text-white">Barber Dashboard</h1>
+            <h1 className="text-sm sm:text-xl font-semibold text-white">Barber Dashboard</h1>
           </div>
           <Button 
             onClick={handleSaveProfile}
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-red-600 hover:bg-red-700 text-white h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
           >
-            Save Changes
+            <span className="hidden sm:inline">Save Changes</span>
+            <span className="sm:hidden">Save</span>
           </Button>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        {/* Navigation Tabs */}
-        <div className="w-64 bg-gray-900 border-r border-gray-800 p-4">
-          <div className="space-y-2">
+      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        {/* Navigation Tabs - Mobile horizontal scroll, Desktop sidebar */}
+        <div className="lg:w-64 bg-gray-900 border-b lg:border-r lg:border-b-0 border-gray-800 p-2 lg:p-4 overflow-x-auto lg:overflow-x-visible">
+          <div className="flex lg:flex-col gap-1 lg:gap-2 min-w-max lg:min-w-0">
             {[
               { id: 'profile', label: 'Profile Info', icon: '👤' },
               { id: 'portfolio', label: 'Portfolio', icon: '📸' },
@@ -130,92 +131,92 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`w-full p-3 text-left rounded-lg transition-colors flex items-center gap-3 ${
+                className={`flex-shrink-0 lg:w-full p-2 lg:p-3 text-left rounded-lg transition-colors flex items-center gap-2 lg:gap-3 text-xs sm:text-sm lg:text-base ${
                   activeTab === tab.id
                     ? 'bg-red-600 text-white'
                     : 'text-gray-400 hover:text-white hover:bg-gray-800'
                 }`}
               >
-                <span className="text-lg">{tab.icon}</span>
-                {tab.label}
+                <span className="text-sm lg:text-lg">{tab.icon}</span>
+                <span className="whitespace-nowrap">{tab.label}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto">
           {activeTab === 'profile' && (
-            <div className="max-w-2xl space-y-6">
+            <div className="max-w-2xl space-y-4 lg:space-y-6">
               <Card className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Basic Information</CardTitle>
+                <CardHeader className="p-3 lg:p-6">
+                  <CardTitle className="text-white text-sm lg:text-base">Basic Information</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="space-y-3 lg:space-y-4 p-3 lg:p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-300 mb-2 block">Name</label>
+                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Name</label>
                       <Input
                         value={profile.name}
                         onChange={(e) => setProfile({...profile, name: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-300 mb-2 block">Specialty</label>
+                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Specialty</label>
                       <Input
                         value={profile.specialty}
                         onChange={(e) => setProfile({...profile, specialty: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-300 mb-2 block">Experience</label>
+                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Experience</label>
                       <Input
                         value={profile.experience}
                         onChange={(e) => setProfile({...profile, experience: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-300 mb-2 block">Base Price</label>
+                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Base Price</label>
                       <Input
                         value={profile.price}
                         onChange={(e) => setProfile({...profile, price: e.target.value})}
                         placeholder="e.g. $35"
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium text-gray-300 mb-2 block">Bio</label>
+                    <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Bio</label>
                     <Textarea
                       value={profile.bio}
                       onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                      className="bg-gray-800 border-gray-600 text-white"
-                      rows={3}
+                      className="bg-gray-800 border-gray-600 text-white text-xs lg:text-sm"
+                      rows={2}
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-300 mb-2 block">Phone</label>
+                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Phone</label>
                       <Input
                         value={profile.phone}
                         onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-300 mb-2 block">Location</label>
+                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Location</label>
                       <Input
                         value={profile.location}
                         onChange={(e) => setProfile({...profile, location: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       />
                     </div>
                   </div>
@@ -223,29 +224,32 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
               </Card>
 
               <Card className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Services</CardTitle>
+                <CardHeader className="p-3 lg:p-6">
+                  <CardTitle className="text-white text-sm lg:text-base">Services</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 lg:space-y-4 p-3 lg:p-6">
                   <div className="flex gap-2">
                     <Input
                       value={newService}
                       onChange={(e) => setNewService(e.target.value)}
                       placeholder="Add new service..."
-                      className="bg-gray-800 border-gray-600 text-white"
+                      className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                       onKeyPress={(e) => e.key === 'Enter' && addService()}
                     />
-                    <Button onClick={addService} className="bg-red-600 hover:bg-red-700">
+                    <Button 
+                      onClick={addService} 
+                      className="bg-red-600 hover:bg-red-700 h-8 lg:h-10 px-2 lg:px-3 text-xs lg:text-sm"
+                    >
                       Add
                     </Button>
                   </div>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1 lg:gap-2">
                     {profile.services.map(service => (
                       <Badge 
                         key={service}
                         variant="outline" 
-                        className="border-gray-600 text-white bg-gray-800 cursor-pointer hover:bg-red-600"
+                        className="border-gray-600 text-white bg-gray-800 cursor-pointer hover:bg-red-600 text-xs lg:text-sm"
                         onClick={() => removeService(service)}
                       >
                         {service} ✕
@@ -258,26 +262,30 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
           )}
 
           {activeTab === 'portfolio' && (
-            <div className="max-w-4xl space-y-6">
+            <div className="max-w-4xl space-y-4 lg:space-y-6">
               <Card className="bg-gray-900 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-white">Portfolio Images</CardTitle>
-                  <Button onClick={addPortfolioImage} className="bg-red-600 hover:bg-red-700">
-                    Add Image
+                <CardHeader className="flex flex-row items-center justify-between p-3 lg:p-6">
+                  <CardTitle className="text-white text-sm lg:text-base">Portfolio Images</CardTitle>
+                  <Button 
+                    onClick={addPortfolioImage} 
+                    className="bg-red-600 hover:bg-red-700 h-8 lg:h-10 px-2 lg:px-3 text-xs lg:text-sm"
+                  >
+                    <span className="hidden sm:inline">Add Image</span>
+                    <span className="sm:hidden">Add</span>
                   </Button>
                 </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-4">
+                <CardContent className="p-3 lg:p-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4">
                     {profile.portfolioImages.map((image, index) => (
                       <div key={index} className="relative group">
                         <img
                           src={image}
                           alt={`Portfolio ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg"
+                          className="w-full h-24 lg:h-32 object-cover rounded-lg"
                         />
                         <button
                           onClick={() => removePortfolioImage(index)}
-                          className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 lg:w-6 lg:h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           ✕
                         </button>
@@ -290,22 +298,22 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
           )}
 
           {activeTab === 'schedule' && (
-            <div className="max-w-2xl space-y-6">
+            <div className="max-w-2xl space-y-4 lg:space-y-6">
               <Card className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Working Hours</CardTitle>
+                <CardHeader className="p-3 lg:p-6">
+                  <CardTitle className="text-white text-sm lg:text-base">Working Hours</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-3 lg:space-y-4 p-3 lg:p-6">
                   {Object.entries(profile.workingHours).map(([day, hours]) => (
-                    <div key={day} className="flex items-center gap-4">
-                      <div className="w-24 text-gray-300 capitalize">{day}</div>
+                    <div key={day} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                      <div className="w-full sm:w-20 text-gray-300 capitalize text-xs lg:text-sm font-medium">{day}</div>
                       <Input
                         value={hours}
                         onChange={(e) => setProfile({
                           ...profile,
                           workingHours: { ...profile.workingHours, [day]: e.target.value }
                         })}
-                        className="bg-gray-800 border-gray-600 text-white"
+                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
                         placeholder="e.g. 9:00 AM - 6:00 PM or Closed"
                       />
                     </div>
