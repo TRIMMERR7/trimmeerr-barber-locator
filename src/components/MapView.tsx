@@ -31,6 +31,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [showDashboard, setShowDashboard] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   
+  // Updated barber locations to be near Houston, Texas instead of New York
   const nearbyBarbers: Barber[] = [
     {
       id: '1',
@@ -41,8 +42,8 @@ const MapView = ({ userType }: MapViewProps) => {
       price: '$35',
       distance: '0.3 mi',
       experience: '8 years',
-      lat: 40.7829,
-      lng: -73.9654
+      lat: 29.7720, // Houston area coordinates
+      lng: -95.3850
     },
     {
       id: '2',
@@ -53,8 +54,8 @@ const MapView = ({ userType }: MapViewProps) => {
       price: '$30',
       distance: '0.5 mi',
       experience: '12 years',
-      lat: 40.7831,
-      lng: -73.9665
+      lat: 29.7750, // Houston area coordinates
+      lng: -95.3800
     },
     {
       id: '3',
@@ -65,8 +66,8 @@ const MapView = ({ userType }: MapViewProps) => {
       price: '$40',
       distance: '0.7 mi',
       experience: '6 years',
-      lat: 40.7825,
-      lng: -73.9640
+      lat: 29.7690, // Houston area coordinates
+      lng: -95.3900
     }
   ];
 
