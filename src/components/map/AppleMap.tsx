@@ -32,6 +32,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   const map = useRef<any>(null);
   const { userLocation, error, loading } = useGeolocation();
   const [mapkitLoaded, setMapkitLoaded] = useState(false);
+  const [mapInitialized, setMapInitialized] = useState(false);
 
   // Load MapKit JS script
   useEffect(() => {
@@ -61,7 +62,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
   // Initialize map
   useEffect(() => {
-    if (!mapkitLoaded || !mapContainer.current) return;
+    if (!mapkitLoaded || !mapContainer.current || mapInitialized) return;
 
     console.log('AppleMap: Initializing Apple Maps...');
 
@@ -72,16 +73,26 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     try {
       map.current = new window.mapkit.Map(mapContainer.current, {
         center: center,
-        span: new window.mapkit.CoordinateSpan(0.02, 0.02),
+        region: new window.mapkit.CoordinateRegion(
+          center,
+          new window.mapkit.CoordinateSpan(0.01, 0.01) // Smaller span for more detailed street view
+        ),
         mapType: window.mapkit.Map.MapTypes.Standard,
-        showsMapTypeControl: false,
+        showsMapTypeControl: true,
         showsZoomControl: true,
         showsUserLocationControl: true,
+        showsCompass: window.mapkit.FeatureVisibility.Visible,
+        showsScale: window.mapkit.FeatureVisibility.Visible,
         isRotationEnabled: true,
-        colorScheme: window.mapkit.Map.ColorSchemes.Dark
+        isScrollEnabled: true,
+        isZoomEnabled: true,
+        showsPointsOfInterest: true,
+        showsBuildings: true,
+        colorScheme: window.mapkit.Map.ColorSchemes.Light // Changed to Light for better street visibility
       });
 
-      console.log('AppleMap: Map initialized');
+      setMapInitialized(true);
+      console.log('AppleMap: Map initialized successfully');
     } catch (error) {
       console.error('AppleMap: Error initializing map:', error);
     }
@@ -91,6 +102,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         try {
           map.current.destroy();
           map.current = null;
+          setMapInitialized(false);
         } catch (error) {
           console.error('AppleMap: Error destroying map:', error);
         }
@@ -100,7 +112,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
   // Add user location marker
   useEffect(() => {
-    if (!map.current || !userLocation) return;
+    if (!map.current || !userLocation || !mapInitialized) return;
 
     console.log('AppleMap: Adding user location marker');
 
@@ -108,13 +120,20 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
       new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
       {
         color: '#007AFF',
+        glyphColor: '#FFFFFF',
         title: 'Your Location',
         subtitle: 'Current position'
       }
     );
 
     map.current.addAnnotation(userAnnotation);
-    map.current.setCenterAnimated(new window.mapkit.Coordinate(userLocation[0], userLocation[1]));
+    
+    // Set region to show streets around user location
+    const region = new window.mapkit.CoordinateRegion(
+      new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
+      new window.mapkit.CoordinateSpan(0.01, 0.01)
+    );
+    map.current.setRegionAnimated(region);
 
     return () => {
       if (map.current && userAnnotation) {
@@ -125,11 +144,11 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         }
       }
     };
-  }, [map.current, userLocation]);
+  }, [map.current, userLocation, mapInitialized]);
 
   // Add barber markers
   useEffect(() => {
-    if (!map.current || !nearbyBarbers.length) return;
+    if (!map.current || !nearbyBarbers.length || !mapInitialized) return;
 
     console.log('AppleMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
 
@@ -138,6 +157,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         {
           color: '#DC2626',
+          glyphColor: '#FFFFFF',
           title: barber.name,
           subtitle: `${barber.specialty} - ${barber.price}`,
           data: barber
@@ -172,7 +192,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         }
       }
     };
-  }, [map.current, nearbyBarbers, onBarberSelect]);
+  }, [map.current, nearbyBarbers, onBarberSelect, mapInitialized]);
 
   if (!mapkitLoaded) {
     return (
@@ -182,9 +202,25 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     );
   }
 
+  if (!apiKey) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white text-center">
+          <p>Apple Maps API key required</p>
+          <p className="text-sm text-gray-400 mt-2">Please configure your Apple Maps API key in Supabase</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-full relative">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+      {!mapInitialized && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg">
+          <div className="text-white">Initializing map...</div>
+        </div>
+      )}
     </div>
   );
 };
