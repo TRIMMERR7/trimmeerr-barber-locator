@@ -77,25 +77,27 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
   return (
     <div className="h-full relative">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
-      <style jsx>{`
-        .custom-marker {
-          background: none;
-          border: none;
-        }
-        .marker-pin {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          background: #dc2626;
-          border: 3px solid white;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-          cursor: pointer;
-          transition: transform 0.2s;
-        }
-        .marker-pin:hover {
-          transform: scale(1.1);
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .custom-marker {
+            background: none;
+            border: none;
+          }
+          .marker-pin {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #dc2626;
+            border: 3px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+          }
+          .marker-pin:hover {
+            transform: scale(1.1);
+          }
+        `
+      }} />
     </div>
   );
 };
