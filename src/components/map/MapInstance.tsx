@@ -25,14 +25,14 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
     mapContainer
   });
 
-  console.log('MapInstance: Render state:', {
+  console.log('MapInstance: Current state:', {
     mapkitLoaded,
     hasApiKey: !!apiKey,
-    hasMapContainer: !!mapContainer.current,
     mapInitialized,
     mapReady,
     userLocation: userLocation ? `[${userLocation[0].toFixed(3)}, ${userLocation[1].toFixed(3)}]` : null,
-    barbersCount: nearbyBarbers.length
+    barbersCount: nearbyBarbers.length,
+    hasMap: !!map
   });
 
   const showLoading = !mapInitialized || !mapReady;
@@ -45,7 +45,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         style={{ minHeight: '400px' }}
       />
       
-      {mapInitialized && mapReady && (
+      {map && mapReady && (
         <>
           <MapZoomControls 
             map={map}

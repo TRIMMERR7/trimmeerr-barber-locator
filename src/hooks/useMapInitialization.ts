@@ -17,26 +17,16 @@ export const useMapInitialization = ({
   const map = useRef<any>(null);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [mapReady, setMapReady] = useState(false);
-  const initializationAttempted = useRef(false);
+  const initialized = useRef(false);
 
   useEffect(() => {
-    // Reset states when dependencies change
-    if (!mapkitLoaded || !apiKey) {
-      console.log('useMapInitialization: Prerequisites not met');
-      setMapInitialized(false);
-      setMapReady(false);
-      initializationAttempted.current = false;
+    // Only initialize once when all prerequisites are met
+    if (!mapkitLoaded || !apiKey || !mapContainer.current || initialized.current) {
       return;
     }
 
-    // Don't initialize if already attempted or no container
-    if (initializationAttempted.current || !mapContainer.current) {
-      console.log('useMapInitialization: Skipping - already attempted or no container');
-      return;
-    }
-
-    console.log('useMapInitialization: Starting initialization...');
-    initializationAttempted.current = true;
+    console.log('useMapInitialization: Starting one-time initialization...');
+    initialized.current = true;
 
     try {
       // Determine center location
@@ -72,35 +62,52 @@ export const useMapInitialization = ({
       // Set states
       setMapInitialized(true);
       
-      // Small delay before marking as ready
-      const readyTimer = setTimeout(() => {
+      // Mark as ready after a brief delay
+      setTimeout(() => {
         console.log('useMapInitialization: Map is ready');
         setMapReady(true);
-      }, 500);
+      }, 300);
 
-      // Cleanup function
-      return () => {
-        clearTimeout(readyTimer);
-        if (map.current) {
-          try {
-            console.log('useMapInitialization: Destroying map');
-            map.current.destroy();
-          } catch (error) {
-            console.warn('useMapInitialization: Error destroying map:', error);
-          }
-          map.current = null;
-        }
-        setMapInitialized(false);
-        setMapReady(false);
-        initializationAttempted.current = false;
-      };
     } catch (error) {
       console.error('useMapInitialization: Error creating map:', error);
+      initialized.current = false;
       setMapInitialized(false);
       setMapReady(false);
-      initializationAttempted.current = false;
     }
-  }, [mapkitLoaded, apiKey, mapContainer]); // Removed userLocation from deps to prevent re-init
+
+    // Cleanup function
+    return () => {
+      if (map.current) {
+        try {
+          console.log('useMapInitialization: Cleaning up map');
+          map.current.destroy();
+        } catch (error) {
+          console.warn('useMapInitialization: Error destroying map:', error);
+        }
+        map.current = null;
+      }
+      setMapInitialized(false);
+      setMapReady(false);
+      initialized.current = false;
+    };
+  }, [mapkitLoaded, apiKey]); // Only depend on essential props
+
+  // Update map center when user location changes (without re-initializing)
+  useEffect(() => {
+    if (map.current && userLocation && mapReady) {
+      console.log('useMapInitialization: Updating map center to user location');
+      try {
+        const center = new window.mapkit.Coordinate(userLocation[0], userLocation[1]);
+        const region = new window.mapkit.CoordinateRegion(
+          center,
+          new window.mapkit.CoordinateSpan(0.01, 0.01)
+        );
+        map.current.setRegionAnimated(region, true);
+      } catch (error) {
+        console.warn('useMapInitialization: Error updating map center:', error);
+      }
+    }
+  }, [userLocation, mapReady]);
 
   return {
     map: map.current,
