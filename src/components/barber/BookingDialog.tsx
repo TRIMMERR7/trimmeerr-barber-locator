@@ -92,6 +92,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
     }
 
     setIsProcessingPayment(true);
+    setPaymentLoading(true);
     
     try {
       console.log('BookingDialog: Starting payment process...');
@@ -126,17 +127,13 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
       }
 
       if (data?.url) {
-        console.log('BookingDialog: Opening payment in new tab');
-        // Open payment in new tab instead of iframe
-        window.open(data.url, '_blank', 'noopener,noreferrer');
-        
-        // Close dialog and reset
-        setIsOpen(false);
-        resetBooking();
+        console.log('BookingDialog: Setting payment URL for in-app display');
+        setPaymentUrl(data.url);
+        setStep('payment');
         
         toast({
-          title: "Payment Window Opened",
-          description: "Complete your payment in the new tab",
+          title: "Payment Ready",
+          description: "Complete your secure payment below",
         });
       } else {
         throw new Error('No payment URL received');
@@ -202,7 +199,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         {children}
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-lg max-w-[95vw] max-h-[95vh] overflow-hidden shadow-2xl border-0">
+      <DialogContent className={`${step === 'payment' ? 'sm:max-w-4xl max-w-[95vw]' : 'sm:max-w-lg max-w-[95vw]'} max-h-[95vh] overflow-hidden shadow-2xl border-0`}>
         <DialogHeader className="space-y-4 border-b border-gray-100 pb-4">
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -228,7 +225,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
           <BookingProgressBar step={step} />
         </DialogHeader>
         
-        <div className="flex-shrink-0 max-h-[60vh] overflow-y-auto">
+        <div className={`flex-shrink-0 ${step === 'payment' ? 'max-h-[70vh]' : 'max-h-[60vh]'} overflow-y-auto`}>
           <BookingStepContent
             step={step}
             selectedService={selectedService}

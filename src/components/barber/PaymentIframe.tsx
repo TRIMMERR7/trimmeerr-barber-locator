@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Shield, CreditCard } from 'lucide-react';
 
 interface PaymentIframeProps {
   paymentUrl: string;
@@ -59,17 +59,45 @@ const PaymentIframe = ({
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col space-y-4">
+      {/* Security Notice */}
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-green-100 rounded-full">
+            <Shield className="w-5 h-5 text-green-600" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-green-800">Secure Payment</h3>
+            <p className="text-sm text-green-700">Your payment is processed securely by Stripe</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Loading Indicator */}
       {paymentLoading && (
-        <div className="flex items-center justify-center p-4 bg-gradient-to-r from-red-50 to-orange-50 rounded-lg mb-4 border border-red-100">
+        <div className="flex items-center justify-center p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
           <div className="flex items-center gap-3">
-            <Loader2 className="w-5 h-5 animate-spin text-red-600" />
-            <span className="text-gray-700 font-medium">Loading secure payment page...</span>
+            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+            <div className="text-center">
+              <p className="text-blue-800 font-medium">Loading secure payment...</p>
+              <p className="text-sm text-blue-600">This may take a few seconds</p>
+            </div>
           </div>
         </div>
       )}
       
-      <div className="flex-1 rounded-lg overflow-hidden shadow-lg border border-gray-200" style={{ minHeight: '500px' }}>
+      {/* Payment Frame */}
+      <div className="flex-1 rounded-xl overflow-hidden shadow-xl border border-gray-200 bg-white" style={{ minHeight: '600px' }}>
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 p-4">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-gray-600" />
+            <span className="font-medium text-gray-800">Secure Checkout</span>
+            <div className="ml-auto text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
+              SSL Encrypted
+            </div>
+          </div>
+        </div>
+        
         <iframe
           ref={iframeRef}
           src={paymentUrl}
@@ -82,12 +110,19 @@ const PaymentIframe = ({
           loading="eager"
           style={{ 
             width: '100%', 
-            height: '100%',
-            minHeight: '500px',
+            height: 'calc(100% - 60px)',
+            minHeight: '540px',
             display: 'block',
-            border: 'none'
+            border: 'none',
+            backgroundColor: 'white'
           }}
         />
+      </div>
+
+      {/* Trust Indicators */}
+      <div className="text-center text-xs text-gray-500 bg-gray-50 rounded-lg p-3">
+        <p>🔒 Your payment information is encrypted and secure</p>
+        <p className="mt-1">Powered by Stripe • PCI DSS Compliant</p>
       </div>
     </div>
   );
