@@ -46,7 +46,7 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
 
   if (isLoadingApiKey) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gray-900 rounded-lg">
         <div className="text-white">Loading Apple Maps...</div>
       </div>
     );
@@ -54,7 +54,7 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
 
   if (!appleApiKey) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gray-900 rounded-lg">
         <div className="text-white text-center">
           <p>Apple Maps API key not available</p>
           <p className="text-sm text-gray-400 mt-2">Please configure your Apple Maps API key</p>
@@ -64,7 +64,7 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
   }
 
   return (
-    <div className="h-full relative">
+    <div className="w-full h-full">
       <AppleMap 
         nearbyBarbers={nearbyBarbers} 
         onBarberSelect={onBarberSelect}

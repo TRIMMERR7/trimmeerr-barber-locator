@@ -200,7 +200,7 @@ const MapView = ({ userType }: MapViewProps) => {
         onDashboardClick={userType === 'barber' ? () => setShowDashboard(true) : undefined}
       />
 
-      <div className="relative flex-1">
+      <div className="flex-1 relative overflow-hidden">
         <MapLayout
           displayBarbers={displayBarbers}
           onBarberSelect={handleBarberSelect}
