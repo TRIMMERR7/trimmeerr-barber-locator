@@ -30,6 +30,8 @@ declare global {
 const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<any>(null);
+  const userAnnotation = useRef<any>(null);
+  const barberAnnotations = useRef<any[]>([]);
   const { userLocation, error, loading } = useGeolocation();
   const [mapkitLoaded, setMapkitLoaded] = useState(false);
 
@@ -53,7 +55,9 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, [apiKey]);
 
@@ -69,7 +73,10 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
     map.current = new window.mapkit.Map(mapContainer.current, {
       center: center,
-      span: new window.mapkit.CoordinateSpan(0.02, 0.02),
+      region: new window.mapkit.CoordinateRegion(
+        center,
+        new window.mapkit.CoordinateSpan(0.02, 0.02)
+      ),
       mapType: window.mapkit.Map.MapTypes.Standard,
       showsMapTypeControl: false,
       showsZoomControl: true,
@@ -82,7 +89,24 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
     return () => {
       if (map.current) {
-        map.current.destroy();
+        try {
+          // Clear all annotations first
+          if (userAnnotation.current && map.current.annotations) {
+            map.current.removeAnnotation(userAnnotation.current);
+          }
+          if (barberAnnotations.current.length > 0 && map.current.annotations) {
+            map.current.removeAnnotations(barberAnnotations.current);
+          }
+          
+          // Destroy the map
+          map.current.destroy();
+        } catch (error) {
+          console.warn('Error cleaning up map:', error);
+        } finally {
+          map.current = null;
+          userAnnotation.current = null;
+          barberAnnotations.current = [];
+        }
       }
     };
   }, [mapkitLoaded, userLocation]);
@@ -93,7 +117,16 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
     console.log('AppleMap: Adding user location marker');
 
-    const userAnnotation = new window.mapkit.MarkerAnnotation(
+    // Remove previous user annotation if it exists
+    if (userAnnotation.current && map.current.annotations) {
+      try {
+        map.current.removeAnnotation(userAnnotation.current);
+      } catch (error) {
+        console.warn('Error removing previous user annotation:', error);
+      }
+    }
+
+    userAnnotation.current = new window.mapkit.MarkerAnnotation(
       new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
       {
         color: '#007AFF',
@@ -102,19 +135,34 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
       }
     );
 
-    map.current.addAnnotation(userAnnotation);
+    map.current.addAnnotation(userAnnotation.current);
     map.current.setCenterAnimated(new window.mapkit.Coordinate(userLocation[0], userLocation[1]));
 
     return () => {
-      map.current.removeAnnotation(userAnnotation);
+      if (userAnnotation.current && map.current && map.current.annotations) {
+        try {
+          map.current.removeAnnotation(userAnnotation.current);
+        } catch (error) {
+          console.warn('Error removing user annotation during cleanup:', error);
+        }
+      }
     };
-  }, [map.current, userLocation]);
+  }, [userLocation]);
 
   // Add barber markers
   useEffect(() => {
     if (!map.current || !nearbyBarbers.length) return;
 
     console.log('AppleMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
+
+    // Remove previous barber annotations
+    if (barberAnnotations.current.length > 0 && map.current.annotations) {
+      try {
+        map.current.removeAnnotations(barberAnnotations.current);
+      } catch (error) {
+        console.warn('Error removing previous barber annotations:', error);
+      }
+    }
 
     const annotations = nearbyBarbers.map((barber) => {
       const annotation = new window.mapkit.MarkerAnnotation(
@@ -130,23 +178,37 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
       return annotation;
     });
 
+    barberAnnotations.current = annotations;
     map.current.addAnnotations(annotations);
 
     // Add click listener for barber markers
-    map.current.addEventListener('select', (event: any) => {
+    const handleSelect = (event: any) => {
       const annotation = event.annotation;
       if (annotation.data) {
         console.log('AppleMap: Barber marker clicked:', annotation.data.name);
         onBarberSelect(annotation.data);
       }
-    });
+    };
+
+    map.current.addEventListener('select', handleSelect);
 
     console.log('AppleMap: All barber markers added successfully');
 
     return () => {
-      map.current.removeAnnotations(annotations);
+      if (map.current) {
+        try {
+          map.current.removeEventListener('select', handleSelect);
+          if (barberAnnotations.current.length > 0 && map.current.annotations) {
+            map.current.removeAnnotations(barberAnnotations.current);
+          }
+        } catch (error) {
+          console.warn('Error removing barber annotations during cleanup:', error);
+        } finally {
+          barberAnnotations.current = [];
+        }
+      }
     };
-  }, [map.current, nearbyBarbers, onBarberSelect]);
+  }, [nearbyBarbers, onBarberSelect]);
 
   if (!mapkitLoaded) {
     return (
