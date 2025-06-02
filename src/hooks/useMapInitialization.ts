@@ -20,27 +20,34 @@ export const useMapInitialization = ({
   const initializationAttempted = useRef(false);
 
   useEffect(() => {
-    // Prevent multiple initialization attempts
-    if (!mapkitLoaded || !mapContainer.current || !apiKey || initializationAttempted.current) {
-      console.log('useMapInitialization: Skipping initialization:', {
-        mapkitLoaded,
-        hasMapContainer: !!mapContainer.current,
-        hasApiKey: !!apiKey,
-        alreadyAttempted: initializationAttempted.current
-      });
+    // Reset states when dependencies change
+    if (!mapkitLoaded || !apiKey) {
+      console.log('useMapInitialization: Prerequisites not met');
+      setMapInitialized(false);
+      setMapReady(false);
+      initializationAttempted.current = false;
       return;
     }
 
-    console.log('useMapInitialization: Starting map initialization...');
+    // Don't initialize if already attempted or no container
+    if (initializationAttempted.current || !mapContainer.current) {
+      console.log('useMapInitialization: Skipping - already attempted or no container');
+      return;
+    }
+
+    console.log('useMapInitialization: Starting initialization...');
     initializationAttempted.current = true;
 
-    const center = userLocation 
-      ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
-      : new window.mapkit.Coordinate(29.7604, -95.3698);
-
-    console.log('useMapInitialization: Creating map with center:', center);
-
     try {
+      // Determine center location
+      const centerLat = userLocation ? userLocation[0] : 29.7604;
+      const centerLng = userLocation ? userLocation[1] : -95.3698;
+      
+      const center = new window.mapkit.Coordinate(centerLat, centerLng);
+
+      console.log('useMapInitialization: Creating map with center:', { centerLat, centerLng });
+
+      // Create the map
       map.current = new window.mapkit.Map(mapContainer.current, {
         center: center,
         region: new window.mapkit.CoordinateRegion(
@@ -60,40 +67,40 @@ export const useMapInitialization = ({
         colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
-      console.log('useMapInitialization: Map object created:', !!map.current);
-
-      // Set map as initialized immediately
+      console.log('useMapInitialization: Map created successfully');
+      
+      // Set states
       setMapInitialized(true);
       
-      // Set map as ready after a short delay to ensure it's fully loaded
-      setTimeout(() => {
-        console.log('useMapInitialization: Setting map as ready');
+      // Small delay before marking as ready
+      const readyTimer = setTimeout(() => {
+        console.log('useMapInitialization: Map is ready');
         setMapReady(true);
-      }, 1000);
+      }, 500);
 
-      console.log('useMapInitialization: Map initialized successfully');
-
-    } catch (error) {
-      console.error('useMapInitialization: Error initializing map:', error);
-      initializationAttempted.current = false; // Reset on error to allow retry
-    }
-
-    // Cleanup function
-    return () => {
-      if (map.current) {
-        try {
-          console.log('useMapInitialization: Cleaning up map...');
-          map.current.destroy();
+      // Cleanup function
+      return () => {
+        clearTimeout(readyTimer);
+        if (map.current) {
+          try {
+            console.log('useMapInitialization: Destroying map');
+            map.current.destroy();
+          } catch (error) {
+            console.warn('useMapInitialization: Error destroying map:', error);
+          }
           map.current = null;
-        } catch (error) {
-          console.error('useMapInitialization: Error during cleanup:', error);
         }
-      }
+        setMapInitialized(false);
+        setMapReady(false);
+        initializationAttempted.current = false;
+      };
+    } catch (error) {
+      console.error('useMapInitialization: Error creating map:', error);
       setMapInitialized(false);
       setMapReady(false);
       initializationAttempted.current = false;
-    };
-  }, [mapkitLoaded, apiKey]); // Removed mapContainer and userLocation from dependencies to prevent re-initialization
+    }
+  }, [mapkitLoaded, apiKey, mapContainer]); // Removed userLocation from deps to prevent re-init
 
   return {
     map: map.current,
