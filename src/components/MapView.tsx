@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Search, MapPin } from "lucide-react";
+import { Menu, Search, MapPin, Navigation } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
@@ -70,6 +70,11 @@ const MapView = ({ userType }: MapViewProps) => {
     }
   ];
 
+  const openInAppleMaps = (barber: Barber) => {
+    const appleMapsUrl = `https://maps.apple.com/?daddr=${barber.lat},${barber.lng}&dirflg=d&t=m`;
+    window.open(appleMapsUrl, '_blank');
+  };
+
   if (showDashboard && userType === 'barber') {
     return <BarberDashboard onBack={() => setShowDashboard(false)} />;
   }
@@ -80,6 +85,7 @@ const MapView = ({ userType }: MapViewProps) => {
         barber={selectedBarber} 
         onBack={() => setSelectedBarber(null)}
         userType={userType}
+        onNavigate={() => openInAppleMaps(selectedBarber)}
       />
     );
   }
@@ -140,9 +146,23 @@ const MapView = ({ userType }: MapViewProps) => {
                       <span className="text-gray-500">{barber.experience}</span>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-xl font-bold text-red-600">{barber.price}</div>
-                    <div className="text-sm text-gray-500">30 min</div>
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-red-600">{barber.price}</div>
+                      <div className="text-sm text-gray-500">30 min</div>
+                    </div>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openInAppleMaps(barber);
+                      }}
+                      size="sm"
+                      variant="outline"
+                      className="touch-manipulation"
+                    >
+                      <Navigation className="w-3 h-3 mr-1" />
+                      Navigate
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -242,23 +262,31 @@ const MapView = ({ userType }: MapViewProps) => {
               </div>
             </div>
 
-            {/* Barber Locations (Red Dots) */}
+            {/* Barber Locations (Red Dots) - Now Clickable */}
             {nearbyBarbers.map((barber, index) => (
               <button
                 key={barber.id}
                 onClick={() => setSelectedBarber(barber)}
-                className="absolute group touch-manipulation"
+                className="absolute group touch-manipulation transform transition-all duration-200 hover:scale-125 focus:scale-125 focus:outline-none"
                 style={{
                   top: `${45 + index * 15}%`,
                   left: `${40 + index * 20}%`
                 }}
               >
                 <div className="relative">
-                  <div className="w-6 h-6 bg-red-600 rounded-full group-hover:scale-125 transition-transform shadow-lg"></div>
-                  <div className="absolute inset-0 w-6 h-6 bg-red-600 rounded-full animate-ping opacity-40"></div>
+                  <div className="w-8 h-8 bg-red-600 rounded-full shadow-lg group-hover:shadow-xl transition-shadow">
+                    <img
+                      src={barber.image}
+                      alt={barber.name}
+                      className="w-full h-full rounded-full object-cover border-2 border-red-600"
+                    />
+                  </div>
+                  <div className="absolute inset-0 w-8 h-8 bg-red-600 rounded-full animate-ping opacity-40"></div>
                 </div>
-                <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-2 py-1 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                  {barber.name}
+                <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+                  <div className="font-semibold">{barber.name}</div>
+                  <div className="text-red-100">{barber.specialty}</div>
+                  <div className="text-red-100">{barber.price}</div>
                 </div>
               </button>
             ))}
