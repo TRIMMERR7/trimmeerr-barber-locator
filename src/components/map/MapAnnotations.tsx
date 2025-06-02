@@ -20,7 +20,7 @@ interface MapAnnotationsProps {
   userLocation: [number, number] | null;
   nearbyBarbers: Barber[];
   onBarberSelect: (barber: Barber) => void;
-  mapInitialized: boolean;
+  mapReady: boolean;
 }
 
 const MapAnnotations = ({ 
@@ -28,48 +28,38 @@ const MapAnnotations = ({
   userLocation, 
   nearbyBarbers, 
   onBarberSelect, 
-  mapInitialized 
+  mapReady 
 }: MapAnnotationsProps) => {
   const userAnnotationRef = useRef<any>(null);
   const barberAnnotationsRef = useRef<any[]>([]);
   
-  // Simplified helper function to check if map is ready for annotations
-  const isMapReadyForAnnotations = (mapInstance: any): boolean => {
-    if (!mapInstance || !mapInitialized) {
-      console.log('Map readiness check: map instance or initialization flag missing');
-      return false;
-    }
-    
-    if (typeof window === 'undefined' || !window.mapkit) {
-      console.log('Map readiness check: MapKit not available');
-      return false;
-    }
-    
+  // Helper function to safely add annotations
+  const safeAddAnnotation = (annotation: any): boolean => {
     try {
-      // Simple check - just verify the map instance has the required methods
-      const hasRequiredMethods = (
-        typeof mapInstance.addAnnotation === 'function' &&
-        typeof mapInstance.removeAnnotation === 'function'
-      );
-
-      console.log('Map readiness check:', {
-        hasMap: !!mapInstance,
-        mapInitialized,
-        hasRequiredMethods,
-        mapkitAvailable: !!window.mapkit
-      });
-
-      return hasRequiredMethods;
+      if (map && typeof map.addAnnotation === 'function') {
+        map.addAnnotation(annotation);
+        return true;
+      }
     } catch (error) {
-      console.error('Error checking map readiness:', error);
-      return false;
+      console.warn('Failed to add annotation:', error);
+    }
+    return false;
+  };
+
+  // Helper function to safely remove annotations
+  const safeRemoveAnnotations = (annotations: any[]): void => {
+    try {
+      if (map && annotations.length > 0 && typeof map.removeAnnotations === 'function') {
+        map.removeAnnotations(annotations);
+      }
+    } catch (error) {
+      console.warn('Failed to remove annotations:', error);
     }
   };
   
   // Add user location marker (blue)
   useEffect(() => {
-    if (!userLocation || !isMapReadyForAnnotations(map)) {
-      console.log('Skipping user location marker - not ready');
+    if (!userLocation || !map || !mapReady) {
       return;
     }
     
@@ -77,9 +67,12 @@ const MapAnnotations = ({
 
     try {
       // Remove existing user annotation if it exists
-      if (userAnnotationRef.current && map) {
-        console.log('Removing existing user annotation');
-        map.removeAnnotation(userAnnotationRef.current);
+      if (userAnnotationRef.current) {
+        try {
+          map.removeAnnotation(userAnnotationRef.current);
+        } catch (error) {
+          console.warn('Failed to remove existing user annotation:', error);
+        }
         userAnnotationRef.current = null;
       }
 
@@ -89,42 +82,47 @@ const MapAnnotations = ({
           color: '#007AFF',
           glyphColor: '#FFFFFF',
           title: 'Your Location',
-          subtitle: 'Client position',
+          subtitle: 'Current position',
           displayPriority: 1000
         }
       );
 
-      map.addAnnotation(userAnnotation);
-      userAnnotationRef.current = userAnnotation;
-      
-      const region = new window.mapkit.CoordinateRegion(
-        new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
-        new window.mapkit.CoordinateSpan(0.005, 0.005)
-      );
-      map.setRegionAnimated(region, true);
+      if (safeAddAnnotation(userAnnotation)) {
+        userAnnotationRef.current = userAnnotation;
+        
+        // Center map on user location
+        const region = new window.mapkit.CoordinateRegion(
+          new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
+          new window.mapkit.CoordinateSpan(0.01, 0.01)
+        );
+        
+        try {
+          map.setRegionAnimated(region, true);
+        } catch (error) {
+          console.warn('Failed to set region:', error);
+        }
 
-      console.log('User location marker added successfully');
+        console.log('User location marker added successfully');
+      }
     } catch (error) {
       console.error('Error adding user location marker:', error);
     }
 
     return () => {
-      if (userAnnotationRef.current && map && isMapReadyForAnnotations(map)) {
+      if (userAnnotationRef.current) {
         try {
-          console.log('Cleaning up user annotation');
           map.removeAnnotation(userAnnotationRef.current);
           userAnnotationRef.current = null;
         } catch (error) {
-          console.error('Error removing user annotation:', error);
+          console.warn('Error removing user annotation:', error);
         }
       }
     };
-  }, [map, userLocation, mapInitialized]);
+  }, [map, userLocation, mapReady]);
 
   // Add barber markers (red, clickable)
   useEffect(() => {
-    if (!nearbyBarbers.length || !isMapReadyForAnnotations(map)) {
-      console.log('Skipping barber markers - not ready or no barbers');
+    if (!nearbyBarbers.length || !map || !mapReady) {
       return;
     }
     
@@ -132,9 +130,8 @@ const MapAnnotations = ({
 
     try {
       // Remove existing barber annotations
-      if (barberAnnotationsRef.current.length > 0 && map) {
-        console.log('Removing existing barber annotations');
-        map.removeAnnotations(barberAnnotationsRef.current);
+      if (barberAnnotationsRef.current.length > 0) {
+        safeRemoveAnnotations(barberAnnotationsRef.current);
         barberAnnotationsRef.current = [];
       }
 
@@ -164,9 +161,17 @@ const MapAnnotations = ({
         return annotation;
       });
 
-      map.addAnnotations(annotations);
-      barberAnnotationsRef.current = annotations;
+      // Add annotations one by one and track successful additions
+      const successfulAnnotations: any[] = [];
+      annotations.forEach(annotation => {
+        if (safeAddAnnotation(annotation)) {
+          successfulAnnotations.push(annotation);
+        }
+      });
 
+      barberAnnotationsRef.current = successfulAnnotations;
+
+      // Add map selection event listener
       const handleMapSelect = (event: any) => {
         const annotation = event.annotation;
         if (annotation.data) {
@@ -175,26 +180,29 @@ const MapAnnotations = ({
         }
       };
 
-      map.addEventListener('select', handleMapSelect);
+      try {
+        map.addEventListener('select', handleMapSelect);
+      } catch (error) {
+        console.warn('Failed to add select event listener:', error);
+      }
 
-      console.log('All barber markers added successfully');
+      console.log(`Successfully added ${successfulAnnotations.length} barber markers`);
 
       return () => {
-        if (map && barberAnnotationsRef.current.length > 0 && isMapReadyForAnnotations(map)) {
-          try {
-            console.log('Cleaning up barber annotations');
-            map.removeAnnotations(barberAnnotationsRef.current);
-            map.removeEventListener('select', handleMapSelect);
+        try {
+          if (barberAnnotationsRef.current.length > 0) {
+            safeRemoveAnnotations(barberAnnotationsRef.current);
             barberAnnotationsRef.current = [];
-          } catch (error) {
-            console.error('Error removing barber annotations:', error);
           }
+          map.removeEventListener('select', handleMapSelect);
+        } catch (error) {
+          console.warn('Error during barber markers cleanup:', error);
         }
       };
     } catch (error) {
       console.error('Error adding barber markers:', error);
     }
-  }, [map, nearbyBarbers, onBarberSelect, mapInitialized]);
+  }, [map, nearbyBarbers, onBarberSelect, mapReady]);
 
   return null;
 };

@@ -28,18 +28,11 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
   const map = useRef<any>(null);
   const { userLocation } = useGeolocation();
   const [mapInitialized, setMapInitialized] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   // Initialize map
   useEffect(() => {
-    console.log('MapInstance: useEffect triggered', {
-      mapkitLoaded,
-      hasContainer: !!mapContainer.current,
-      mapInitialized,
-      hasApiKey: !!apiKey
-    });
-
     if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) {
-      console.log('MapInstance: Skipping initialization - conditions not met');
       return;
     }
 
@@ -50,38 +43,44 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       : new window.mapkit.Coordinate(29.7604, -95.3698);
 
     try {
-      console.log('MapInstance: Creating map with center:', center);
-      
       map.current = new window.mapkit.Map(mapContainer.current, {
         center: center,
         region: new window.mapkit.CoordinateRegion(
           center,
-          new window.mapkit.CoordinateSpan(0.005, 0.005)
+          new window.mapkit.CoordinateSpan(0.01, 0.01)
         ),
         mapType: window.mapkit.Map.MapTypes.Standard,
-        showsMapTypeControl: true,
+        showsMapTypeControl: false,
         showsZoomControl: true,
-        showsUserLocationControl: true,
-        showsCompass: window.mapkit.FeatureVisibility.Visible,
-        showsScale: window.mapkit.FeatureVisibility.Visible,
+        showsUserLocationControl: false,
+        showsCompass: window.mapkit.FeatureVisibility.Hidden,
+        showsScale: window.mapkit.FeatureVisibility.Hidden,
         isRotationEnabled: true,
         isScrollEnabled: true,
         isZoomEnabled: true,
-        showsPointsOfInterest: true,
+        showsPointsOfInterest: false,
         colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
-      console.log('MapInstance: Map object created:', !!map.current);
-      console.log('MapInstance: Map methods available:', {
-        hasAddAnnotation: typeof map.current?.addAnnotation === 'function',
-        hasRemoveAnnotation: typeof map.current?.removeAnnotation === 'function'
+      // Wait for map to be fully loaded before proceeding
+      map.current.addEventListener('region-change-end', () => {
+        if (!mapReady) {
+          console.log('MapInstance: Map is ready for annotations');
+          setMapReady(true);
+        }
       });
 
-      // Add a slight delay to ensure map is fully ready
+      // Set initial state
+      setMapInitialized(true);
+      
+      // Trigger an initial region change to activate the ready state
       setTimeout(() => {
-        console.log('MapInstance: Setting mapInitialized to true');
-        setMapInitialized(true);
-      }, 100);
+        if (map.current && !mapReady) {
+          setMapReady(true);
+        }
+      }, 500);
+
+      console.log('MapInstance: Map initialized successfully');
 
     } catch (error) {
       console.error('MapInstance: Error initializing map:', error);
@@ -91,41 +90,42 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       if (map.current) {
         try {
           console.log('MapInstance: Cleaning up map...');
-          if (typeof map.current.destroy === 'function') {
-            map.current.destroy();
-          }
           map.current = null;
           setMapInitialized(false);
+          setMapReady(false);
         } catch (error) {
           console.error('MapInstance: Error during cleanup:', error);
         }
       }
     };
-  }, [mapkitLoaded, userLocation, apiKey]);
-
-  console.log('MapInstance: Rendering with mapInitialized:', mapInitialized);
+  }, [mapkitLoaded, apiKey]);
 
   return (
     <div className="h-full relative">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
       
-      <MapAnnotations
-        map={map.current}
-        userLocation={userLocation}
-        nearbyBarbers={nearbyBarbers}
-        onBarberSelect={onBarberSelect}
-        mapInitialized={mapInitialized}
-      />
+      {mapInitialized && mapReady && (
+        <MapAnnotations
+          map={map.current}
+          userLocation={userLocation}
+          nearbyBarbers={nearbyBarbers}
+          onBarberSelect={onBarberSelect}
+          mapReady={mapReady}
+        />
+      )}
       
-      {!mapInitialized && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg z-50">
+      {(!mapInitialized || !mapReady) && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900/90 to-black/90 rounded-lg z-50">
           <div className="text-white text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
-            <div>Initializing map...</div>
-            <div className="text-sm mt-1">
-              MapKit: {mapkitLoaded ? '✓' : '✗'} | 
-              API Key: {apiKey ? '✓' : '✗'} | 
-              Container: {mapContainer.current ? '✓' : '✗'}
+            <div className="relative mb-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mx-auto"></div>
+              <div className="absolute inset-0 rounded-full h-12 w-12 border-4 border-red-300/30 mx-auto"></div>
+            </div>
+            <div className="text-lg font-semibold mb-2">Loading Map</div>
+            <div className="text-sm text-gray-300">
+              {!mapkitLoaded && "Loading MapKit..."}
+              {mapkitLoaded && !mapInitialized && "Initializing map..."}
+              {mapInitialized && !mapReady && "Preparing markers..."}
             </div>
           </div>
         </div>
