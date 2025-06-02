@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -125,10 +126,10 @@ const MapWidget = () => {
       onClick={() => isMobile && setIsHovered(!isHovered)}
       className="relative z-[100] group"
     >
-      {/* Trigger Button - Mobile Optimized */}
+      {/* Trigger Button - Top Left Corner */}
       <div className={`${
         isMobile 
-          ? 'w-12 h-12 fixed bottom-20 right-4 shadow-xl' 
+          ? 'w-12 h-12' 
           : 'w-14 h-14 md:w-16 md:h-16'
         } bg-gradient-to-br from-black/40 to-black/60 backdrop-blur-xl rounded-xl flex flex-col items-center justify-center cursor-pointer border border-white/30 hover:border-white/50 transition-all duration-500 shadow-2xl hover:shadow-red-500/30 group-hover:scale-105`}>
         <div className={`${
@@ -139,13 +140,13 @@ const MapWidget = () => {
         <div className="w-4 h-0.5 bg-gradient-to-r from-red-500 to-red-600 rounded-full opacity-70"></div>
       </div>
 
-      {/* Content Panel - Mobile Adaptive */}
+      {/* Content Panel - Positioned to the right of trigger */}
       <Card className={`absolute ${
         isMobile 
-          ? 'bottom-full mb-4 right-0 w-[280px]' 
+          ? 'top-0 left-full ml-2 w-[280px]' 
           : 'top-0 left-full ml-4 w-80 md:w-96'
         } bg-gradient-to-br from-black/50 to-black/70 backdrop-blur-2xl border border-white/30 shadow-2xl overflow-hidden transition-all duration-500 ${
-        isHovered ? 'opacity-100 scale-100 translate-x-0 translate-y-0' : 'opacity-0 scale-95 pointer-events-none' + (isMobile ? ' translate-y-2' : ' translate-x-2')
+        isHovered ? 'opacity-100 scale-100 translate-x-0' : 'opacity-0 scale-95 translate-x-2 pointer-events-none'
       }`}>
         <CardContent className="p-0">
           {/* Main Content Area */}

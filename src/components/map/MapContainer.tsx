@@ -35,11 +35,11 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
         />
       </div>
 
-      {/* Combined Widget - Responsive positioning */}
+      {/* Combined Widget - Top Left Corner */}
       <div className={`absolute z-[100] pointer-events-auto ${
         isMobile 
-          ? 'top-auto bottom-0 right-0 left-0 p-4' 
-          : 'top-1/2 left-4 transform -translate-y-1/2'
+          ? 'top-4 left-4' 
+          : 'top-6 left-6'
       }`}>
         <MapWidget />
       </div>
