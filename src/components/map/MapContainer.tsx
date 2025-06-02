@@ -33,13 +33,13 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
         />
       </div>
 
-      {/* Top Barbers Slideshow - Higher z-index and fixed positioning */}
-      <div className="fixed top-20 left-4 z-[100] pointer-events-auto">
+      {/* Top Barbers Slideshow - Higher z-index and absolute positioning within map container */}
+      <div className="absolute top-4 left-4 z-[100] pointer-events-auto">
         <TopBarbersSlider />
       </div>
 
-      {/* Advertising Slideshow - Higher z-index and fixed positioning */}
-      <div className="fixed bottom-4 left-4 right-4 z-[100] pointer-events-auto">
+      {/* Advertising Slideshow - Higher z-index and absolute positioning within map container */}
+      <div className="absolute bottom-4 left-4 right-4 z-[100] pointer-events-auto">
         <AdSlider />
       </div>
     </div>
