@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronRight, Play, Pause } from 'lucide-react';
+import { ChevronRight, Play, Pause, Zap } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AdDisplay from './AdDisplay';
 import AdControls from './AdControls';
@@ -65,13 +65,13 @@ const MapWidget = () => {
             onClick={() => setIsExpanded(!isExpanded)}
           >
             <div className="flex items-center p-3 md:p-4 flex-1 min-w-0">
-              {/* Ad Icon with Pulse Animation */}
+              {/* Modern Ad Icon with Pulse Animation */}
               <div className={`${
                 isMobile ? 'w-10 h-10' : 'w-12 h-12'
-              } bg-gradient-to-br from-red-500/90 to-pink-600/90 rounded-xl flex items-center justify-center mr-3 shadow-lg transition-all duration-300 group-hover:scale-110 ${
+              } bg-gradient-to-br from-blue-500/90 via-purple-600/90 to-pink-600/90 rounded-xl flex items-center justify-center mr-3 shadow-lg transition-all duration-300 group-hover:scale-110 ${
                 !isPaused ? 'animate-pulse' : ''
               }`}>
-                <span className={`${isMobile ? 'text-lg' : 'text-xl'}`}>🎯</span>
+                <Zap className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
               </div>
               
               {/* Content Preview */}
