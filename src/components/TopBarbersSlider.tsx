@@ -43,17 +43,17 @@ const TopBarbersSlider = () => {
       onMouseLeave={() => setIsHovered(false)}
       className="relative z-[100]"
     >
-      {/* Hover trigger - always visible */}
-      <div className="w-16 h-16 bg-red-600/80 rounded-full flex items-center justify-center cursor-pointer shadow-lg backdrop-blur-sm border border-white/20">
-        <span className="text-white font-bold">🏆</span>
+      {/* Hover trigger - modern glass morphism style */}
+      <div className="w-16 h-16 bg-black/20 backdrop-blur-md rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
+        <span className="text-2xl">🏆</span>
       </div>
 
-      {/* Content - only visible on hover */}
-      <Card className={`absolute top-0 left-0 bg-white shadow-2xl border-0 overflow-hidden w-64 transition-all duration-300 ${
+      {/* Content - glass morphism design */}
+      <Card className={`absolute top-0 left-0 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-72 transition-all duration-300 ${
         isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
         <CardContent className="p-0">
-          <div className="relative h-16 overflow-hidden">
+          <div className="relative h-20 overflow-hidden">
             {topBarbers.map((barber, index) => (
               <div
                 key={barber.id}
@@ -62,23 +62,25 @@ const TopBarbersSlider = () => {
                   index < currentBarber ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'
                 }`}
               >
-                <div className="h-full bg-gradient-to-r from-red-600 to-red-700 flex items-center p-3">
+                <div className="h-full bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-sm flex items-center p-4 border-b border-white/10">
                   <img
                     src={barber.image}
                     alt={barber.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white/50 mr-3"
+                    className="w-12 h-12 rounded-xl object-cover border border-white/20 mr-4 shadow-lg"
                   />
                   <div className="flex-1">
-                    <div className="text-white/90 text-xs font-medium">{barber.title}</div>
-                    <h4 className="text-white font-bold text-sm">{barber.name}</h4>
+                    <div className="text-white/90 text-xs font-medium mb-1">{barber.title}</div>
+                    <h4 className="text-white font-bold text-sm leading-tight">{barber.name}</h4>
                   </div>
-                  <div className="text-white text-xs font-bold">⭐ {barber.rating}</div>
+                  <div className="text-white text-xs font-bold bg-white/10 px-2 py-1 rounded-lg backdrop-blur-sm">
+                    ⭐ {barber.rating}
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-          <div className="bg-gray-50 px-3 py-1 text-center">
-            <div className="text-xs font-semibold text-gray-800">🏆 Top Barbers of the Year</div>
+          <div className="bg-white/5 backdrop-blur-sm px-4 py-2 text-center border-t border-white/10">
+            <div className="text-xs font-semibold text-white/90">🏆 Top Barbers of the Year</div>
           </div>
         </CardContent>
       </Card>
