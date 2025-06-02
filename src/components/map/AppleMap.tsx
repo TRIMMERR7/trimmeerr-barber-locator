@@ -237,7 +237,6 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         () => markerElement,
         {
-          anchorOffset: new window.mapkit.DOMPoint(0, -40),
           animates: true,
           title: barber.name,
           subtitle: `${barber.specialty} - ${barber.price}`,
