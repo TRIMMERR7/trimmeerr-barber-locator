@@ -24,12 +24,27 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
   const barberAnnotations = useRef<any[]>([]);
 
   useEffect(() => {
-    if (!map.current || !nearbyBarbers.length) return;
+    console.log('useBarberMarkers: Effect triggered');
+    console.log('useBarberMarkers: map.current exists?', !!map.current);
+    console.log('useBarberMarkers: nearbyBarbers length:', nearbyBarbers.length);
+    console.log('useBarberMarkers: nearbyBarbers data:', nearbyBarbers);
 
-    console.log('AppleMap: Adding red barber markers...', nearbyBarbers.length, 'barbers');
+    if (!map.current) {
+      console.log('useBarberMarkers: No map available, exiting');
+      return;
+    }
 
+    if (!nearbyBarbers.length) {
+      console.log('useBarberMarkers: No barbers available, exiting');
+      return;
+    }
+
+    console.log('useBarberMarkers: Adding red barber markers...', nearbyBarbers.length, 'barbers');
+
+    // Clear existing markers
     if (barberAnnotations.current.length > 0) {
       try {
+        console.log('useBarberMarkers: Removing', barberAnnotations.current.length, 'existing markers');
         map.current.removeAnnotations(barberAnnotations.current);
       } catch (error) {
         console.warn('Error removing previous barber annotations:', error);
@@ -37,7 +52,7 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     }
 
     const annotations = nearbyBarbers.map((barber) => {
-      console.log('AppleMap: Creating red marker for barber:', barber.name);
+      console.log('useBarberMarkers: Creating red marker for barber:', barber.name, 'at', barber.lat, barber.lng);
 
       const annotation = new window.mapkit.MarkerAnnotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
@@ -53,7 +68,7 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
 
       // Add click handler
       annotation.addEventListener('select', () => {
-        console.log('AppleMap: Red barber marker selected:', barber.name);
+        console.log('useBarberMarkers: Red barber marker selected:', barber.name);
         onBarberSelect(barber);
       });
 
@@ -61,13 +76,19 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     });
 
     barberAnnotations.current = annotations;
-    map.current.addAnnotations(annotations);
-
-    console.log('AppleMap: All red barber markers added successfully');
+    console.log('useBarberMarkers: Created', annotations.length, 'annotations');
+    
+    try {
+      map.current.addAnnotations(annotations);
+      console.log('useBarberMarkers: All red barber markers added successfully to map');
+    } catch (error) {
+      console.error('useBarberMarkers: Error adding annotations to map:', error);
+    }
 
     return () => {
       if (map.current && barberAnnotations.current.length > 0) {
         try {
+          console.log('useBarberMarkers: Cleanup - removing', barberAnnotations.current.length, 'markers');
           map.current.removeAnnotations(barberAnnotations.current);
         } catch (error) {
           console.warn('Error removing barber annotations during cleanup:', error);
@@ -76,7 +97,7 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
         }
       }
     };
-  }, [nearbyBarbers, onBarberSelect]);
+  }, [map, nearbyBarbers, onBarberSelect]);
 
   return { barberAnnotations };
 };

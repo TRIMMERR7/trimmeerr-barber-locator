@@ -35,6 +35,9 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const { userLocation, error, loading } = useGeolocation();
   
+  console.log('AppleMap: Rendering with', nearbyBarbers.length, 'barbers');
+  console.log('AppleMap: nearbyBarbers data:', nearbyBarbers);
+  
   // Initialize MapKit
   const { mapkitLoaded } = useMapKitInitialization({ apiKey });
   
