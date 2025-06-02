@@ -4,20 +4,8 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
 import { createUserLocationMarker, createBarberMarker } from '@/utils/mapMarkers';
 import { mapStyles } from '@/utils/mapStyles';
+import { Barber } from '@/types/barber';
 import L from 'leaflet';
-
-interface Barber {
-  id: string;
-  name: string;
-  rating: number;
-  specialty: string;
-  image: string;
-  price: string;
-  distance: string;
-  experience: string;
-  lat: number;
-  lng: number;
-}
 
 interface MapboxMapProps {
   nearbyBarbers: Barber[];
