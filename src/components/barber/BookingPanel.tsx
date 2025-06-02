@@ -80,6 +80,7 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
     setIsProcessingPayment(true);
     
     try {
+      console.log('Starting payment process...');
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
           amount: selectedService.price * 100,
@@ -92,9 +93,31 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
         }
       });
 
-      if (error) throw error;
+      console.log('Payment response:', { data, error });
+
+      if (error) {
+        console.error('Payment creation error:', error);
+        let errorMessage = "Failed to process booking. Please try again.";
+        
+        // More specific error messages
+        if (error.message.includes('Invalid Stripe secret key')) {
+          errorMessage = "Payment system configuration error. Please contact support.";
+        } else if (error.message.includes('authentication')) {
+          errorMessage = "Authentication error. Please sign in again.";
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: "Booking Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
 
       if (data?.url) {
+        console.log('Redirecting to payment URL:', data.url);
         window.location.href = data.url;
         
         toast({
@@ -107,12 +130,14 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
         setSelectedTime('');
         setUserPhone('');
         setStep('service');
+      } else {
+        throw new Error('No payment URL received');
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('Unexpected payment error:', error);
       toast({
         title: "Booking Error",
-        description: "Failed to process booking. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
