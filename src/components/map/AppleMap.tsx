@@ -17,12 +17,23 @@ declare global {
 }
 
 const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
+  console.log('AppleMap: Rendering with:', { 
+    barbersCount: nearbyBarbers.length, 
+    hasApiKey: !!apiKey,
+    apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'none'
+  });
+
   const { mapkitLoaded } = useMapKit({ apiKey });
+
+  console.log('AppleMap: MapKit loaded:', mapkitLoaded);
 
   if (!mapkitLoaded) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
-        <div className="text-white">Loading Apple Maps...</div>
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto mb-2"></div>
+          <div>Loading Apple Maps...</div>
+        </div>
       </div>
     );
   }
