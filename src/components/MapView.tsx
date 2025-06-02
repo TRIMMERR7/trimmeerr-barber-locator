@@ -7,6 +7,7 @@ import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import BarberList from './map/BarberList';
 import MapContainer from './map/MapContainer';
+import BarberFilterPanel from './map/BarberFilterPanel';
 
 interface Barber {
   id: string;
@@ -19,6 +20,10 @@ interface Barber {
   experience: string;
   lat: number;
   lng: number;
+  ethnicity: string;
+  age: number;
+  languages: string[];
+  personalityTraits: string[];
 }
 
 interface MapViewProps {
@@ -29,8 +34,10 @@ const MapView = ({ userType }: MapViewProps) => {
   const { signOut } = useAuth();
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
-  // Updated barber locations to be near Houston, Texas instead of New York
+  // Enhanced barber data with ethnicity, age, languages, and personality traits
   const nearbyBarbers: Barber[] = [
     {
       id: '1',
@@ -41,8 +48,12 @@ const MapView = ({ userType }: MapViewProps) => {
       price: '$35',
       distance: '0.3 mi',
       experience: '8 years',
-      lat: 29.7720, // Houston area coordinates
-      lng: -95.3850
+      lat: 29.7720,
+      lng: -95.3850,
+      ethnicity: 'African American',
+      age: 32,
+      languages: ['English', 'Spanish'],
+      personalityTraits: ['Friendly', 'Creative', 'Experienced']
     },
     {
       id: '2',
@@ -53,8 +64,12 @@ const MapView = ({ userType }: MapViewProps) => {
       price: '$30',
       distance: '0.5 mi',
       experience: '12 years',
-      lat: 29.7750, // Houston area coordinates
-      lng: -95.3800
+      lat: 29.7750,
+      lng: -95.3800,
+      ethnicity: 'Latino/Hispanic',
+      age: 45,
+      languages: ['Spanish', 'English'],
+      personalityTraits: ['Professional', 'Traditional', 'Experienced']
     },
     {
       id: '3',
@@ -65,10 +80,55 @@ const MapView = ({ userType }: MapViewProps) => {
       price: '$40',
       distance: '0.7 mi',
       experience: '6 years',
-      lat: 29.7690, // Houston area coordinates
-      lng: -95.3900
+      lat: 29.7690,
+      lng: -95.3900,
+      ethnicity: 'Middle Eastern',
+      age: 28,
+      languages: ['Arabic', 'English', 'French'],
+      personalityTraits: ['Creative', 'Young & Trendy', 'Professional']
+    },
+    {
+      id: '4',
+      name: 'David Kim',
+      rating: 4.6,
+      specialty: 'Modern Styles',
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+      price: '$45',
+      distance: '1.2 mi',
+      experience: '5 years',
+      lat: 29.7800,
+      lng: -95.3700,
+      ethnicity: 'Asian',
+      age: 26,
+      languages: ['English', 'Mandarin'],
+      personalityTraits: ['Young & Trendy', 'Creative', 'Friendly']
+    },
+    {
+      id: '5',
+      name: 'Michael Thompson',
+      rating: 4.5,
+      specialty: 'Traditional Cuts',
+      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
+      price: '$25',
+      distance: '1.5 mi',
+      experience: '15 years',
+      lat: 29.7650,
+      lng: -95.3950,
+      ethnicity: 'Caucasian',
+      age: 52,
+      languages: ['English'],
+      personalityTraits: ['Traditional', 'Professional', 'Experienced']
     }
   ];
+
+  // Initialize filtered barbers
+  React.useEffect(() => {
+    if (filteredBarbers.length === 0) {
+      setFilteredBarbers(nearbyBarbers);
+    }
+  }, []);
+
+  const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : nearbyBarbers;
 
   const handleBarberSelect = (barber: Barber) => {
     console.log('MapView: Barber selected:', barber.name);
@@ -78,6 +138,10 @@ const MapView = ({ userType }: MapViewProps) => {
   const openInAppleMaps = (barber: Barber) => {
     const appleMapsUrl = `https://maps.apple.com/?daddr=${barber.lat},${barber.lng}&dirflg=d&t=m`;
     window.open(appleMapsUrl, '_blank');
+  };
+
+  const handleMenuClick = () => {
+    setShowFilterPanel(true);
   };
 
   if (showDashboard && userType === 'barber') {
@@ -116,10 +180,11 @@ const MapView = ({ userType }: MapViewProps) => {
             </h1>
           </div>
           <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-            {/* Menu Button - No functionality now */}
+            {/* Filter Menu Button */}
             <Button 
               variant="ghost" 
               size="icon"
+              onClick={handleMenuClick}
               className="lg:hidden text-white hover:bg-gray-800 rounded-xl touch-manipulation h-8 w-8 sm:h-9 sm:w-9"
             >
               <Menu className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -149,19 +214,27 @@ const MapView = ({ userType }: MapViewProps) => {
       {/* Main Content */}
       <div className="flex-1 flex">
         <MapContainer 
-          nearbyBarbers={nearbyBarbers}
+          nearbyBarbers={displayBarbers}
           onBarberSelect={handleBarberSelect}
         />
 
         {/* Barber List - Desktop Only */}
         <div className="hidden lg:flex w-96 border-l border-gray-200 flex-col shadow-xl">
           <BarberList 
-            nearbyBarbers={nearbyBarbers}
+            nearbyBarbers={displayBarbers}
             onBarberSelect={handleBarberSelect}
             onNavigate={openInAppleMaps}
           />
         </div>
       </div>
+
+      {/* Filter Panel */}
+      <BarberFilterPanel
+        isOpen={showFilterPanel}
+        onClose={() => setShowFilterPanel(false)}
+        barbers={nearbyBarbers}
+        onFilteredBarbersChange={setFilteredBarbers}
+      />
     </div>
   );
 };

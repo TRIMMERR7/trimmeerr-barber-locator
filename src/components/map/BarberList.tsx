@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, MapPin, Navigation } from "lucide-react";
+import { Search, MapPin, Navigation, Users, Globe } from "lucide-react";
 
 interface Barber {
   id: string;
@@ -15,6 +15,10 @@ interface Barber {
   experience: string;
   lat: number;
   lng: number;
+  ethnicity: string;
+  age: number;
+  languages: string[];
+  personalityTraits: string[];
 }
 
 interface BarberListProps {
@@ -61,7 +65,7 @@ const BarberList = ({ nearbyBarbers, onBarberSelect, onNavigate, onSheetClose }:
               onClick={() => handleBarberClick(barber)}
             >
               <CardContent className="p-4">
-                <div className="flex items-center gap-4">
+                <div className="flex items-start gap-4">
                   <div className="relative">
                     <img
                       src={barber.image}
@@ -71,37 +75,75 @@ const BarberList = ({ nearbyBarbers, onBarberSelect, onNavigate, onSheetClose }:
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 text-lg mb-1">{barber.name}</h3>
-                    <p className="text-red-600 font-medium mb-2">{barber.specialty}</p>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="flex items-center gap-1">
-                        <span className="text-yellow-500">★</span>
-                        <span className="font-medium text-gray-900">{barber.rating}</span>
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-lg mb-1">{barber.name}</h3>
+                        <p className="text-red-600 font-medium">{barber.specialty}</p>
                       </div>
-                      <div className="flex items-center gap-1 text-gray-500">
-                        <MapPin className="w-3 h-3" />
-                        <span>{barber.distance}</span>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-red-600">{barber.price}</div>
+                        <div className="text-sm text-gray-500">30 min</div>
                       </div>
-                      <span className="text-gray-500">{barber.experience}</span>
                     </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-red-600">{barber.price}</div>
-                      <div className="text-sm text-gray-500">30 min</div>
+                    
+                    {/* Enhanced Info */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="flex items-center gap-1">
+                          <span className="text-yellow-500">★</span>
+                          <span className="font-medium text-gray-900">{barber.rating}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-gray-500">
+                          <MapPin className="w-3 h-3" />
+                          <span>{barber.distance}</span>
+                        </div>
+                        <span className="text-gray-500">{barber.experience}</span>
+                      </div>
+                      
+                      {/* Ethnicity and Age */}
+                      <div className="flex items-center gap-3 text-xs text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          <span>{barber.ethnicity}</span>
+                        </div>
+                        <span>Age {barber.age}</span>
+                      </div>
+                      
+                      {/* Languages */}
+                      {barber.languages.length > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <Globe className="w-3 h-3" />
+                          <span>{barber.languages.join(', ')}</span>
+                        </div>
+                      )}
+                      
+                      {/* Personality Traits */}
+                      <div className="flex flex-wrap gap-1">
+                        {barber.personalityTraits.slice(0, 2).map((trait, index) => (
+                          <span
+                            key={index}
+                            className="inline-block px-2 py-1 text-xs bg-red-50 text-red-600 rounded-full"
+                          >
+                            {trait}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNavigate(barber);
-                      }}
-                      size="sm"
-                      variant="outline"
-                      className="touch-manipulation"
-                    >
-                      <Navigation className="w-3 h-3 mr-1" />
-                      Navigate
-                    </Button>
+                    
+                    <div className="mt-3 flex justify-end">
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate(barber);
+                        }}
+                        size="sm"
+                        variant="outline"
+                        className="touch-manipulation"
+                      >
+                        <Navigation className="w-3 h-3 mr-1" />
+                        Navigate
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
