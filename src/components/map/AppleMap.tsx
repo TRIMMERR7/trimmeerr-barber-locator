@@ -90,15 +90,6 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     return () => {
       if (map.current) {
         try {
-          // Clear all annotations first
-          if (userAnnotation.current && map.current.annotations) {
-            map.current.removeAnnotation(userAnnotation.current);
-          }
-          if (barberAnnotations.current.length > 0 && map.current.annotations) {
-            map.current.removeAnnotations(barberAnnotations.current);
-          }
-          
-          // Destroy the map
           map.current.destroy();
         } catch (error) {
           console.warn('Error cleaning up map:', error);
@@ -117,8 +108,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
     console.log('AppleMap: Adding user location marker');
 
-    // Remove previous user annotation if it exists
-    if (userAnnotation.current && map.current.annotations) {
+    if (userAnnotation.current) {
       try {
         map.current.removeAnnotation(userAnnotation.current);
       } catch (error) {
@@ -139,7 +129,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     map.current.setCenterAnimated(new window.mapkit.Coordinate(userLocation[0], userLocation[1]));
 
     return () => {
-      if (userAnnotation.current && map.current && map.current.annotations) {
+      if (userAnnotation.current && map.current) {
         try {
           map.current.removeAnnotation(userAnnotation.current);
         } catch (error) {
@@ -149,14 +139,13 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     };
   }, [userLocation]);
 
-  // Add barber markers
+  // Add barber markers with enhanced styling
   useEffect(() => {
     if (!map.current || !nearbyBarbers.length) return;
 
-    console.log('AppleMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
+    console.log('AppleMap: Adding enhanced barber markers...', nearbyBarbers.length, 'barbers');
 
-    // Remove previous barber annotations
-    if (barberAnnotations.current.length > 0 && map.current.annotations) {
+    if (barberAnnotations.current.length > 0) {
       try {
         map.current.removeAnnotations(barberAnnotations.current);
       } catch (error) {
@@ -165,15 +154,154 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     }
 
     const annotations = nearbyBarbers.map((barber) => {
+      // Create custom HTML marker element
+      const markerElement = document.createElement('div');
+      markerElement.className = 'barber-marker-enhanced';
+      markerElement.innerHTML = `
+        <div class="barber-marker-container-enhanced">
+          <div class="barber-marker-pin-enhanced">
+            <img src="${barber.image}" alt="${barber.name}" class="barber-avatar-enhanced" />
+            <div class="barber-price-badge">${barber.price}</div>
+          </div>
+          <div class="barber-marker-pulse-enhanced"></div>
+        </div>
+      `;
+
+      // Add styles for the enhanced marker
+      const style = document.createElement('style');
+      style.textContent = `
+        .barber-marker-enhanced {
+          position: relative;
+          z-index: 1000;
+        }
+        
+        .barber-marker-container-enhanced {
+          position: relative;
+          width: 60px;
+          height: 60px;
+          animation: markerBounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .barber-marker-pin-enhanced {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+          border: 3px solid white;
+          box-shadow: 
+            0 8px 25px rgba(220, 38, 38, 0.4),
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          position: relative;
+          transform: translateZ(0);
+        }
+        
+        .barber-marker-pin-enhanced:hover {
+          transform: scale(1.2) translateY(-3px);
+          box-shadow: 
+            0 12px 35px rgba(220, 38, 38, 0.6),
+            0 6px 16px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          border-color: #fbbf24;
+        }
+        
+        .barber-avatar-enhanced {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+        
+        .barber-price-badge {
+          position: absolute;
+          bottom: -8px;
+          right: -8px;
+          background: linear-gradient(135deg, #059669, #047857);
+          color: white;
+          font-size: 10px;
+          font-weight: bold;
+          padding: 2px 6px;
+          border-radius: 8px;
+          border: 2px solid white;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          z-index: 10;
+        }
+        
+        .barber-marker-pulse-enhanced {
+          position: absolute;
+          top: -5px;
+          left: -5px;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(220, 38, 38, 0.4) 0%, rgba(220, 38, 38, 0.1) 40%, transparent 70%);
+          animation: enhancedPulse 3s ease-in-out infinite;
+          pointer-events: none;
+          z-index: 999;
+        }
+        
+        @keyframes markerBounceIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.3) translateY(-60px);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.1) translateY(-15px);
+          }
+          70% {
+            transform: scale(0.9) translateY(0px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0px);
+          }
+        }
+        
+        @keyframes enhancedPulse {
+          0% {
+            transform: scale(1);
+            opacity: 0.8;
+          }
+          50% {
+            transform: scale(1.3);
+            opacity: 0.4;
+          }
+          100% {
+            transform: scale(1.8);
+            opacity: 0;
+          }
+        }
+      `;
+      
+      if (!document.head.querySelector('style[data-barber-markers]')) {
+        style.setAttribute('data-barber-markers', 'true');
+        document.head.appendChild(style);
+      }
+
       const annotation = new window.mapkit.MarkerAnnotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         {
           color: '#DC2626',
           title: barber.name,
           subtitle: `${barber.specialty} - ${barber.price}`,
-          data: barber
+          data: barber,
+          element: markerElement
         }
       );
+
+      // Add click handler to the marker element
+      markerElement.addEventListener('click', () => {
+        console.log('AppleMap: Enhanced barber marker clicked:', barber.name);
+        onBarberSelect(barber);
+      });
 
       return annotation;
     });
@@ -181,26 +309,12 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     barberAnnotations.current = annotations;
     map.current.addAnnotations(annotations);
 
-    // Add click listener for barber markers
-    const handleSelect = (event: any) => {
-      const annotation = event.annotation;
-      if (annotation.data) {
-        console.log('AppleMap: Barber marker clicked:', annotation.data.name);
-        onBarberSelect(annotation.data);
-      }
-    };
-
-    map.current.addEventListener('select', handleSelect);
-
-    console.log('AppleMap: All barber markers added successfully');
+    console.log('AppleMap: All enhanced barber markers added successfully');
 
     return () => {
-      if (map.current) {
+      if (map.current && barberAnnotations.current.length > 0) {
         try {
-          map.current.removeEventListener('select', handleSelect);
-          if (barberAnnotations.current.length > 0 && map.current.annotations) {
-            map.current.removeAnnotations(barberAnnotations.current);
-          }
+          map.current.removeAnnotations(barberAnnotations.current);
         } catch (error) {
           console.warn('Error removing barber annotations during cleanup:', error);
         } finally {
