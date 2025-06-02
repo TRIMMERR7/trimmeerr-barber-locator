@@ -23,6 +23,7 @@ interface Barber {
   age: number;
   languages: string[];
   personalityTraits: string[];
+  videoUrl?: string; // New optional video URL
 }
 
 interface MapViewProps {
@@ -36,7 +37,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [showFilterPage, setShowFilterPage] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
-  // Enhanced barber data with ethnicity, age, languages, and personality traits
+  // Enhanced barber data with video URLs
   const nearbyBarbers: Barber[] = [
     {
       id: '1',
@@ -52,7 +53,8 @@ const MapView = ({ userType }: MapViewProps) => {
       ethnicity: 'African American',
       age: 32,
       languages: ['English', 'Spanish'],
-      personalityTraits: ['Friendly', 'Creative', 'Experienced']
+      personalityTraits: ['Friendly', 'Creative', 'Experienced'],
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
     },
     {
       id: '2',
@@ -68,7 +70,8 @@ const MapView = ({ userType }: MapViewProps) => {
       ethnicity: 'Latino/Hispanic',
       age: 45,
       languages: ['Spanish', 'English'],
-      personalityTraits: ['Professional', 'Traditional', 'Experienced']
+      personalityTraits: ['Professional', 'Traditional', 'Experienced'],
+      videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'
     },
     {
       id: '3',
@@ -85,6 +88,7 @@ const MapView = ({ userType }: MapViewProps) => {
       age: 28,
       languages: ['Arabic', 'English', 'French'],
       personalityTraits: ['Creative', 'Young & Trendy', 'Professional']
+      // No video URL - will fallback to image
     },
     {
       id: '4',
@@ -176,7 +180,6 @@ const MapView = ({ userType }: MapViewProps) => {
   console.log('MapView: Rendering map view');
   return (
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
-      {/* Header */}
       <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-2 sm:p-4 flex-shrink-0">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-1 sm:gap-2 min-w-0">
@@ -190,7 +193,6 @@ const MapView = ({ userType }: MapViewProps) => {
             </h1>
           </div>
           <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-            {/* Find Your Barber Button */}
             <Button 
               variant="ghost" 
               onClick={handleMenuClick}
@@ -220,14 +222,12 @@ const MapView = ({ userType }: MapViewProps) => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex">
         <MapContainer 
           nearbyBarbers={displayBarbers}
           onBarberSelect={handleBarberSelect}
         />
 
-        {/* Barber List - Desktop Only */}
         <div className="hidden lg:flex w-96 border-l border-gray-200 flex-col shadow-xl">
           <BarberList 
             nearbyBarbers={displayBarbers}

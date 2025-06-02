@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, MapPin, Clock, Award } from "lucide-react";
@@ -14,6 +13,7 @@ interface Barber {
   experience: string;
   lat: number;
   lng: number;
+  videoUrl?: string; // New optional video URL
 }
 
 interface BarberInfoProps {
@@ -28,11 +28,31 @@ const BarberInfo = ({ barber }: BarberInfoProps) => {
           {/* Mobile-first layout */}
           <div className="flex items-center gap-4">
             <div className="relative flex-shrink-0">
-              <img
-                src={barber.image}
-                alt={barber.name}
-                className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg"
-              />
+              {barber.videoUrl ? (
+                <video
+                  src={barber.videoUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg"
+                  onError={(e) => {
+                    // Fallback to image if video fails to load
+                    const target = e.target as HTMLVideoElement;
+                    const img = document.createElement('img');
+                    img.src = barber.image;
+                    img.alt = barber.name;
+                    img.className = target.className;
+                    target.parentNode?.replaceChild(img, target);
+                  }}
+                />
+              ) : (
+                <img
+                  src={barber.image}
+                  alt={barber.name}
+                  className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shadow-lg"
+                />
+              )}
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
             

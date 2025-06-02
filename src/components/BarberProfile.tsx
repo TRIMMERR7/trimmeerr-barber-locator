@@ -20,6 +20,7 @@ interface Barber {
   experience: string;
   lat: number;
   lng: number;
+  videoUrl?: string; // Add video URL support
 }
 
 interface BarberProfileProps {
@@ -40,7 +41,6 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
             <StepsIndicator />
             <BarberInfo barber={barber} />
             
-            {/* Mobile-optimized layout */}
             <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
               <ServicesList />
               <ContactInfo />
