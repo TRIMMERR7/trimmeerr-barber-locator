@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +12,17 @@ const AuthPage = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [logoAnimated, setLogoAnimated] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Trigger logo animation after component mounts
+    const timer = setTimeout(() => {
+      setLogoAnimated(true);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,22 +121,56 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
-        {/* Logo */}
+        {/* Animated Logo */}
         <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <img 
-              src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
-              alt="TRIMMERR Logo" 
-              className="w-8 h-8"
-            />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div 
+              className={`relative transition-all duration-1000 ease-out ${
+                logoAnimated 
+                  ? 'opacity-100 scale-100 rotate-0' 
+                  : 'opacity-0 scale-50 rotate-12'
+              }`}
+            >
+              <img 
+                src="/lovable-uploads/abac59f0-abe1-4bf5-96ba-c379b41fbbd4.png" 
+                alt="TRIMMERR Logo" 
+                className="w-12 h-12 transition-transform duration-500 hover:scale-110"
+              />
+              {/* Animated glow effect */}
+              <div 
+                className={`absolute inset-0 w-12 h-12 bg-red-500/30 rounded-lg blur-lg transition-all duration-1000 ${
+                  logoAnimated ? 'opacity-50 animate-pulse' : 'opacity-0'
+                }`}
+              />
+            </div>
+            <h1 
+              className={`text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent transition-all duration-1000 delay-300 ${
+                logoAnimated 
+                  ? 'opacity-100 translate-y-0' 
+                  : 'opacity-0 translate-y-4'
+              }`}
+            >
               TRIMMERR
             </h1>
           </div>
-          <p className="text-gray-400 text-lg">Book your perfect barber in seconds</p>
+          <p 
+            className={`text-gray-400 text-lg transition-all duration-1000 delay-500 ${
+              logoAnimated 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-4'
+            }`}
+          >
+            Book your perfect barber in seconds
+          </p>
         </div>
 
-        <Card className="glass-card border-gray-800">
+        <Card 
+          className={`glass-card border-gray-800 transition-all duration-1000 delay-700 ${
+            logoAnimated 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-8'
+          }`}
+        >
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-white text-2xl font-semibold">
               {isLogin ? 'Sign In to Book' : 'Get Started - It\'s Free!'}
