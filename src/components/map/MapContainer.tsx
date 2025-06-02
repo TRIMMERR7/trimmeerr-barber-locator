@@ -1,8 +1,7 @@
 
 import React from 'react';
 import MapProvider from './MapProvider';
-import AdSlider from '../AdSlider';
-import TopBarbersSlider from '../TopBarbersSlider';
+import MapWidget from './MapWidget';
 
 interface Barber {
   id: string;
@@ -33,14 +32,9 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
         />
       </div>
 
-      {/* Top Barbers Slideshow - Positioned on left side, middle */}
+      {/* Combined Widget - Positioned on left side, middle */}
       <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-[100] pointer-events-auto">
-        <TopBarbersSlider />
-      </div>
-
-      {/* Advertising Slideshow - Positioned on left side, bottom */}
-      <div className="absolute bottom-20 left-4 z-[100] pointer-events-auto">
-        <AdSlider />
+        <MapWidget />
       </div>
     </div>
   );
