@@ -117,12 +117,13 @@ const BookingPanel = ({ barber }: BookingPanelProps) => {
       }
 
       if (data?.url) {
-        console.log('Redirecting to payment URL:', data.url);
-        window.location.href = data.url;
+        console.log('Opening payment URL in new tab:', data.url);
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
         
         toast({
-          title: "Redirecting to Payment",
-          description: `Complete payment for your ${selectedTime} ${selectedService.name} with ${barber.name}`,
+          title: "Payment Page Opened",
+          description: `Complete payment in the new tab for your ${selectedTime} ${selectedService.name} with ${barber.name}`,
         });
         
         setIsOpen(false);
