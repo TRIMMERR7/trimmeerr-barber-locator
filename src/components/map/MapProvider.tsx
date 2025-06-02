@@ -1,8 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 import MapboxMap from './MapboxMap';
 import AppleMap from './AppleMap';
 
@@ -27,22 +26,31 @@ interface MapProviderProps {
 const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
   const [mapType, setMapType] = useState<'leaflet' | 'apple'>('leaflet');
   const [appleApiKey, setAppleApiKey] = useState('');
-  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [isLoadingApiKey, setIsLoadingApiKey] = useState(false);
+
+  // Fetch Apple Maps API key from Supabase secrets
+  useEffect(() => {
+    const fetchAppleApiKey = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('get-apple-maps-key');
+        if (data?.apiKey) {
+          setAppleApiKey(data.apiKey);
+          console.log('Apple Maps API key loaded successfully');
+        }
+      } catch (error) {
+        console.error('Error fetching Apple Maps API key:', error);
+      }
+    };
+
+    fetchAppleApiKey();
+  }, []);
 
   const handleMapTypeChange = (type: 'leaflet' | 'apple') => {
     if (type === 'apple' && !appleApiKey) {
-      setShowApiKeyInput(true);
+      console.log('Apple Maps API key not available');
       return;
     }
     setMapType(type);
-    setShowApiKeyInput(false);
-  };
-
-  const handleApiKeySubmit = () => {
-    if (appleApiKey.trim()) {
-      setMapType('apple');
-      setShowApiKeyInput(false);
-    }
   };
 
   return (
@@ -61,59 +69,12 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
           variant={mapType === 'apple' ? 'default' : 'outline'}
           size="sm"
           onClick={() => handleMapTypeChange('apple')}
-          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
+          disabled={!appleApiKey}
+          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-600 disabled:opacity-50"
         >
           Apple Maps
         </Button>
       </div>
-
-      {/* API Key Input Modal */}
-      {showApiKeyInput && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-[100]">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Apple Maps API Key Required</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              To use Apple Maps, you need to provide your Apple MapKit JS API key.
-            </p>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="appleApiKey">Apple MapKit JS API Key</Label>
-                <Input
-                  id="appleApiKey"
-                  type="text"
-                  value={appleApiKey}
-                  onChange={(e) => setAppleApiKey(e.target.value)}
-                  placeholder="Enter your Apple Maps API key"
-                  className="mt-1"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleApiKeySubmit} className="flex-1">
-                  Use Apple Maps
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowApiKeyInput(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-              <p className="text-xs text-gray-500">
-                Get your API key from the{' '}
-                <a 
-                  href="https://developer.apple.com/maps/mapkitjs/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  Apple Developer Portal
-                </a>
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Render appropriate map */}
       {mapType === 'leaflet' ? (
