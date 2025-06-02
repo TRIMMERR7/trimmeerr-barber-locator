@@ -31,15 +31,27 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
 
   // Initialize map
   useEffect(() => {
-    if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) return;
+    console.log('MapInstance: useEffect triggered', {
+      mapkitLoaded,
+      hasContainer: !!mapContainer.current,
+      mapInitialized,
+      hasApiKey: !!apiKey
+    });
 
-    console.log('Initializing Apple Maps...');
+    if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) {
+      console.log('MapInstance: Skipping initialization - conditions not met');
+      return;
+    }
+
+    console.log('MapInstance: Starting map initialization...');
 
     const center = userLocation 
       ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
       : new window.mapkit.Coordinate(29.7604, -95.3698);
 
     try {
+      console.log('MapInstance: Creating map with center:', center);
+      
       map.current = new window.mapkit.Map(mapContainer.current, {
         center: center,
         region: new window.mapkit.CoordinateRegion(
@@ -59,27 +71,39 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
-      setMapInitialized(true);
-      console.log('Map initialized successfully');
+      console.log('MapInstance: Map object created:', !!map.current);
+      console.log('MapInstance: Map methods available:', {
+        hasAddAnnotation: typeof map.current?.addAnnotation === 'function',
+        hasRemoveAnnotation: typeof map.current?.removeAnnotation === 'function'
+      });
+
+      // Add a slight delay to ensure map is fully ready
+      setTimeout(() => {
+        console.log('MapInstance: Setting mapInitialized to true');
+        setMapInitialized(true);
+      }, 100);
+
     } catch (error) {
-      console.error('Error initializing map:', error);
+      console.error('MapInstance: Error initializing map:', error);
     }
 
     return () => {
       if (map.current) {
         try {
-          console.log('Cleaning up map...');
+          console.log('MapInstance: Cleaning up map...');
           if (typeof map.current.destroy === 'function') {
             map.current.destroy();
           }
           map.current = null;
           setMapInitialized(false);
         } catch (error) {
-          console.error('Error during cleanup:', error);
+          console.error('MapInstance: Error during cleanup:', error);
         }
       }
     };
   }, [mapkitLoaded, userLocation, apiKey]);
+
+  console.log('MapInstance: Rendering with mapInitialized:', mapInitialized);
 
   return (
     <div className="h-full relative">
@@ -94,8 +118,16 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       />
       
       {!mapInitialized && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg">
-          <div className="text-white">Initializing map...</div>
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 rounded-lg z-50">
+          <div className="text-white text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+            <div>Initializing map...</div>
+            <div className="text-sm mt-1">
+              MapKit: {mapkitLoaded ? '✓' : '✗'} | 
+              API Key: {apiKey ? '✓' : '✗'} | 
+              Container: {mapContainer.current ? '✓' : '✗'}
+            </div>
+          </div>
         </div>
       )}
     </div>
