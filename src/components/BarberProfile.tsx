@@ -8,6 +8,7 @@ import ContactInfo from './barber/ContactInfo';
 import Portfolio from './barber/Portfolio';
 import Reviews from './barber/Reviews';
 import BookingPanel from './barber/BookingPanel';
+import AIChat from './AIChat';
 
 interface Barber {
   id: string;
@@ -48,10 +49,23 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
 
             <Portfolio />
             <Reviews />
+            
+            {/* AI Chat for specific barber */}
+            <AIChat 
+              barberName={barber.name}
+              className="lg:hidden" // Only show on mobile/tablet, hidden on desktop
+            />
           </div>
         </div>
 
-        <BookingPanel barber={barber} />
+        <div className="flex flex-col gap-4">
+          <BookingPanel barber={barber} />
+          
+          {/* AI Chat on desktop */}
+          <div className="hidden lg:block w-96">
+            <AIChat barberName={barber.name} />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import BarberDashboard from './BarberDashboard';
 import BarberList from './map/BarberList';
 import MapContainer from './map/MapContainer';
 import FilterPage from './FilterPage';
+import FloatingAIAssistant from './FloatingAIAssistant';
 
 interface Barber {
   id: string;
@@ -236,6 +237,9 @@ const MapView = ({ userType }: MapViewProps) => {
           />
         </div>
       </div>
+
+      {/* Floating AI Assistant */}
+      <FloatingAIAssistant />
     </div>
   );
 };
