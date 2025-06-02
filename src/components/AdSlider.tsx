@@ -48,19 +48,19 @@ const AdSlider = () => {
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="relative z-[100] max-w-md mx-auto lg:mx-0"
+      className="relative z-[100]"
     >
       {/* Hover trigger - modern glass morphism style */}
-      <div className="w-16 h-16 bg-black/20 backdrop-blur-md rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
-        <span className="text-2xl">📢</span>
+      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-black/20 backdrop-blur-md rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
+        <span className="text-xl sm:text-2xl">📢</span>
       </div>
 
-      {/* Content - glass morphism design */}
-      <Card className={`absolute bottom-0 left-0 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden transition-all duration-300 ${
+      {/* Content - glass morphism design with improved positioning */}
+      <Card className={`absolute bottom-0 right-0 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden transition-all duration-300 ${
         isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
         <CardContent className="p-0">
-          <div className="relative h-24 overflow-hidden w-80">
+          <div className="relative h-24 overflow-hidden w-72 sm:w-80">
             {companyAds.map((ad, index) => (
               <div
                 key={ad.id}
@@ -83,7 +83,7 @@ const AdSlider = () => {
                     <img
                       src={ad.image}
                       alt={ad.company}
-                      className="w-16 h-16 rounded-xl object-cover border border-white/20 shadow-lg"
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-white/20 shadow-lg"
                     />
                   </div>
                   

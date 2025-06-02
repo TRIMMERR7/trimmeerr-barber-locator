@@ -44,12 +44,12 @@ const TopBarbersSlider = () => {
       className="relative z-[100]"
     >
       {/* Hover trigger - modern glass morphism style */}
-      <div className="w-16 h-16 bg-black/20 backdrop-blur-md rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
-        <span className="text-2xl">🏆</span>
+      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-black/20 backdrop-blur-md rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
+        <span className="text-xl sm:text-2xl">🏆</span>
       </div>
 
-      {/* Content - glass morphism design */}
-      <Card className={`absolute top-0 left-0 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-72 transition-all duration-300 ${
+      {/* Content - glass morphism design with improved positioning */}
+      <Card className={`absolute top-0 right-0 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-64 sm:w-72 transition-all duration-300 ${
         isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
         <CardContent className="p-0">
@@ -66,7 +66,7 @@ const TopBarbersSlider = () => {
                   <img
                     src={barber.image}
                     alt={barber.name}
-                    className="w-12 h-12 rounded-xl object-cover border border-white/20 mr-4 shadow-lg"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border border-white/20 mr-3 sm:mr-4 shadow-lg"
                   />
                   <div className="flex-1">
                     <div className="text-white/90 text-xs font-medium mb-1">{barber.title}</div>
