@@ -15,17 +15,17 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick }: MapHeader
   return (
     <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-2 sm:p-4 flex-shrink-0">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
-        <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+        <div className="flex items-center gap-1 sm:gap-3 flex-1 justify-center md:justify-start">
           <img 
             src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
             alt="TRIMMERR Logo" 
-            className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+            className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0"
           />
-          <h1 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent truncate">
+          <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
             TRIMMERR
           </h1>
         </div>
-        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 md:absolute md:right-4">
           <Button 
             variant="ghost" 
             onClick={onAIAssistantClick}
