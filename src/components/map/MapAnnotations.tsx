@@ -33,21 +33,19 @@ const MapAnnotations = ({
   const userAnnotationRef = useRef<any>(null);
   const barberAnnotationsRef = useRef<any[]>([]);
   
-  // Helper function to check if map is truly ready for annotations
+  // Simplified helper function to check if map is ready for annotations
   const isMapReadyForAnnotations = (mapInstance: any): boolean => {
     if (!mapInstance || !mapInitialized) {
       return false;
     }
     
     try {
-      // Check if the map has essential methods and properties
+      // Check if the map has essential methods and MapKit is available
       return (
         typeof mapInstance.addAnnotation === 'function' &&
         typeof mapInstance.removeAnnotation === 'function' &&
         typeof mapInstance.addAnnotations === 'function' &&
         typeof mapInstance.removeAnnotations === 'function' &&
-        typeof mapInstance.setRegionAnimated === 'function' &&
-        mapInstance._delegate && // Internal property that indicates map is fully ready
         window.mapkit &&
         window.mapkit.MarkerAnnotation &&
         window.mapkit.Annotation &&
