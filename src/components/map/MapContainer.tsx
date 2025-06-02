@@ -12,9 +12,9 @@ interface MapContainerProps {
 
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative overflow-hidden">
       {/* Map Provider - Full container */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 w-full h-full">
         <MapProvider 
           nearbyBarbers={nearbyBarbers}
           onBarberSelect={onBarberSelect}
@@ -22,12 +22,12 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
       </div>
 
       {/* Top Barbers Slideshow - Overlay */}
-      <div className="absolute top-4 left-4 z-50 pointer-events-auto">
+      <div className="absolute top-4 left-4 z-[60] pointer-events-auto">
         <TopBarbersSlider />
       </div>
 
       {/* Advertising Slideshow - Overlay */}
-      <div className="absolute bottom-4 left-4 right-4 z-50 pointer-events-auto">
+      <div className="absolute bottom-4 left-4 right-4 z-[60] pointer-events-auto">
         <AdSlider />
       </div>
     </div>

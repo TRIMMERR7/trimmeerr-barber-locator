@@ -37,14 +37,14 @@ const MapViewContainer = ({
   console.log('MapViewContainer: Rendering map view');
   
   return (
-    <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
+    <div className="h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex flex-col overflow-hidden">
       <MapHeader 
         userType={userType}
         onAIAssistantClick={onAIGeminiPageOpen}
         onDashboardClick={onDashboardOpen}
       />
 
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 w-full h-full relative overflow-hidden">
         <MapLayout
           displayBarbers={displayBarbers}
           onBarberSelect={handleBarberSelect}

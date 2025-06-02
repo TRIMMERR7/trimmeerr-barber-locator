@@ -107,7 +107,6 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
 
     } catch (error) {
       console.error('MapInstance: Error initializing map:', error);
-      setError('Failed to initialize Apple Maps: ' + error.message);
     }
 
     return () => {
@@ -151,11 +150,10 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
   };
 
   return (
-    <div className="h-full relative bg-gray-100">
+    <div className="w-full h-full relative bg-gray-100">
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 rounded-lg bg-gray-200"
-        style={{ minHeight: '400px' }}
+        className="absolute inset-0 w-full h-full rounded-lg bg-gray-200"
       />
       
       {/* Custom Zoom Controls */}
