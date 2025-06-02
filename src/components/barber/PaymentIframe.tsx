@@ -29,13 +29,13 @@ const PaymentIframe = ({
       
       // Check if message is from Stripe
       if (event.origin.includes('stripe.com') || event.origin.includes('checkout.stripe.com')) {
-        const data = event.data;
+        const messageData = event.data;
         
         // Handle different Stripe checkout events
-        if (data.type === 'checkout.session.completed' || 
-            data === 'checkout.session.completed' ||
-            data.type === 'payment_intent.succeeded' ||
-            data === 'payment_intent.succeeded') {
+        if (messageData.type === 'checkout.session.completed' || 
+            messageData === 'checkout.session.completed' ||
+            messageData.type === 'payment_intent.succeeded' ||
+            messageData === 'payment_intent.succeeded') {
           console.log('PaymentIframe: Payment completed successfully');
           setPaymentStatus('complete');
           setTimeout(() => {
@@ -43,7 +43,7 @@ const PaymentIframe = ({
           }, 1000);
         }
         
-        if (data.type === 'checkout.session.async_payment_succeeded') {
+        if (messageData.type === 'checkout.session.async_payment_succeeded') {
           console.log('PaymentIframe: Async payment succeeded');
           setPaymentStatus('complete');
           setTimeout(() => {
@@ -51,7 +51,7 @@ const PaymentIframe = ({
           }, 1000);
         }
         
-        if (data === 'stripe_checkout_closed' || data.type === 'checkout.session.canceled') {
+        if (messageData === 'stripe_checkout_closed' || messageData.type === 'checkout.session.canceled') {
           console.log('PaymentIframe: Checkout closed/canceled');
           // Don't call onPaymentComplete for cancellation
         }
@@ -59,7 +59,7 @@ const PaymentIframe = ({
 
       // Also listen for URL changes that might indicate success
       if (event.origin === window.location.origin) {
-        if (data.url && (data.url.includes('success') || data.url.includes('payment-success'))) {
+        if (messageData.url && (messageData.url.includes('success') || messageData.url.includes('payment-success'))) {
           console.log('PaymentIframe: Success URL detected');
           setPaymentStatus('complete');
           setTimeout(() => {
@@ -107,14 +107,16 @@ const PaymentIframe = ({
       };
       
       iframe.addEventListener('load', handleLoad);
+      
+      return () => {
+        console.log('PaymentIframe: Cleaning up iframe listeners');
+        iframe.removeEventListener('load', handleLoad);
+      };
     }
     
     return () => {
-      console.log('PaymentIframe: Cleaning up');
+      console.log('PaymentIframe: Cleaning up message listeners');
       window.removeEventListener('message', handleMessage);
-      if (iframe) {
-        iframe.removeEventListener('load', handleLoad);
-      }
     };
   }, [paymentUrl, onPaymentLoad, onPaymentComplete]);
 
