@@ -1,16 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-interface BarberItem {
-  id: number;
-  name: string;
-  title: string;
-  image: string;
-  rating: number;
-  type: 'barber';
-}
 
 interface AdItem {
   id: number;
@@ -19,10 +11,7 @@ interface AdItem {
   offer: string;
   image: string;
   color: string;
-  type: 'ad';
 }
-
-type SlideItem = BarberItem | AdItem;
 
 const MapWidget = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -30,82 +19,50 @@ const MapWidget = () => {
   const [isPaused, setIsPaused] = useState(false);
   const isMobile = useIsMobile();
 
-  const topBarbers: BarberItem[] = [
-    {
-      id: 1,
-      name: "Marcus Johnson",
-      title: "Master Barber 2024",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-      rating: 4.9,
-      type: "barber"
-    },
-    {
-      id: 2,
-      name: "Carlos Rivera", 
-      title: "Excellence Award Winner",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-      rating: 4.8,
-      type: "barber"
-    },
-    {
-      id: 3,
-      name: "Ahmed Hassan",
-      title: "Rising Star 2024", 
-      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=face",
-      rating: 4.7,
-      type: "barber"
-    }
-  ];
-
   const companyAds: AdItem[] = [
     {
-      id: 4,
+      id: 1,
       company: "BarberTools Pro",
       tagline: "Professional Equipment",
       offer: "20% OFF Premium Clippers",
       image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=80&h=60&fit=crop",
-      color: "from-blue-500/90 to-blue-600/90",
-      type: "ad"
+      color: "from-blue-500/90 to-blue-600/90"
     },
     {
-      id: 5,
+      id: 2,
       company: "StyleCare Products",
       tagline: "Premium Hair Care",
       offer: "Buy 2 Get 1 FREE",
       image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=60&fit=crop",
-      color: "from-emerald-500/90 to-emerald-600/90",
-      type: "ad"
+      color: "from-emerald-500/90 to-emerald-600/90"
     },
     {
-      id: 6,
+      id: 3,
       company: "BarberAcademy",
       tagline: "Learn & Grow",
       offer: "30% Discount - Enroll Now",
       image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=80&h=60&fit=crop",
-      color: "from-purple-500/90 to-purple-600/90",
-      type: "ad"
+      color: "from-purple-500/90 to-purple-600/90"
     }
   ];
-
-  const allSlides: SlideItem[] = [...topBarbers, ...companyAds];
 
   useEffect(() => {
     if (isPaused) return;
     
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % allSlides.length);
+      setCurrentSlide((prev) => (prev + 1) % companyAds.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, [allSlides.length, isPaused]);
+  }, [companyAds.length, isPaused]);
 
   const handlePrev = () => {
-    setCurrentSlide((prev) => (prev - 1 + allSlides.length) % allSlides.length);
+    setCurrentSlide((prev) => (prev - 1 + companyAds.length) % companyAds.length);
     setIsPaused(true);
     setTimeout(() => setIsPaused(false), 8000);
   };
 
   const handleNext = () => {
-    setCurrentSlide((prev) => (prev + 1) % allSlides.length);
+    setCurrentSlide((prev) => (prev + 1) % companyAds.length);
     setIsPaused(true);
     setTimeout(() => setIsPaused(false), 8000);
   };
@@ -116,7 +73,7 @@ const MapWidget = () => {
     setTimeout(() => setIsPaused(false), 8000);
   };
 
-  const currentItem = allSlides[currentSlide];
+  const currentAd = companyAds[currentSlide];
 
   return (
     <div className="p-3 md:p-4">
@@ -131,38 +88,28 @@ const MapWidget = () => {
             <div className="flex items-center p-3 md:p-4 flex-1">
               <div className={`${
                 isMobile ? 'w-10 h-10' : 'w-12 h-12'
-              } bg-gradient-to-br from-red-500/80 to-red-600/80 rounded-lg flex items-center justify-center mr-3 shadow-lg`}>
-                <span className={`${isMobile ? 'text-lg' : 'text-xl'}`}>
-                  {currentItem.type === 'barber' ? '🏆' : '📢'}
-                </span>
+              } bg-gradient-to-br from-green-500/80 to-green-600/80 rounded-lg flex items-center justify-center mr-3 shadow-lg`}>
+                <span className={`${isMobile ? 'text-lg' : 'text-xl'}`}>📢</span>
               </div>
               
               <div className="flex-1 min-w-0">
                 <div className={`text-white/80 ${
                   isMobile ? 'text-xs' : 'text-sm'
                 } font-medium mb-1`}>
-                  {currentItem.type === 'barber' ? 'Top Barber' : 'Special Offer'}
+                  Special Offer
                 </div>
                 <div className={`text-white font-bold ${
                   isMobile ? 'text-sm' : 'text-base'
                 } truncate`}>
-                  {currentItem.type === 'barber' ? currentItem.name : currentItem.company}
+                  {currentAd.company}
                 </div>
               </div>
 
               {/* Quick Info */}
               <div className="flex items-center gap-2 mr-3">
-                {currentItem.type === 'barber' && (
-                  <div className="text-white text-xs font-bold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
-                    <span className="text-yellow-300">⭐</span>
-                    {currentItem.rating}
-                  </div>
-                )}
-                {currentItem.type === 'ad' && (
-                  <div className="text-white text-xs font-semibold bg-green-500/20 px-2 py-1 rounded-full backdrop-blur-sm">
-                    Offer
-                  </div>
-                )}
+                <div className="text-white text-xs font-semibold bg-green-500/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                  Offer
+                </div>
               </div>
 
               {/* Expand/Collapse Indicator */}
@@ -181,60 +128,30 @@ const MapWidget = () => {
             <div className="border-t border-white/10">
               {/* Detailed Content Area */}
               <div className={`relative ${isMobile ? 'h-32' : 'h-36'} overflow-hidden`}>
-                {/* Barber Detailed Content */}
-                {currentItem.type === 'barber' && (
-                  <div className="h-full bg-gradient-to-r from-red-600/90 to-red-700/90 backdrop-blur-sm flex items-center p-4 relative overflow-hidden">
+                {/* Ad Detailed Content */}
+                <div className={`h-full bg-gradient-to-r ${currentAd.color} backdrop-blur-sm flex items-center justify-between p-4 relative overflow-hidden cursor-pointer group/ad`}>
+                  <div className="flex-1 pr-4 min-w-0">
+                    <div className={`text-white/80 ${
+                      isMobile ? 'text-sm' : 'text-base'
+                    } font-medium mb-2`}>{currentAd.tagline}</div>
+                    <h3 className={`text-white font-bold ${
+                      isMobile ? 'text-lg' : 'text-xl'
+                    } leading-tight mb-3`}>{currentAd.company}</h3>
+                    <div className="text-white font-semibold text-sm bg-white/20 px-3 py-2 rounded-full backdrop-blur-sm inline-block">
+                      {currentAd.offer}
+                    </div>
+                  </div>
+                  
+                  <div className="flex-shrink-0">
                     <img
-                      src={currentItem.image}
-                      alt={currentItem.name}
+                      src={currentAd.image}
+                      alt={currentAd.company}
                       className={`${
                         isMobile ? 'w-16 h-16' : 'w-20 h-20'
-                      } rounded-xl object-cover border-2 border-white/30 mr-4 shadow-xl`}
+                      } rounded-xl object-cover border-2 border-white/30 shadow-xl group-hover/ad:scale-105 transition-transform duration-300`}
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-white/80 ${
-                        isMobile ? 'text-sm' : 'text-base'
-                      } font-medium mb-2`}>{currentItem.title}</div>
-                      <h3 className={`text-white font-bold ${
-                        isMobile ? 'text-lg' : 'text-xl'
-                      } leading-tight mb-3`}>{currentItem.name}</h3>
-                      <div className="flex items-center gap-3">
-                        <div className="text-white text-sm font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
-                          <span className="text-yellow-300">⭐</span>
-                          {currentItem.rating}
-                        </div>
-                        <div className="text-white/80 text-sm font-medium">Excellence Award</div>
-                      </div>
-                    </div>
                   </div>
-                )}
-
-                {/* Ad Detailed Content */}
-                {currentItem.type === 'ad' && (
-                  <div className={`h-full bg-gradient-to-r ${currentItem.color} backdrop-blur-sm flex items-center justify-between p-4 relative overflow-hidden cursor-pointer group/ad`}>
-                    <div className="flex-1 pr-4 min-w-0">
-                      <div className={`text-white/80 ${
-                        isMobile ? 'text-sm' : 'text-base'
-                      } font-medium mb-2`}>{currentItem.tagline}</div>
-                      <h3 className={`text-white font-bold ${
-                        isMobile ? 'text-lg' : 'text-xl'
-                      } leading-tight mb-3`}>{currentItem.company}</h3>
-                      <div className="text-white font-semibold text-sm bg-white/20 px-3 py-2 rounded-full backdrop-blur-sm inline-block">
-                        {currentItem.offer}
-                      </div>
-                    </div>
-                    
-                    <div className="flex-shrink-0">
-                      <img
-                        src={currentItem.image}
-                        alt={currentItem.company}
-                        className={`${
-                          isMobile ? 'w-16 h-16' : 'w-20 h-20'
-                        } rounded-xl object-cover border-2 border-white/30 shadow-xl group-hover/ad:scale-105 transition-transform duration-300`}
-                      />
-                    </div>
-                  </div>
-                )}
+                </div>
               </div>
               
               {/* Controls Panel */}
@@ -248,7 +165,7 @@ const MapWidget = () => {
                   </button>
                   
                   <div className="flex gap-1">
-                    {allSlides.map((_, index) => (
+                    {companyAds.map((_, index) => (
                       <button
                         key={index}
                         onClick={(e) => {e.stopPropagation(); handleSlideSelect(index);}}
@@ -270,7 +187,7 @@ const MapWidget = () => {
                 </div>
                 
                 <div className="text-white/70 text-sm font-medium">
-                  {currentSlide + 1} of {allSlides.length}
+                  {currentSlide + 1} of {companyAds.length}
                 </div>
               </div>
             </div>
