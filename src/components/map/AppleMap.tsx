@@ -76,13 +76,6 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         className="absolute inset-0 rounded-lg cursor-pointer" 
         style={{ touchAction: 'manipulation' }}
       />
-      
-      {/* Debug info overlay - remove in production */}
-      <div className="absolute top-2 left-2 bg-black/80 text-white text-xs p-2 rounded z-10">
-        <div>Barbers: {nearbyBarbers.length}</div>
-        <div>Map loaded: {mapkitLoaded ? 'Yes' : 'No'}</div>
-        <div>User location: {userLocation ? 'Yes' : 'No'}</div>
-      </div>
     </div>
   );
 };
