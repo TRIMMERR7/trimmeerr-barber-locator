@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { Calendar, ArrowLeft, X } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -45,7 +45,8 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
   const [userPhone, setUserPhone] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [step, setStep] = useState<'service' | 'time' | 'details'>('service');
+  const [step, setStep] = useState<'service' | 'time' | 'details' | 'payment'>('service');
+  const [paymentUrl, setPaymentUrl] = useState<string>('');
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
@@ -98,7 +99,6 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         console.error('Payment creation error:', error);
         let errorMessage = "Failed to process booking. Please try again.";
         
-        // More specific error messages
         if (error.message.includes('Invalid Stripe secret key')) {
           errorMessage = "Payment system configuration error. Please contact support.";
         } else if (error.message.includes('authentication')) {
@@ -116,20 +116,14 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
       }
 
       if (data?.url) {
-        console.log('Opening payment URL in new tab:', data.url);
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
+        console.log('Loading payment page in app:', data.url);
+        setPaymentUrl(data.url);
+        setStep('payment');
         
         toast({
-          title: "Payment Page Opened",
-          description: `Complete payment in the new tab for your ${selectedTime} ${selectedService.name} with ${barber.name}`,
+          title: "Payment Page Loaded",
+          description: `Complete your payment for ${selectedTime} ${selectedService.name} with ${barber.name}`,
         });
-        
-        setIsOpen(false);
-        setSelectedService(null);
-        setSelectedTime('');
-        setUserPhone('');
-        setStep('service');
       } else {
         throw new Error('No payment URL received');
       }
@@ -149,12 +143,25 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
     setSelectedService(null);
     setSelectedTime('');
     setUserPhone('');
+    setPaymentUrl('');
     setStep('service');
   };
 
   const handleStepBack = () => {
     if (step === 'time') setStep('service');
     if (step === 'details') setStep('time');
+    if (step === 'payment') setStep('details');
+  };
+
+  const handlePaymentComplete = () => {
+    // This would be called when payment is successful
+    // You might want to listen for postMessage events from the iframe
+    setIsOpen(false);
+    resetBooking();
+    toast({
+      title: "Booking Confirmed!",
+      description: "Your appointment has been successfully booked",
+    });
   };
 
   return (
@@ -166,10 +173,10 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         {children}
       </DialogTrigger>
       
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className={`${step === 'payment' ? 'sm:max-w-4xl max-w-[95vw] h-[90vh]' : 'sm:max-w-md'} max-h-[90vh] overflow-y-auto`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {step !== 'service' && (
+            {step !== 'service' && step !== 'payment' && (
               <button 
                 onClick={handleStepBack}
                 className="p-1 h-auto hover:bg-gray-100 rounded"
@@ -177,8 +184,16 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
                 <ArrowLeft className="w-4 h-4" />
               </button>
             )}
+            {step === 'payment' && (
+              <button 
+                onClick={handleStepBack}
+                className="p-1 h-auto hover:bg-gray-100 rounded"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
             <Calendar className="w-5 h-5 text-red-600" />
-            Book with {barber.name}
+            {step === 'payment' ? 'Complete Payment' : `Book with ${barber.name}`}
           </DialogTitle>
         </DialogHeader>
         
@@ -210,6 +225,30 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
               isProcessingPayment={isProcessingPayment}
               user={user}
             />
+          )}
+
+          {/* Step 4: Payment Page */}
+          {step === 'payment' && paymentUrl && (
+            <div className="w-full h-[70vh]">
+              <iframe
+                src={paymentUrl}
+                className="w-full h-full border-0 rounded-lg"
+                title="Stripe Checkout"
+                onLoad={() => {
+                  // Listen for payment completion
+                  const handleMessage = (event: MessageEvent) => {
+                    // Stripe sends messages when payment is complete
+                    if (event.origin === 'https://checkout.stripe.com') {
+                      if (event.data.type === 'checkout.session.completed') {
+                        handlePaymentComplete();
+                      }
+                    }
+                  };
+                  window.addEventListener('message', handleMessage);
+                  return () => window.removeEventListener('message', handleMessage);
+                }}
+              />
+            </div>
           )}
         </div>
       </DialogContent>
