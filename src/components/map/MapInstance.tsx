@@ -42,21 +42,24 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       <div 
         ref={mapContainer} 
         className="absolute inset-0 w-full h-full rounded-lg bg-gray-200"
-      />
-      
-      <MapZoomControls 
-        map={map}
-        visible={mapInitialized}
+        style={{ minHeight: '400px' }}
       />
       
       {mapInitialized && (
-        <MapAnnotations
-          map={map}
-          userLocation={userLocation}
-          nearbyBarbers={nearbyBarbers}
-          onBarberSelect={onBarberSelect}
-          mapReady={mapReady}
-        />
+        <>
+          <MapZoomControls 
+            map={map}
+            visible={mapReady}
+          />
+          
+          <MapAnnotations
+            map={map}
+            userLocation={userLocation}
+            nearbyBarbers={nearbyBarbers}
+            onBarberSelect={onBarberSelect}
+            mapReady={mapReady}
+          />
+        </>
       )}
       
       <MapLoadingState

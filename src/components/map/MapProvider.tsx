@@ -70,7 +70,7 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
     };
 
     fetchAppleApiKey();
-  }, []);
+  }, []); // Empty dependency array to prevent re-fetching
 
   console.log('MapProvider: Current state:', { 
     isLoadingApiKey, 

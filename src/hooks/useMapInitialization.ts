@@ -17,19 +17,22 @@ export const useMapInitialization = ({
   const map = useRef<any>(null);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [mapReady, setMapReady] = useState(false);
+  const initializationAttempted = useRef(false);
 
   useEffect(() => {
-    if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) {
+    // Prevent multiple initialization attempts
+    if (!mapkitLoaded || !mapContainer.current || !apiKey || initializationAttempted.current) {
       console.log('useMapInitialization: Skipping initialization:', {
         mapkitLoaded,
         hasMapContainer: !!mapContainer.current,
-        mapInitialized,
-        hasApiKey: !!apiKey
+        hasApiKey: !!apiKey,
+        alreadyAttempted: initializationAttempted.current
       });
       return;
     }
 
     console.log('useMapInitialization: Starting map initialization...');
+    initializationAttempted.current = true;
 
     const center = userLocation 
       ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
@@ -59,58 +62,38 @@ export const useMapInitialization = ({
 
       console.log('useMapInitialization: Map object created:', !!map.current);
 
-      // Enhanced map ready detection
-      let readyTimeoutId: NodeJS.Timeout;
-      const checkMapReady = () => {
-        console.log('useMapInitialization: Map ready check triggered');
-        if (map.current && map.current.element) {
-          console.log('useMapInitialization: Map is ready for annotations');
-          setMapReady(true);
-          clearTimeout(readyTimeoutId);
-        }
-      };
-
-      // Multiple ways to detect when map is ready
-      map.current.addEventListener('region-change-end', checkMapReady);
-      map.current.addEventListener('configuration-change', checkMapReady);
-      
-      // Immediate check in case map is already ready
-      setTimeout(checkMapReady, 100);
-      
-      // Fallback timeout
-      readyTimeoutId = setTimeout(() => {
-        console.log('useMapInitialization: Map ready timeout - forcing ready state');
-        setMapReady(true);
-      }, 2000);
-
+      // Set map as initialized immediately
       setMapInitialized(true);
-      console.log('useMapInitialization: Map initialized successfully');
-
-      // Force a redraw after initialization
+      
+      // Set map as ready after a short delay to ensure it's fully loaded
       setTimeout(() => {
-        if (map.current && typeof map.current.redraw === 'function') {
-          console.log('useMapInitialization: Forcing map redraw');
-          map.current.redraw();
-        }
-      }, 500);
+        console.log('useMapInitialization: Setting map as ready');
+        setMapReady(true);
+      }, 1000);
+
+      console.log('useMapInitialization: Map initialized successfully');
 
     } catch (error) {
       console.error('useMapInitialization: Error initializing map:', error);
+      initializationAttempted.current = false; // Reset on error to allow retry
     }
 
+    // Cleanup function
     return () => {
       if (map.current) {
         try {
           console.log('useMapInitialization: Cleaning up map...');
+          map.current.destroy();
           map.current = null;
-          setMapInitialized(false);
-          setMapReady(false);
         } catch (error) {
           console.error('useMapInitialization: Error during cleanup:', error);
         }
       }
+      setMapInitialized(false);
+      setMapReady(false);
+      initializationAttempted.current = false;
     };
-  }, [mapkitLoaded, apiKey, userLocation, mapContainer, mapInitialized]);
+  }, [mapkitLoaded, apiKey]); // Removed mapContainer and userLocation from dependencies to prevent re-initialization
 
   return {
     map: map.current,
