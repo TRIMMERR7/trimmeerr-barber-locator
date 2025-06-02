@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 
@@ -21,11 +21,11 @@ interface Barber {
 }
 
 interface MapViewProps {
-  userType: 'barber' | 'client' | 'guest';
-  onLogout: () => void;
+  userType: 'barber' | 'client';
 }
 
-const MapView = ({ userType, onLogout }: MapViewProps) => {
+const MapView = ({ userType }: MapViewProps) => {
+  const { signOut } = useAuth();
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -177,10 +177,10 @@ const MapView = ({ userType, onLogout }: MapViewProps) => {
             )}
             <Button 
               variant="ghost" 
-              onClick={onLogout}
+              onClick={signOut}
               className="text-gray-400 hover:text-white text-sm touch-manipulation"
             >
-              {userType === 'guest' ? 'Sign In' : 'Sign Out'}
+              Sign Out
             </Button>
           </div>
         </div>

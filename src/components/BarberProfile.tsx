@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Barber {
   id: string;
@@ -19,10 +19,11 @@ interface Barber {
 interface BarberProfileProps {
   barber: Barber;
   onBack: () => void;
-  userType: 'barber' | 'client' | 'guest';
+  userType: 'barber' | 'client';
 }
 
 const BarberProfile = ({ barber, onBack, userType }: BarberProfileProps) => {
+  const { user } = useAuth();
   const [selectedTime, setSelectedTime] = useState<string>('');
 
   const availableTimes = ['9:00 AM', '10:30 AM', '12:00 PM', '2:30 PM', '4:00 PM', '6:00 PM'];
@@ -33,7 +34,7 @@ const BarberProfile = ({ barber, onBack, userType }: BarberProfileProps) => {
       return;
     }
     
-    if (userType === 'guest') {
+    if (!user) {
       alert('Please sign in to book an appointment');
       return;
     }
@@ -164,10 +165,10 @@ const BarberProfile = ({ barber, onBack, userType }: BarberProfileProps) => {
 
           <Button 
             onClick={handleBooking}
-            disabled={!selectedTime}
+            disabled={!selectedTime || !user}
             className="w-full bg-red-600 hover:bg-red-700 text-white h-12 text-base touch-manipulation"
           >
-            {userType === 'guest' ? 'Sign In to Book' : 'Book Appointment'}
+            {!user ? 'Sign In Required' : 'Book Appointment'}
           </Button>
         </div>
       </div>

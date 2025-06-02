@@ -1,24 +1,28 @@
 
-import React, { useState } from 'react';
-import LoginPage from '@/components/LoginPage';
+import React from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import AuthPage from '@/components/AuthPage';
 import MapView from '@/components/MapView';
 
 const Index = () => {
-  const [user, setUser] = useState<{ type: 'barber' | 'client' | 'guest' } | null>(null);
+  const { user, loading } = useAuth();
 
-  const handleLogin = (type: 'barber' | 'client' | 'guest') => {
-    setUser({ type });
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  if (!user) {
-    return <LoginPage onLogin={handleLogin} />;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    );
   }
 
-  return <MapView userType={user.type} onLogout={handleLogout} />;
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  // Get user type from metadata or default to client
+  const userType = user.user_metadata?.user_type || 'client';
+
+  return <MapView userType={userType} />;
 };
 
 export default Index;
