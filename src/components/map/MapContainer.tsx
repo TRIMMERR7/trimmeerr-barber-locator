@@ -1,4 +1,7 @@
-import React from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Plus, Minus } from "lucide-react";
 import BarberMarker from './BarberMarker';
 import AdSlider from '../AdSlider';
 import TopBarbersSlider from '../TopBarbersSlider';
@@ -22,18 +25,72 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
+  const [zoom, setZoom] = useState(1);
+  const mapRef = useRef<HTMLDivElement>(null);
+
   const handleBarberClick = (barber: Barber) => {
     console.log('MapContainer handling barber click:', barber.name);
     onBarberSelect(barber);
   };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.2, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.2, 0.5));
+  };
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setZoom(prev => Math.max(0.5, Math.min(3, prev + delta)));
+    };
+
+    const mapElement = mapRef.current;
+    if (mapElement) {
+      mapElement.addEventListener('wheel', handleWheel, { passive: false });
+      return () => mapElement.removeEventListener('wheel', handleWheel);
+    }
+  }, []);
 
   return (
     <div className="flex-1 relative">
       {/* Top Barbers Slideshow */}
       <TopBarbersSlider />
 
+      {/* Zoom Controls */}
+      <div className="absolute top-4 right-4 z-30 flex flex-col gap-2">
+        <Button
+          onClick={handleZoomIn}
+          size="icon"
+          className="bg-white/90 hover:bg-white text-gray-800 shadow-lg"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+        <Button
+          onClick={handleZoomOut}
+          size="icon"
+          className="bg-white/90 hover:bg-white text-gray-800 shadow-lg"
+        >
+          <Minus className="h-4 w-4" />
+        </Button>
+        <div className="bg-white/90 px-2 py-1 rounded text-xs font-medium text-gray-800 text-center">
+          {Math.round(zoom * 100)}%
+        </div>
+      </div>
+
       {/* GPS-Style Map Area */}
-      <div className="h-full relative overflow-hidden">
+      <div 
+        ref={mapRef}
+        className="h-full relative overflow-hidden cursor-grab active:cursor-grabbing"
+        style={{ 
+          transform: `scale(${zoom})`,
+          transformOrigin: 'center center',
+          transition: 'transform 0.2s ease-out'
+        }}
+      >
         {/* Map Background with realistic GPS styling */}
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-green-100 to-green-200">
           {/* Street grid pattern */}
