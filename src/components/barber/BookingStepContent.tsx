@@ -102,13 +102,16 @@ const BookingStepContent = ({
         );
 
       case 'payment':
+        console.log('BookingStepContent: Rendering payment step', { paymentUrl, paymentLoading });
         return (
-          <PaymentIframe
-            paymentUrl={paymentUrl}
-            paymentLoading={paymentLoading}
-            onPaymentLoad={onPaymentLoad}
-            onPaymentComplete={onPaymentComplete}
-          />
+          <div className="h-full">
+            <PaymentIframe
+              paymentUrl={paymentUrl}
+              paymentLoading={paymentLoading}
+              onPaymentLoad={onPaymentLoad}
+              onPaymentComplete={onPaymentComplete}
+            />
+          </div>
         );
 
       default:
@@ -117,7 +120,7 @@ const BookingStepContent = ({
   };
 
   return (
-    <div className={`space-y-6 ${step === 'payment' ? 'h-full' : ''}`}>
+    <div className={`${step === 'payment' ? 'h-full' : 'space-y-6'}`}>
       {renderStepContent()}
     </div>
   );

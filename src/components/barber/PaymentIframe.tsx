@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
 interface PaymentIframeProps {
@@ -15,21 +15,46 @@ const PaymentIframe = ({
   onPaymentLoad, 
   onPaymentComplete 
 }: PaymentIframeProps) => {
+  useEffect(() => {
+    console.log('PaymentIframe: Component mounted', { paymentUrl, paymentLoading });
+  }, [paymentUrl, paymentLoading]);
+
   const handleIframeLoad = () => {
+    console.log('PaymentIframe: Iframe loaded successfully');
     onPaymentLoad();
     
-    // Listen for payment completion
+    // Listen for payment completion messages from Stripe
     const handleMessage = (event: MessageEvent) => {
+      console.log('PaymentIframe: Received message', event);
       if (event.origin === 'https://checkout.stripe.com') {
         if (event.data.type === 'checkout.session.completed') {
+          console.log('PaymentIframe: Payment completed');
           onPaymentComplete();
         }
       }
     };
     
     window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    return () => {
+      console.log('PaymentIframe: Cleaning up message listener');
+      window.removeEventListener('message', handleMessage);
+    };
   };
+
+  const handleIframeError = (error: any) => {
+    console.error('PaymentIframe: Iframe error', error);
+  };
+
+  if (!paymentUrl) {
+    console.log('PaymentIframe: No payment URL provided');
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8">
+        <div className="text-center">
+          <p className="text-gray-600">No payment URL available</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex flex-col">
@@ -42,17 +67,23 @@ const PaymentIframe = ({
         </div>
       )}
       
-      {paymentUrl && (
-        <div className="flex-1 min-h-[500px] rounded-lg overflow-hidden shadow-2xl border border-gray-200">
-          <iframe
-            src={paymentUrl}
-            className="w-full h-full border-0"
-            title="Secure Payment Checkout"
-            onLoad={handleIframeLoad}
-            sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation"
-          />
-        </div>
-      )}
+      <div className="flex-1 rounded-lg overflow-hidden shadow-2xl border border-gray-200" style={{ minHeight: '600px' }}>
+        <iframe
+          src={paymentUrl}
+          className="w-full h-full border-0"
+          title="Secure Payment Checkout"
+          onLoad={handleIframeLoad}
+          onError={handleIframeError}
+          sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation allow-top-navigation-by-user-activation"
+          allow="payment"
+          style={{ 
+            width: '100%', 
+            height: '100%',
+            minHeight: '600px',
+            display: 'block'
+          }}
+        />
+      </div>
     </div>
   );
 };

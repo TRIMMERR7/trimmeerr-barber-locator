@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar, ArrowLeft, X } from "lucide-react";
@@ -94,9 +93,8 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
     setIsProcessingPayment(true);
     
     try {
-      console.log('Starting payment process...');
+      console.log('BookingDialog: Starting payment process...');
       
-      // Show optimistic loading
       toast({
         title: "Creating Payment Session",
         description: "Setting up your secure checkout...",
@@ -114,30 +112,20 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         }
       });
 
-      console.log('Payment response:', { data, error });
+      console.log('BookingDialog: Payment response:', { data, error });
 
       if (error) {
-        console.error('Payment creation error:', error);
-        let errorMessage = "Failed to process booking. Please try again.";
-        
-        if (error.message.includes('Invalid Stripe secret key')) {
-          errorMessage = "Payment system configuration error. Please contact support.";
-        } else if (error.message.includes('authentication')) {
-          errorMessage = "Authentication error. Please sign in again.";
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-        
+        console.error('BookingDialog: Payment creation error:', error);
         toast({
           title: "Booking Error",
-          description: errorMessage,
+          description: "Failed to process booking. Please try again.",
           variant: "destructive",
         });
         return;
       }
 
       if (data?.url) {
-        console.log('Loading payment page in app:', data.url);
+        console.log('BookingDialog: Setting payment URL and moving to payment step');
         setPaymentUrl(data.url);
         setPaymentLoading(true);
         setStep('payment');
@@ -150,7 +138,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         throw new Error('No payment URL received');
       }
     } catch (error) {
-      console.error('Unexpected payment error:', error);
+      console.error('BookingDialog: Unexpected payment error:', error);
       toast({
         title: "Booking Error",
         description: "An unexpected error occurred. Please try again.",
@@ -202,13 +190,14 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
 
   const getDialogClassName = () => {
     if (step === 'payment') {
-      return 'sm:max-w-5xl max-w-[95vw] h-[90vh]';
+      return 'sm:max-w-6xl max-w-[98vw] h-[95vh]';
     }
     return 'sm:max-w-lg max-w-[95vw]';
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
+      console.log('BookingDialog: Dialog open state changed:', open);
       setIsOpen(open);
       if (!open) resetBooking();
     }}>
@@ -216,8 +205,8 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         {children}
       </DialogTrigger>
       
-      <DialogContent className={`${getDialogClassName()} max-h-[90vh] overflow-hidden shadow-2xl border-0`}>
-        <DialogHeader className="space-y-4 border-b border-gray-100 pb-4">
+      <DialogContent className={`${getDialogClassName()} max-h-[95vh] overflow-hidden shadow-2xl border-0`}>
+        <DialogHeader className={`space-y-4 border-b border-gray-100 pb-4 ${step === 'payment' ? 'flex-shrink-0' : ''}`}>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               {step !== 'service' && step !== 'payment' && (
@@ -251,22 +240,24 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
           <BookingProgressBar step={step} />
         </DialogHeader>
         
-        <BookingStepContent
-          step={step}
-          selectedService={selectedService}
-          selectedTime={selectedTime}
-          userPhone={userPhone}
-          user={user}
-          isProcessingPayment={isProcessingPayment}
-          paymentUrl={paymentUrl}
-          paymentLoading={paymentLoading}
-          onServiceSelect={handleServiceSelect}
-          onTimeSelect={handleTimeSelect}
-          setUserPhone={setUserPhone}
-          onBookingAndPayment={handleBookingAndPayment}
-          onPaymentLoad={handlePaymentLoad}
-          onPaymentComplete={handlePaymentComplete}
-        />
+        <div className={step === 'payment' ? 'flex-1 overflow-hidden' : 'flex-shrink-0'}>
+          <BookingStepContent
+            step={step}
+            selectedService={selectedService}
+            selectedTime={selectedTime}
+            userPhone={userPhone}
+            user={user}
+            isProcessingPayment={isProcessingPayment}
+            paymentUrl={paymentUrl}
+            paymentLoading={paymentLoading}
+            onServiceSelect={handleServiceSelect}
+            onTimeSelect={handleTimeSelect}
+            setUserPhone={setUserPhone}
+            onBookingAndPayment={handleBookingAndPayment}
+            onPaymentLoad={handlePaymentLoad}
+            onPaymentComplete={handlePaymentComplete}
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );
