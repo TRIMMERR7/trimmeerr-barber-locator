@@ -5,6 +5,8 @@ import ServiceSelection from './ServiceSelection';
 import TimeSelection from './TimeSelection';
 import BookingDetails from './BookingDetails';
 import PaymentIframe from './PaymentIframe';
+import BookingAnimations from './BookingAnimations';
+import SuccessConfetti from './SuccessConfetti';
 
 interface Service {
   id: string;
@@ -53,7 +55,7 @@ const BookingStepContent = ({
     switch (step) {
       case 'service':
         return (
-          <div className="animate-fade-in overflow-y-auto max-h-[60vh]">
+          <div className="overflow-y-auto max-h-[60vh]">
             <ServiceSelection 
               onServiceSelect={onServiceSelect}
               selectedService={selectedService}
@@ -63,7 +65,7 @@ const BookingStepContent = ({
 
       case 'time':
         return (
-          <div className="animate-fade-in space-y-4 overflow-y-auto max-h-[60vh]">
+          <div className="space-y-4 overflow-y-auto max-h-[60vh]">
             {selectedService && (
               <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
@@ -88,7 +90,7 @@ const BookingStepContent = ({
 
       case 'details':
         return (
-          <div className="animate-fade-in overflow-y-auto max-h-[60vh]">
+          <div className="overflow-y-auto max-h-[60vh]">
             <BookingDetails
               selectedService={selectedService}
               selectedTime={selectedTime}
@@ -121,7 +123,10 @@ const BookingStepContent = ({
 
   return (
     <div className="h-full w-full">
-      {renderStepContent()}
+      <BookingAnimations step={step}>
+        {renderStepContent()}
+      </BookingAnimations>
+      <SuccessConfetti show={false} />
     </div>
   );
 };
