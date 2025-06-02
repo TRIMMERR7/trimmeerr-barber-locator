@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import AdIndicators from './AdIndicators';
 import { AdItem } from './AdData';
 
@@ -17,11 +17,9 @@ interface AdControlsProps {
 const AdControls = ({ 
   ads, 
   currentSlide, 
-  isPaused, 
   onPrev, 
   onNext, 
-  onSlideSelect, 
-  onTogglePause 
+  onSlideSelect
 }: AdControlsProps) => {
   return (
     <div className="flex justify-between items-center p-4 bg-gradient-to-r from-white/5 via-white/10 to-white/5 backdrop-blur-sm border-t border-white/10">
@@ -54,19 +52,6 @@ const AdControls = ({
       </div>
       
       <div className="flex items-center gap-3">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onTogglePause();
-          }}
-          className="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all duration-300 hover:scale-110"
-        >
-          {isPaused ? (
-            <Play className="w-3 h-3 text-white ml-0.5" />
-          ) : (
-            <Pause className="w-3 h-3 text-white" />
-          )}
-        </button>
         <div className="text-white/80 text-sm font-medium">
           {currentSlide + 1} / {ads.length}
         </div>

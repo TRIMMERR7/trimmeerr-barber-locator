@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronRight, Play, Pause, Zap } from 'lucide-react';
+import { ChevronRight, Zap } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import AdDisplay from './AdDisplay';
 import AdControls from './AdControls';
@@ -92,11 +92,6 @@ const MapWidget = () => {
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                   <span className="text-white/80 text-xs font-medium">LIVE</span>
                 </div>
-                {!isPaused ? (
-                  <Play className="w-3 h-3 text-green-400" />
-                ) : (
-                  <Pause className="w-3 h-3 text-yellow-400" />
-                )}
               </div>
 
               {/* Expand Indicator */}
