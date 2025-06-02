@@ -32,27 +32,20 @@ const MapAnnotations = ({
 }: MapAnnotationsProps) => {
   const userAnnotationRef = useRef<any>(null);
   const barberAnnotationsRef = useRef<any[]>([]);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Enhanced helper function to check if map is ready for annotations
   const isMapReadyForAnnotations = (mapInstance: any): boolean => {
-    console.log('Checking map readiness:', {
-      hasMapInstance: !!mapInstance,
-      mapInitialized,
-      hasWindow: typeof window !== 'undefined',
-      hasMapkit: !!window.mapkit
-    });
-
     if (!mapInstance || !mapInitialized) {
-      console.log('Map instance or initialization not ready');
       return false;
     }
     
     if (typeof window === 'undefined' || !window.mapkit) {
-      console.log('MapKit not available on window');
       return false;
     }
     
     try {
+      // Check if map has essential methods and is not in a destroyed state
       const hasRequiredMethods = (
         typeof mapInstance.addAnnotation === 'function' &&
         typeof mapInstance.removeAnnotation === 'function' &&
@@ -61,76 +54,76 @@ const MapAnnotations = ({
         typeof mapInstance.setRegionAnimated === 'function'
       );
 
-      const hasMapKitClasses = (
-        window.mapkit.MarkerAnnotation &&
-        window.mapkit.Annotation &&
-        window.mapkit.Coordinate &&
-        window.mapkit.CoordinateRegion &&
-        window.mapkit.CoordinateSpan
-      );
+      // Check if map is properly initialized (not destroyed)
+      const isMapValid = mapInstance._map !== null && mapInstance._map !== undefined;
 
-      console.log('Map readiness check:', {
-        hasRequiredMethods,
-        hasMapKitClasses,
-        ready: hasRequiredMethods && hasMapKitClasses
-      });
-
-      return hasRequiredMethods && hasMapKitClasses;
+      return hasRequiredMethods && isMapValid;
     } catch (error) {
       console.error('Error checking map readiness:', error);
       return false;
     }
   };
   
-  // Add user location marker (blue)
+  // Add user location marker (blue) with delay
   useEffect(() => {
     if (!userLocation) {
-      console.log('No user location available');
       return;
     }
     
-    if (!isMapReadyForAnnotations(map)) {
-      console.log('Map not ready for user location marker, skipping...');
-      return;
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
     
-    console.log('Adding user location marker at:', userLocation);
-
-    try {
-      // Remove existing user annotation if it exists
-      if (userAnnotationRef.current && map) {
-        console.log('Removing existing user annotation');
-        map.removeAnnotation(userAnnotationRef.current);
-        userAnnotationRef.current = null;
+    // Add a delay to ensure map is fully ready
+    timeoutRef.current = setTimeout(() => {
+      if (!isMapReadyForAnnotations(map)) {
+        console.log('Map not ready for user location marker after delay, skipping...');
+        return;
       }
-
-      const userAnnotation = new window.mapkit.MarkerAnnotation(
-        new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
-        {
-          color: '#007AFF',
-          glyphColor: '#FFFFFF',
-          title: 'Your Location',
-          subtitle: 'Client position',
-          displayPriority: 1000
-        }
-      );
-
-      map.addAnnotation(userAnnotation);
-      userAnnotationRef.current = userAnnotation;
       
-      const region = new window.mapkit.CoordinateRegion(
-        new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
-        new window.mapkit.CoordinateSpan(0.005, 0.005)
-      );
-      map.setRegionAnimated(region, true);
+      console.log('Adding user location marker at:', userLocation);
 
-      console.log('User location marker added successfully');
-    } catch (error) {
-      console.error('Error adding user location marker:', error);
-    }
+      try {
+        // Remove existing user annotation if it exists
+        if (userAnnotationRef.current && map) {
+          console.log('Removing existing user annotation');
+          map.removeAnnotation(userAnnotationRef.current);
+          userAnnotationRef.current = null;
+        }
+
+        const userAnnotation = new window.mapkit.MarkerAnnotation(
+          new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
+          {
+            color: '#007AFF',
+            glyphColor: '#FFFFFF',
+            title: 'Your Location',
+            subtitle: 'Client position',
+            displayPriority: 1000
+          }
+        );
+
+        map.addAnnotation(userAnnotation);
+        userAnnotationRef.current = userAnnotation;
+        
+        const region = new window.mapkit.CoordinateRegion(
+          new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
+          new window.mapkit.CoordinateSpan(0.005, 0.005)
+        );
+        map.setRegionAnimated(region, true);
+
+        console.log('User location marker added successfully');
+      } catch (error) {
+        console.error('Error adding user location marker:', error);
+      }
+    }, 1000); // 1 second delay
 
     return () => {
-      if (userAnnotationRef.current && map) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      if (userAnnotationRef.current && map && isMapReadyForAnnotations(map)) {
         try {
           console.log('Cleaning up user annotation');
           map.removeAnnotation(userAnnotationRef.current);
@@ -142,84 +135,107 @@ const MapAnnotations = ({
     };
   }, [map, userLocation, mapInitialized]);
 
-  // Add barber markers (red, clickable)
+  // Add barber markers (red, clickable) with delay
   useEffect(() => {
     if (!nearbyBarbers.length) {
-      console.log('No nearby barbers to display');
       return;
     }
     
-    if (!isMapReadyForAnnotations(map)) {
-      console.log('Map not ready for barber annotations, skipping...');
-      return;
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
     
-    console.log('Adding barber markers for', nearbyBarbers.length, 'barbers');
-
-    try {
-      // Remove existing barber annotations
-      if (barberAnnotationsRef.current.length > 0 && map) {
-        console.log('Removing existing barber annotations');
-        map.removeAnnotations(barberAnnotationsRef.current);
-        barberAnnotationsRef.current = [];
+    // Add a delay to ensure map is fully ready
+    timeoutRef.current = setTimeout(() => {
+      if (!isMapReadyForAnnotations(map)) {
+        console.log('Map not ready for barber annotations after delay, skipping...');
+        return;
       }
+      
+      console.log('Adding barber markers for', nearbyBarbers.length, 'barbers');
 
-      const annotations = nearbyBarbers.map((barber) => {
-        console.log(`Creating marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
-        
-        const markerElement = createCustomBarberMarker(barber);
-        
-        markerElement.addEventListener('click', (event) => {
-          event.stopPropagation();
-          console.log('Barber marker clicked:', barber.name);
-          onBarberSelect(barber);
+      try {
+        // Remove existing barber annotations
+        if (barberAnnotationsRef.current.length > 0 && map) {
+          console.log('Removing existing barber annotations');
+          map.removeAnnotations(barberAnnotationsRef.current);
+          barberAnnotationsRef.current = [];
+        }
+
+        const annotations = nearbyBarbers.map((barber) => {
+          console.log(`Creating marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
+          
+          const markerElement = createCustomBarberMarker(barber);
+          
+          markerElement.addEventListener('click', (event) => {
+            event.stopPropagation();
+            console.log('Barber marker clicked:', barber.name);
+            onBarberSelect(barber);
+          });
+
+          const annotation = new window.mapkit.Annotation(
+            new window.mapkit.Coordinate(barber.lat, barber.lng),
+            () => markerElement,
+            {
+              animates: true,
+              title: barber.name,
+              subtitle: `${barber.specialty} - ${barber.price}`,
+              data: barber,
+              displayPriority: 500
+            }
+          );
+
+          return annotation;
         });
 
-        const annotation = new window.mapkit.Annotation(
-          new window.mapkit.Coordinate(barber.lat, barber.lng),
-          () => markerElement,
-          {
-            animates: true,
-            title: barber.name,
-            subtitle: `${barber.specialty} - ${barber.price}`,
-            data: barber,
-            displayPriority: 500
+        map.addAnnotations(annotations);
+        barberAnnotationsRef.current = annotations;
+
+        const handleMapSelect = (event: any) => {
+          const annotation = event.annotation;
+          if (annotation.data) {
+            console.log('Map select event - barber marker:', annotation.data.name);
+            onBarberSelect(annotation.data);
           }
-        );
+        };
 
-        return annotation;
-      });
+        map.addEventListener('select', handleMapSelect);
 
-      map.addAnnotations(annotations);
-      barberAnnotationsRef.current = annotations;
+        console.log('All barber markers added successfully');
 
-      const handleMapSelect = (event: any) => {
-        const annotation = event.annotation;
-        if (annotation.data) {
-          console.log('Map select event - barber marker:', annotation.data.name);
-          onBarberSelect(annotation.data);
-        }
-      };
-
-      map.addEventListener('select', handleMapSelect);
-
-      console.log('All barber markers added successfully');
-
-      return () => {
-        if (map && barberAnnotationsRef.current.length > 0) {
-          try {
-            console.log('Cleaning up barber annotations');
-            map.removeAnnotations(barberAnnotationsRef.current);
-            map.removeEventListener('select', handleMapSelect);
-            barberAnnotationsRef.current = [];
-          } catch (error) {
-            console.error('Error removing barber annotations:', error);
+        return () => {
+          if (map && barberAnnotationsRef.current.length > 0 && isMapReadyForAnnotations(map)) {
+            try {
+              console.log('Cleaning up barber annotations');
+              map.removeAnnotations(barberAnnotationsRef.current);
+              map.removeEventListener('select', handleMapSelect);
+              barberAnnotationsRef.current = [];
+            } catch (error) {
+              console.error('Error removing barber annotations:', error);
+            }
           }
+        };
+      } catch (error) {
+        console.error('Error adding barber markers:', error);
+      }
+    }, 1500); // 1.5 second delay for barbers
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
+      if (map && barberAnnotationsRef.current.length > 0 && isMapReadyForAnnotations(map)) {
+        try {
+          console.log('Cleaning up barber annotations');
+          map.removeAnnotations(barberAnnotationsRef.current);
+          barberAnnotationsRef.current = [];
+        } catch (error) {
+          console.error('Error removing barber annotations:', error);
         }
-      };
-    } catch (error) {
-      console.error('Error adding barber markers:', error);
-    }
+      }
+    };
   }, [map, nearbyBarbers, onBarberSelect, mapInitialized]);
 
   return null;
