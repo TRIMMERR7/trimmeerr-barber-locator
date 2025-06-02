@@ -18,6 +18,7 @@ const PaymentSuccess = () => {
 
   const sessionId = searchParams.get('session_id');
   const barberName = searchParams.get('barber');
+  const serviceName = searchParams.get('service');
   const appointmentTime = searchParams.get('time');
 
   useEffect(() => {
@@ -40,6 +41,7 @@ const PaymentSuccess = () => {
         const { data, error } = await supabase.functions.invoke('send-booking-confirmation', {
           body: {
             email: user.email,
+            serviceName: serviceName ? decodeURIComponent(serviceName) : 'Barber Service',
             barberName: decodeURIComponent(barberName),
             appointmentTime: decodeURIComponent(appointmentTime),
             amount: 3500, // This should come from the payment data in a real app
@@ -75,7 +77,7 @@ const PaymentSuccess = () => {
     };
 
     sendConfirmation();
-  }, [user, barberName, appointmentTime, confirmationSent, toast]);
+  }, [user, barberName, serviceName, appointmentTime, confirmationSent, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
@@ -91,7 +93,7 @@ const PaymentSuccess = () => {
         <CardContent className="space-y-4">
           <div className="text-center space-y-2">
             <p className="text-gray-600">
-              Your barber service payment has been processed successfully. Your appointment is confirmed!
+              Your appointment has been successfully booked and payment processed!
             </p>
             
             {barberName && appointmentTime && (
@@ -100,6 +102,11 @@ const PaymentSuccess = () => {
                   <Calendar className="w-4 h-4 text-blue-600" />
                   <span className="font-medium text-blue-800">Appointment Details</span>
                 </div>
+                {serviceName && (
+                  <p className="text-sm text-blue-700">
+                    <strong>Service:</strong> {decodeURIComponent(serviceName)}
+                  </p>
+                )}
                 <p className="text-sm text-blue-700">
                   <strong>Barber:</strong> {decodeURIComponent(barberName)}
                 </p>

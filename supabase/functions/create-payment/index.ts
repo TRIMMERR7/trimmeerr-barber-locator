@@ -14,10 +14,21 @@ serve(async (req) => {
   }
 
   try {
-    const { amount, currency = "usd", serviceType = "barber_service", barberName, appointmentTime, userPhone } = await req.json();
+    const { amount, currency = "usd", serviceType = "barber_service", serviceName, barberName, appointmentTime, userPhone } = await req.json();
 
-    // Initialize Stripe
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    // Initialize Stripe with better error handling
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    console.log("Stripe key status:", stripeSecretKey ? "Key found" : "Key missing");
+    
+    if (!stripeSecretKey) {
+      throw new Error("Stripe secret key is not configured");
+    }
+
+    if (!stripeSecretKey.startsWith("sk_")) {
+      throw new Error("Invalid Stripe secret key format. Must start with 'sk_'");
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16",
     });
 
@@ -51,8 +62,8 @@ serve(async (req) => {
     }
 
     // Create service description
-    const serviceDescription = barberName && appointmentTime 
-      ? `Barber appointment with ${barberName} at ${appointmentTime}`
+    const serviceDescription = serviceName && barberName && appointmentTime 
+      ? `${serviceName} with ${barberName} at ${appointmentTime}`
       : "Barber Service Payment";
 
     // Create payment session
@@ -63,7 +74,7 @@ serve(async (req) => {
           price_data: {
             currency: currency,
             product_data: { 
-              name: "Barber Service",
+              name: serviceName || "Barber Service",
               description: serviceDescription
             },
             unit_amount: amount,
@@ -73,9 +84,10 @@ serve(async (req) => {
       ],
       mode: "payment",
       payment_method_types: ["card"],
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&barber=${encodeURIComponent(barberName || '')}&time=${encodeURIComponent(appointmentTime || '')}`,
+      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}&barber=${encodeURIComponent(barberName || '')}&service=${encodeURIComponent(serviceName || '')}&time=${encodeURIComponent(appointmentTime || '')}`,
       cancel_url: `${req.headers.get("origin")}/payment-canceled`,
       metadata: {
+        service_name: serviceName || '',
         barber_name: barberName || '',
         appointment_time: appointmentTime || '',
         user_email: user.email,
@@ -99,6 +111,7 @@ serve(async (req) => {
       status: "pending",
     });
 
+    console.log("Payment session created successfully:", session.id);
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

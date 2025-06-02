@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email, barberName, appointmentTime, amount, userPhone } = await req.json();
+    const { email, serviceName, barberName, appointmentTime, amount, userPhone } = await req.json();
 
     console.log("Sending booking confirmation to:", email);
 
@@ -29,6 +29,7 @@ serve(async (req) => {
           <h1 style="color: #dc2626; text-align: center;">Appointment Confirmed!</h1>
           <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h2 style="color: #374151; margin-top: 0;">Booking Details</h2>
+            <p><strong>Service:</strong> ${serviceName}</p>
             <p><strong>Barber:</strong> ${barberName}</p>
             <p><strong>Date & Time:</strong> ${appointmentTime}</p>
             <p><strong>Amount Paid:</strong> $${(amount / 100).toFixed(2)}</p>
@@ -52,7 +53,7 @@ serve(async (req) => {
         const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
 
         if (twilioAccountSid && twilioAuthToken && twilioPhoneNumber) {
-          const smsBody = `TRIMMERR: Your appointment with ${barberName} at ${appointmentTime} is confirmed! Amount paid: $${(amount / 100).toFixed(2)}. Thank you!`;
+          const smsBody = `TRIMMERR: Your ${serviceName} appointment with ${barberName} at ${appointmentTime} is confirmed! Amount paid: $${(amount / 100).toFixed(2)}. Thank you!`;
           
           const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
           const smsData = new URLSearchParams({
