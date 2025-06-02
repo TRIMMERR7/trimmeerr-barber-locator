@@ -3,105 +3,93 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 
 const AdSlider = () => {
-  const [currentBarber, setCurrentBarber] = useState(0);
+  const [currentAd, setCurrentAd] = useState(0);
 
-  const topBarbers = [
+  const companyAds = [
     {
       id: 1,
-      name: "Marcus Johnson",
-      title: "Master Barber of 2024",
-      specialty: "Fades & Braids Specialist",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=200&fit=crop&crop=face",
-      rating: 4.9,
-      color: "from-gold-600 to-yellow-600",
-      awards: "Best Fade Artist"
+      company: "BarberTools Pro",
+      tagline: "Professional Equipment",
+      offer: "20% OFF Premium Clippers",
+      image: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=80&h=60&fit=crop",
+      color: "from-blue-600 to-blue-700"
     },
     {
       id: 2,
-      name: "Carlos Rivera",
-      title: "Excellence Award Winner",
-      specialty: "Classic Cuts Expert",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=200&fit=crop&crop=face",
-      rating: 4.8,
-      color: "from-blue-600 to-purple-600",
-      awards: "Client Favorite"
+      company: "StyleCare Products",
+      tagline: "Premium Hair Care",
+      offer: "Buy 2 Get 1 FREE Pomades",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=60&fit=crop",
+      color: "from-green-600 to-green-700"
     },
     {
       id: 3,
-      name: "Ahmed Hassan",
-      title: "Rising Star 2024",
-      specialty: "Beard Styling Master",
-      image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=200&fit=crop&crop=face",
-      rating: 4.7,
-      color: "from-green-600 to-teal-600",
-      awards: "Innovation Award"
+      company: "BarberAcademy",
+      tagline: "Learn & Grow",
+      offer: "Enroll Now - 30% Discount",
+      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=80&h=60&fit=crop",
+      color: "from-purple-600 to-purple-700"
     }
   ];
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentBarber((prev) => (prev + 1) % topBarbers.length);
+      setCurrentAd((prev) => (prev + 1) % companyAds.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, [topBarbers.length]);
+  }, [companyAds.length]);
 
-  const handleBarberClick = (index: number) => {
-    setCurrentBarber(index);
+  const handleAdClick = (index: number) => {
+    setCurrentAd(index);
   };
 
   return (
     <div className="absolute bottom-4 left-4 right-4 z-30">
-      <Card className="bg-white/95 backdrop-blur-sm shadow-2xl border-0 overflow-hidden">
+      <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-0 overflow-hidden">
         <CardContent className="p-0">
-          <div className="relative h-28 overflow-hidden">
-            {topBarbers.map((barber, index) => (
+          <div className="relative h-20 overflow-hidden">
+            {companyAds.map((ad, index) => (
               <div
-                key={barber.id}
+                key={ad.id}
                 className={`absolute inset-0 transition-all duration-700 ease-in-out cursor-pointer ${
-                  index === currentBarber ? 'translate-x-0 opacity-100' : 
-                  index < currentBarber ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'
+                  index === currentAd ? 'translate-x-0 opacity-100' : 
+                  index < currentAd ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'
                 }`}
-                onClick={() => console.log(`Clicked top barber: ${barber.name}`)}
+                onClick={() => console.log(`Clicked ad: ${ad.company}`)}
               >
-                <div className={`h-full bg-gradient-to-r ${barber.color} flex items-center justify-between p-4 relative overflow-hidden`}>
-                  {/* Rating badge */}
-                  <div className="absolute top-2 right-2 bg-white text-black px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                    ⭐ {barber.rating}
-                  </div>
-                  
-                  <div className="flex-1 pr-4">
-                    <div className="text-white/90 text-xs font-medium mb-1">{barber.title}</div>
-                    <h3 className="text-white font-bold text-sm leading-tight mb-1">{barber.name}</h3>
-                    <p className="text-white/80 text-xs leading-tight mb-1">{barber.specialty}</p>
-                    <div className="text-white/70 text-xs font-medium">{barber.awards}</div>
+                <div className={`h-full bg-gradient-to-r ${ad.color} flex items-center justify-between p-3 relative overflow-hidden`}>
+                  <div className="flex-1 pr-3">
+                    <div className="text-white/90 text-xs font-medium mb-1">{ad.tagline}</div>
+                    <h3 className="text-white font-bold text-sm leading-tight mb-1">{ad.company}</h3>
+                    <div className="text-white/80 text-xs font-medium">{ad.offer}</div>
                   </div>
                   
                   <div className="flex-shrink-0">
                     <img
-                      src={barber.image}
-                      alt={barber.name}
-                      className="w-20 h-20 rounded-xl object-cover border-3 border-white/30 shadow-lg"
+                      src={ad.image}
+                      alt={ad.company}
+                      className="w-14 h-14 rounded-lg object-cover border-2 border-white/30 shadow-md"
                     />
                   </div>
                   
                   {/* Decorative elements */}
-                  <div className="absolute -right-10 -top-10 w-20 h-20 bg-white/10 rounded-full"></div>
-                  <div className="absolute -left-5 -bottom-5 w-15 h-15 bg-white/5 rounded-full"></div>
+                  <div className="absolute -right-8 -top-8 w-16 h-16 bg-white/10 rounded-full"></div>
+                  <div className="absolute -left-4 -bottom-4 w-12 h-12 bg-white/5 rounded-full"></div>
                 </div>
               </div>
             ))}
           </div>
           
           {/* Header and Indicators */}
-          <div className="flex justify-between items-center p-3 bg-gray-50">
-            <div className="text-sm font-semibold text-gray-800">🏆 Top Barbers of the Year</div>
+          <div className="flex justify-between items-center p-2 bg-gray-50">
+            <div className="text-xs font-semibold text-gray-800">📢 Partner Offers</div>
             <div className="flex gap-1">
-              {topBarbers.map((_, index) => (
+              {companyAds.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => handleBarberClick(index)}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    index === currentBarber ? 'bg-gray-800 w-6' : 'bg-gray-300 hover:bg-gray-400'
+                  onClick={() => handleAdClick(index)}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    index === currentAd ? 'bg-gray-800 w-4' : 'bg-gray-300 hover:bg-gray-400'
                   }`}
                 />
               ))}
