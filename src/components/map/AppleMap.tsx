@@ -53,7 +53,9 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, [apiKey]);
 
@@ -67,22 +69,31 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
       ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
       : new window.mapkit.Coordinate(29.7604, -95.3698); // Houston default
 
-    map.current = new window.mapkit.Map(mapContainer.current, {
-      center: center,
-      span: new window.mapkit.CoordinateSpan(0.02, 0.02),
-      mapType: window.mapkit.Map.MapTypes.Standard,
-      showsMapTypeControl: false,
-      showsZoomControl: true,
-      showsUserLocationControl: true,
-      isRotationEnabled: true,
-      colorScheme: window.mapkit.Map.ColorSchemes.Dark
-    });
+    try {
+      map.current = new window.mapkit.Map(mapContainer.current, {
+        center: center,
+        span: new window.mapkit.CoordinateSpan(0.02, 0.02),
+        mapType: window.mapkit.Map.MapTypes.Standard,
+        showsMapTypeControl: false,
+        showsZoomControl: true,
+        showsUserLocationControl: true,
+        isRotationEnabled: true,
+        colorScheme: window.mapkit.Map.ColorSchemes.Dark
+      });
 
-    console.log('AppleMap: Map initialized');
+      console.log('AppleMap: Map initialized');
+    } catch (error) {
+      console.error('AppleMap: Error initializing map:', error);
+    }
 
     return () => {
-      if (map.current) {
-        map.current.destroy();
+      if (map.current && typeof map.current.destroy === 'function') {
+        try {
+          map.current.destroy();
+          map.current = null;
+        } catch (error) {
+          console.error('AppleMap: Error destroying map:', error);
+        }
       }
     };
   }, [mapkitLoaded, userLocation]);
@@ -106,7 +117,13 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     map.current.setCenterAnimated(new window.mapkit.Coordinate(userLocation[0], userLocation[1]));
 
     return () => {
-      map.current.removeAnnotation(userAnnotation);
+      if (map.current && userAnnotation) {
+        try {
+          map.current.removeAnnotation(userAnnotation);
+        } catch (error) {
+          console.error('AppleMap: Error removing user annotation:', error);
+        }
+      }
     };
   }, [map.current, userLocation]);
 
@@ -133,18 +150,27 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     map.current.addAnnotations(annotations);
 
     // Add click listener for barber markers
-    map.current.addEventListener('select', (event: any) => {
+    const handleMarkerSelect = (event: any) => {
       const annotation = event.annotation;
       if (annotation.data) {
         console.log('AppleMap: Barber marker clicked:', annotation.data.name);
         onBarberSelect(annotation.data);
       }
-    });
+    };
+
+    map.current.addEventListener('select', handleMarkerSelect);
 
     console.log('AppleMap: All barber markers added successfully');
 
     return () => {
-      map.current.removeAnnotations(annotations);
+      if (map.current && annotations.length > 0) {
+        try {
+          map.current.removeAnnotations(annotations);
+          map.current.removeEventListener('select', handleMarkerSelect);
+        } catch (error) {
+          console.error('AppleMap: Error removing barber annotations:', error);
+        }
+      }
     };
   }, [map.current, nearbyBarbers, onBarberSelect]);
 
