@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import MapAnnotations from './MapAnnotations';
@@ -128,12 +127,12 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
     <div className="h-full relative">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
       
-      {/* Custom Zoom Controls - Top Right */}
+      {/* Custom Zoom Controls - Top Right - Dark Mode */}
       {mapInitialized && (
         <div className="absolute top-4 right-4 z-50 flex flex-col gap-1">
           <button
             onClick={handleZoomIn}
-            className="w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg hover:bg-white hover:shadow-xl transition-all duration-200 flex items-center justify-center text-gray-700 hover:text-gray-900"
+            className="w-10 h-10 bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl hover:bg-gray-800/90 hover:shadow-2xl transition-all duration-200 flex items-center justify-center text-gray-300 hover:text-white"
             aria-label="Zoom in"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -145,7 +144,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
           </button>
           <button
             onClick={handleZoomOut}
-            className="w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg shadow-lg hover:bg-white hover:shadow-xl transition-all duration-200 flex items-center justify-center text-gray-700 hover:text-gray-900"
+            className="w-10 h-10 bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl hover:bg-gray-800/90 hover:shadow-2xl transition-all duration-200 flex items-center justify-center text-gray-300 hover:text-white"
             aria-label="Zoom out"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
