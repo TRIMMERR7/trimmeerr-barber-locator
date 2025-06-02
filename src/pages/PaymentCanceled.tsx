@@ -16,16 +16,16 @@ const PaymentCanceled = () => {
             <XCircle className="w-8 h-8 text-red-600" />
           </div>
           <CardTitle className="text-2xl font-bold text-red-600">
-            Payment Canceled
+            Booking Canceled
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center space-y-2">
             <p className="text-gray-600">
-              Your payment was canceled. No charges were made to your account.
+              Your appointment booking was canceled. No charges were made to your account.
             </p>
             <p className="text-sm text-gray-500">
-              You can try again or return to the app to continue browsing.
+              You can try booking again or return to browse other barbers.
             </p>
           </div>
           

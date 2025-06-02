@@ -14,7 +14,7 @@ serve(async (req) => {
   }
 
   try {
-    const { amount, currency = "usd", serviceType = "barber_service" } = await req.json();
+    const { amount, currency = "usd", serviceType = "barber_service", barberName, appointmentTime } = await req.json();
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -48,17 +48,22 @@ serve(async (req) => {
       }
     }
 
+    // Create service description
+    const serviceDescription = barberName && appointmentTime 
+      ? `Barber appointment with ${barberName} at ${appointmentTime}`
+      : "Barber Service Payment";
+
     // Create payment session with Apple Pay and Google Pay enabled
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : "guest@example.com",
+      customer_email: customerId ? undefined : user?.email || "guest@example.com",
       line_items: [
         {
           price_data: {
             currency: currency,
             product_data: { 
-              name: "Barber Service Payment",
-              description: `Payment for ${serviceType}`
+              name: "Barber Service",
+              description: serviceDescription
             },
             unit_amount: amount, // Amount in cents
           },
