@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar, ArrowLeft, X } from "lucide-react";
+import { Calendar, ArrowLeft } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -123,11 +123,12 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
           description: "Failed to process booking. Please try again.",
           variant: "destructive",
         });
+        setIsProcessingPayment(false);
         return;
       }
 
       if (data?.url) {
-        console.log('BookingDialog: Setting payment URL for in-app display');
+        console.log('BookingDialog: Setting payment URL');
         setPaymentUrl(data.url);
         setStep('payment');
         
@@ -145,6 +146,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
+      setIsProcessingPayment(false);
     } finally {
       setIsProcessingPayment(false);
     }
@@ -156,6 +158,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
     setUserPhone('');
     setPaymentUrl('');
     setPaymentLoading(false);
+    setIsProcessingPayment(false);
     setStep('service');
   };
 
@@ -166,6 +169,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
   };
 
   const handlePaymentComplete = () => {
+    console.log('BookingDialog: Payment completed, closing dialog');
     setIsOpen(false);
     resetBooking();
     toast({
@@ -176,6 +180,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
   };
 
   const handlePaymentLoad = () => {
+    console.log('BookingDialog: Payment iframe loaded');
     setPaymentLoading(false);
   };
 
