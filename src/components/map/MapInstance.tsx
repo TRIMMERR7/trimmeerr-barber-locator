@@ -18,9 +18,25 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
   const [mapInitialized, setMapInitialized] = useState(false);
   const [mapReady, setMapReady] = useState(false);
 
+  console.log('MapInstance: Component state:', {
+    mapkitLoaded,
+    hasApiKey: !!apiKey,
+    hasMapContainer: !!mapContainer.current,
+    mapInitialized,
+    mapReady,
+    userLocation,
+    barbersCount: nearbyBarbers.length
+  });
+
   // Initialize map
   useEffect(() => {
     if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) {
+      console.log('MapInstance: Skipping initialization:', {
+        mapkitLoaded,
+        hasMapContainer: !!mapContainer.current,
+        mapInitialized,
+        hasApiKey: !!apiKey
+      });
       return;
     }
 
@@ -29,6 +45,8 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
     const center = userLocation 
       ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
       : new window.mapkit.Coordinate(29.7604, -95.3698);
+
+    console.log('MapInstance: Creating map with center:', center);
 
     try {
       map.current = new window.mapkit.Map(mapContainer.current, {
@@ -50,9 +68,12 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
+      console.log('MapInstance: Map object created:', !!map.current);
+
       // Enhanced map ready detection
       let readyTimeoutId: NodeJS.Timeout;
       const checkMapReady = () => {
+        console.log('MapInstance: Map ready check triggered');
         if (map.current && map.current.element) {
           console.log('MapInstance: Map is ready for annotations');
           setMapReady(true);
@@ -64,17 +85,29 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       map.current.addEventListener('region-change-end', checkMapReady);
       map.current.addEventListener('configuration-change', checkMapReady);
       
+      // Immediate check in case map is already ready
+      setTimeout(checkMapReady, 100);
+      
       // Fallback timeout
       readyTimeoutId = setTimeout(() => {
         console.log('MapInstance: Map ready timeout - forcing ready state');
         setMapReady(true);
-      }, 1000);
+      }, 2000);
 
       setMapInitialized(true);
       console.log('MapInstance: Map initialized successfully');
 
+      // Force a redraw after initialization
+      setTimeout(() => {
+        if (map.current && typeof map.current.redraw === 'function') {
+          console.log('MapInstance: Forcing map redraw');
+          map.current.redraw();
+        }
+      }, 500);
+
     } catch (error) {
       console.error('MapInstance: Error initializing map:', error);
+      setError('Failed to initialize Apple Maps: ' + error.message);
     }
 
     return () => {
@@ -93,6 +126,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
 
   const handleZoomIn = () => {
     if (map.current) {
+      console.log('MapInstance: Zoom in clicked');
       const currentRegion = map.current.region;
       const newSpan = new window.mapkit.CoordinateSpan(
         currentRegion.span.latitudeDelta * 0.5,
@@ -105,6 +139,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
 
   const handleZoomOut = () => {
     if (map.current) {
+      console.log('MapInstance: Zoom out clicked');
       const currentRegion = map.current.region;
       const newSpan = new window.mapkit.CoordinateSpan(
         currentRegion.span.latitudeDelta * 2,
@@ -117,7 +152,11 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
 
   return (
     <div className="h-full relative bg-gray-100">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg bg-gray-200" />
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0 rounded-lg bg-gray-200"
+        style={{ minHeight: '400px' }}
+      />
       
       {/* Custom Zoom Controls */}
       {mapInitialized && (
@@ -170,6 +209,11 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
               {!mapkitLoaded && "Loading MapKit..."}
               {mapkitLoaded && !mapInitialized && "Initializing map..."}
               {mapInitialized && !mapReady && "Preparing markers..."}
+            </div>
+            <div className="text-xs text-gray-500 mt-2">
+              Debug: MapKit={mapkitLoaded ? 'OK' : 'Loading'}, 
+              Init={mapInitialized ? 'OK' : 'Pending'}, 
+              Ready={mapReady ? 'OK' : 'Pending'}
             </div>
           </div>
         </div>
