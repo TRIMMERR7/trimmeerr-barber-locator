@@ -20,12 +20,4 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    include: ['mapbox-gl']
-  },
-  build: {
-    rollupOptions: {
-      external: [],
-    }
-  }
 }));
