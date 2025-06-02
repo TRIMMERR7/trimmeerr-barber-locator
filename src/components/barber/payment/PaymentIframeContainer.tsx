@@ -16,8 +16,8 @@ const PaymentIframeContainer = ({ paymentUrl, onIframeRef }: PaymentIframeContai
   };
 
   return (
-    <div className="flex-1 rounded-xl overflow-hidden shadow-xl border border-gray-200 bg-white" style={{ minHeight: '600px' }}>
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 p-4">
+    <div className="w-full h-full flex flex-col rounded-xl overflow-hidden shadow-xl border border-gray-200 bg-white">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 p-4 flex-shrink-0">
         <div className="flex items-center gap-2">
           <CreditCard className="w-5 h-5 text-gray-600" />
           <span className="font-medium text-gray-800">Secure Checkout</span>
@@ -27,22 +27,20 @@ const PaymentIframeContainer = ({ paymentUrl, onIframeRef }: PaymentIframeContai
         </div>
       </div>
       
-      <iframe
-        ref={handleRef}
-        src={paymentUrl}
-        className="w-full h-full border-0"
-        title="Secure Payment Checkout"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
-        allow="payment; camera; microphone"
-        style={{ 
-          width: '100%', 
-          height: 'calc(100% - 60px)',
-          minHeight: '540px',
-          display: 'block',
-          border: 'none',
-          backgroundColor: 'white'
-        }}
-      />
+      <div className="flex-1 relative">
+        <iframe
+          ref={handleRef}
+          src={paymentUrl}
+          className="absolute inset-0 w-full h-full border-0"
+          title="Secure Payment Checkout"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
+          allow="payment; camera; microphone"
+          style={{ 
+            border: 'none',
+            backgroundColor: 'white'
+          }}
+        />
+      </div>
     </div>
   );
 };

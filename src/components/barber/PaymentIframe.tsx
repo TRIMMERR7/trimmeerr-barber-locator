@@ -50,11 +50,19 @@ const PaymentIframe = ({
   }
 
   return (
-    <div className="w-full h-full flex flex-col space-y-4">
-      <PaymentSecurityNotice />
-      <PaymentStatusDisplay paymentStatus={paymentStatus} paymentLoading={paymentLoading} />
-      <PaymentIframeContainer paymentUrl={paymentUrl} onIframeRef={setIframeRef} />
-      <PaymentTrustIndicators />
+    <div className="w-full h-full flex flex-col">
+      <div className="p-4 space-y-4 flex-shrink-0">
+        <PaymentSecurityNotice />
+        <PaymentStatusDisplay paymentStatus={paymentStatus} paymentLoading={paymentLoading} />
+      </div>
+      
+      <div className="flex-1 p-4">
+        <PaymentIframeContainer paymentUrl={paymentUrl} onIframeRef={setIframeRef} />
+      </div>
+      
+      <div className="p-4 flex-shrink-0">
+        <PaymentTrustIndicators />
+      </div>
     </div>
   );
 };

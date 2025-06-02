@@ -204,49 +204,51 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
         {children}
       </DialogTrigger>
       
-      <DialogContent className={`${step === 'payment' ? 'sm:max-w-4xl max-w-[95vw]' : 'sm:max-w-lg max-w-[95vw]'} max-h-[95vh] overflow-hidden shadow-2xl border-0`}>
-        <DialogHeader className="space-y-4 border-b border-gray-100 pb-4">
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {step !== 'service' && (
-                <button 
-                  onClick={handleStepBack}
-                  className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-105"
-                  aria-label="Go back"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                </button>
-              )}
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-red-600" />
-                <span className="text-lg font-semibold">{getStepTitle()}</span>
+      <DialogContent className={`${step === 'payment' ? 'sm:max-w-6xl max-w-[98vw] h-[95vh]' : 'sm:max-w-lg max-w-[95vw]'} shadow-2xl border-0 p-0`}>
+        <div className="flex flex-col h-full">
+          <DialogHeader className="space-y-4 border-b border-gray-100 p-6 flex-shrink-0">
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {step !== 'service' && (
+                  <button 
+                    onClick={handleStepBack}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-all duration-200 hover:scale-105"
+                    aria-label="Go back"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                )}
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-red-600" />
+                  <span className="text-lg font-semibold">{getStepTitle()}</span>
+                </div>
               </div>
-            </div>
-            <div className="text-sm text-gray-600 hidden sm:block font-medium">
-              {barber.name}
-            </div>
-          </DialogTitle>
+              <div className="text-sm text-gray-600 hidden sm:block font-medium">
+                {barber.name}
+              </div>
+            </DialogTitle>
+            
+            <BookingProgressBar step={step} />
+          </DialogHeader>
           
-          <BookingProgressBar step={step} />
-        </DialogHeader>
-        
-        <div className={`flex-shrink-0 ${step === 'payment' ? 'max-h-[70vh]' : 'max-h-[60vh]'} overflow-y-auto`}>
-          <BookingStepContent
-            step={step}
-            selectedService={selectedService}
-            selectedTime={selectedTime}
-            userPhone={userPhone}
-            user={user}
-            isProcessingPayment={isProcessingPayment}
-            paymentUrl={paymentUrl}
-            paymentLoading={paymentLoading}
-            onServiceSelect={handleServiceSelect}
-            onTimeSelect={handleTimeSelect}
-            setUserPhone={setUserPhone}
-            onBookingAndPayment={handleBookingAndPayment}
-            onPaymentLoad={handlePaymentLoad}
-            onPaymentComplete={handlePaymentComplete}
-          />
+          <div className={`flex-1 overflow-hidden ${step !== 'payment' ? 'p-6' : ''}`}>
+            <BookingStepContent
+              step={step}
+              selectedService={selectedService}
+              selectedTime={selectedTime}
+              userPhone={userPhone}
+              user={user}
+              isProcessingPayment={isProcessingPayment}
+              paymentUrl={paymentUrl}
+              paymentLoading={paymentLoading}
+              onServiceSelect={handleServiceSelect}
+              onTimeSelect={handleTimeSelect}
+              setUserPhone={setUserPhone}
+              onBookingAndPayment={handleBookingAndPayment}
+              onPaymentLoad={handlePaymentLoad}
+              onPaymentComplete={handlePaymentComplete}
+            />
+          </div>
         </div>
       </DialogContent>
     </Dialog>
