@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import BarberProfile from './BarberProfile';
+import BarberDashboard from './BarberDashboard';
 
 interface Barber {
   id: string;
@@ -24,6 +24,7 @@ interface MapViewProps {
 
 const MapView = ({ userType, onLogout }: MapViewProps) => {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
+  const [showDashboard, setShowDashboard] = useState(false);
   
   const nearbyBarbers: Barber[] = [
     {
@@ -64,6 +65,10 @@ const MapView = ({ userType, onLogout }: MapViewProps) => {
     }
   ];
 
+  if (showDashboard && userType === 'barber') {
+    return <BarberDashboard onBack={() => setShowDashboard(false)} />;
+  }
+
   if (selectedBarber) {
     return (
       <BarberProfile 
@@ -80,13 +85,23 @@ const MapView = ({ userType, onLogout }: MapViewProps) => {
       <div className="bg-black border-b border-gray-800 p-4 flex-shrink-0">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <h1 className="text-2xl font-bold text-white">TRIMMERR</h1>
-          <Button 
-            variant="ghost" 
-            onClick={onLogout}
-            className="text-gray-400 hover:text-white text-sm"
-          >
-            {userType === 'guest' ? 'Sign In' : 'Sign Out'}
-          </Button>
+          <div className="flex items-center gap-3">
+            {userType === 'barber' && (
+              <Button 
+                onClick={() => setShowDashboard(true)}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Manage Profile
+              </Button>
+            )}
+            <Button 
+              variant="ghost" 
+              onClick={onLogout}
+              className="text-gray-400 hover:text-white text-sm"
+            >
+              {userType === 'guest' ? 'Sign In' : 'Sign Out'}
+            </Button>
+          </div>
         </div>
       </div>
 
