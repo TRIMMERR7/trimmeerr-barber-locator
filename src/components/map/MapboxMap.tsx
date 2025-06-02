@@ -204,21 +204,23 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
           }
 
           .barber-marker, .user-location-marker {
-            background: none;
-            border: none;
+            background: none !important;
+            border: none !important;
+            z-index: 1000 !important;
           }
           
           .barber-marker-container, .user-marker-container {
             position: relative;
             width: 40px;
             height: 40px;
+            z-index: 1000;
           }
           
           .barber-marker-pin {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: #dc2626;
+            background: #dc2626 !important;
             border: 3px solid white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             cursor: pointer;
@@ -227,19 +229,23 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
+            z-index: 1001;
           }
           
           .user-marker-pin {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: #2563eb;
+            background: #2563eb !important;
             border: 3px solid white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            position: relative;
+            z-index: 1001;
           }
           
           .barber-avatar, .user-avatar {
@@ -259,6 +265,7 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
             background: rgba(220, 38, 38, 0.3);
             animation: pulse 2s infinite;
             pointer-events: none;
+            z-index: 999;
           }
           
           .user-marker-pulse {
