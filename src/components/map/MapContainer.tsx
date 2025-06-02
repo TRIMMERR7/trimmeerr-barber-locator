@@ -24,18 +24,24 @@ interface MapContainerProps {
 
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   return (
-    <div className="flex-1 relative">
-      {/* Top Barbers Slideshow */}
-      <TopBarbersSlider />
-
+    <div className="flex-1 relative overflow-hidden">
       {/* Mapbox Map */}
-      <MapboxMap 
-        nearbyBarbers={nearbyBarbers}
-        onBarberSelect={onBarberSelect}
-      />
+      <div className="absolute inset-0">
+        <MapboxMap 
+          nearbyBarbers={nearbyBarbers}
+          onBarberSelect={onBarberSelect}
+        />
+      </div>
 
-      {/* Advertising Slideshow */}
-      <AdSlider />
+      {/* Top Barbers Slideshow - Higher z-index and positioned relative to viewport */}
+      <div className="absolute top-4 left-4 z-[60] pointer-events-auto">
+        <TopBarbersSlider />
+      </div>
+
+      {/* Advertising Slideshow - Higher z-index and positioned relative to viewport */}
+      <div className="absolute bottom-4 left-4 right-4 z-[60] pointer-events-auto">
+        <AdSlider />
+      </div>
     </div>
   );
 };
