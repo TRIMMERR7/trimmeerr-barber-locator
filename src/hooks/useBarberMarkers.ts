@@ -27,7 +27,6 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     console.log('useBarberMarkers: Effect triggered');
     console.log('useBarberMarkers: map.current exists?', !!map.current);
     console.log('useBarberMarkers: nearbyBarbers length:', nearbyBarbers.length);
-    console.log('useBarberMarkers: nearbyBarbers data:', nearbyBarbers);
 
     if (!map.current) {
       console.log('useBarberMarkers: No map available, exiting');
@@ -54,15 +53,14 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     const annotations = nearbyBarbers.map((barber) => {
       console.log('useBarberMarkers: Creating red marker for barber:', barber.name, 'at', barber.lat, barber.lng);
 
+      // Create a simple red marker without custom styling first
       const annotation = new window.mapkit.MarkerAnnotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         {
-          color: '#dc2626', // Strong red color
-          title: `${barber.name} - ${barber.price}`,
-          subtitle: `${barber.specialty} • ${barber.distance} • ⭐ ${barber.rating}`,
-          data: barber,
-          glyphColor: '#ffffff',
-          selectedGlyphColor: '#ffffff'
+          color: '#ff0000', // Pure red
+          title: barber.name,
+          subtitle: `${barber.specialty} • ${barber.price} • ⭐ ${barber.rating}`,
+          data: barber
         }
       );
 
@@ -81,6 +79,15 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     try {
       map.current.addAnnotations(annotations);
       console.log('useBarberMarkers: All red barber markers added successfully to map');
+      
+      // Force a refresh of the map view
+      if (annotations.length > 0) {
+        const firstBarber = nearbyBarbers[0];
+        map.current.setCenterAnimated(
+          new window.mapkit.Coordinate(firstBarber.lat, firstBarber.lng),
+          true
+        );
+      }
     } catch (error) {
       console.error('useBarberMarkers: Error adding annotations to map:', error);
     }

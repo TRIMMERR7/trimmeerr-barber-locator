@@ -3,14 +3,16 @@ export const createMapConfig = (center: any) => ({
   center: center,
   region: new window.mapkit.CoordinateRegion(
     center,
-    new window.mapkit.CoordinateSpan(0.02, 0.02)
+    new window.mapkit.CoordinateSpan(0.01, 0.01) // Smaller span for closer zoom
   ),
   mapType: window.mapkit.Map.MapTypes.Standard,
   showsMapTypeControl: false,
   showsZoomControl: true,
   showsUserLocationControl: true,
   isRotationEnabled: true,
-  colorScheme: window.mapkit.Map.ColorSchemes.Dark
+  colorScheme: window.mapkit.Map.ColorSchemes.Dark,
+  showsCompass: window.mapkit.FeatureVisibility.Hidden,
+  showsScale: window.mapkit.FeatureVisibility.Hidden
 });
 
 export const getDefaultCenter = () => 
