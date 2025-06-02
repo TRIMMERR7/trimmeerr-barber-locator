@@ -21,9 +21,11 @@ export const useMapInitialization = (mapContainer: React.RefObject<HTMLDivElemen
       position: 'topright'
     }).addTo(map.current);
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+    // Add dark mode tiles using CartoDB Dark Matter
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors, © CARTO',
+      subdomains: 'abcd',
+      maxZoom: 19
     }).addTo(map.current);
 
     console.log('useMapInitialization: Map initialized');
