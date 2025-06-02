@@ -36,7 +36,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   const { userLocation, error, loading } = useGeolocation();
   
   console.log('AppleMap: Rendering with', nearbyBarbers.length, 'barbers');
-  console.log('AppleMap: nearbyBarbers data:', nearbyBarbers);
+  console.log('AppleMap: User location:', userLocation);
   
   // Initialize MapKit
   const { mapkitLoaded } = useMapKitInitialization({ apiKey });
@@ -51,20 +51,38 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   // Add user location marker
   useUserLocationMarker({ map, userLocation });
   
-  // Add barber markers
-  useBarberMarkers({ map, nearbyBarbers, onBarberSelect });
+  // Add barber markers with click handler
+  useBarberMarkers({ 
+    map, 
+    nearbyBarbers, 
+    onBarberSelect: (barber) => {
+      console.log('AppleMap: Barber selected from marker:', barber.name);
+      onBarberSelect(barber);
+    }
+  });
 
   if (!mapkitLoaded) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
-        <div className="text-white">Loading Apple Maps...</div>
+      <div className="h-full flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="text-gray-700">Loading Apple Maps...</div>
       </div>
     );
   }
 
   return (
     <div className="h-full relative">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0 rounded-lg cursor-pointer" 
+        style={{ touchAction: 'manipulation' }}
+      />
+      
+      {/* Debug info overlay - remove in production */}
+      <div className="absolute top-2 left-2 bg-black/80 text-white text-xs p-2 rounded z-10">
+        <div>Barbers: {nearbyBarbers.length}</div>
+        <div>Map loaded: {mapkitLoaded ? 'Yes' : 'No'}</div>
+        <div>User location: {userLocation ? 'Yes' : 'No'}</div>
+      </div>
     </div>
   );
 };

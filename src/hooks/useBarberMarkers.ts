@@ -38,7 +38,7 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
       return;
     }
 
-    console.log('useBarberMarkers: Adding red barber markers...', nearbyBarbers.length, 'barbers');
+    console.log('useBarberMarkers: Adding barber markers...', nearbyBarbers.length, 'barbers');
 
     // Clear existing markers
     if (barberAnnotations.current.length > 0) {
@@ -51,23 +51,30 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     }
 
     const annotations = nearbyBarbers.map((barber) => {
-      console.log('useBarberMarkers: Creating red marker for barber:', barber.name, 'at', barber.lat, barber.lng);
+      console.log('useBarberMarkers: Creating marker for barber:', barber.name, 'at', barber.lat, barber.lng);
 
-      // Create a simple red marker without custom styling first
+      // Create marker annotation with custom styling
       const annotation = new window.mapkit.MarkerAnnotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         {
-          color: '#ff0000', // Pure red
+          color: '#EF4444', // Tailwind red-500
+          glyphColor: '#FFFFFF',
           title: barber.name,
-          subtitle: `${barber.specialty} • ${barber.price} • ⭐ ${barber.rating}`,
-          data: barber
+          subtitle: `${barber.specialty} • ${barber.price}`,
+          size: window.mapkit.Annotation.Size.Large,
+          data: { barber }
         }
       );
 
-      // Add click handler
-      annotation.addEventListener('select', () => {
-        console.log('useBarberMarkers: Red barber marker selected:', barber.name);
+      // Add selection event listener
+      annotation.addEventListener('select', (event) => {
+        console.log('useBarberMarkers: Barber marker selected:', barber.name);
         onBarberSelect(barber);
+      });
+
+      // Add additional click event for better reliability
+      annotation.addEventListener('deselect', () => {
+        console.log('useBarberMarkers: Barber marker deselected:', barber.name);
       });
 
       return annotation;
@@ -78,15 +85,17 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
     
     try {
       map.current.addAnnotations(annotations);
-      console.log('useBarberMarkers: All red barber markers added successfully to map');
+      console.log('useBarberMarkers: All barber markers added successfully to map');
       
-      // Force a refresh of the map view
+      // Set initial region to show the barbers
       if (annotations.length > 0) {
-        const firstBarber = nearbyBarbers[0];
-        map.current.setCenterAnimated(
-          new window.mapkit.Coordinate(firstBarber.lat, firstBarber.lng),
-          true
+        const coordinates = nearbyBarbers.map(barber => 
+          new window.mapkit.Coordinate(barber.lat, barber.lng)
         );
+        
+        // Create a region that includes all barber locations
+        const region = window.mapkit.CoordinateRegion.regionFittingCoordinates(coordinates);
+        map.current.setRegionAnimated(region, true);
       }
     } catch (error) {
       console.error('useBarberMarkers: Error adding annotations to map:', error);
