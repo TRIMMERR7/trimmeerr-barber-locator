@@ -48,8 +48,8 @@ const TopBarbersSlider = () => {
         <span className="text-xl sm:text-2xl">🏆</span>
       </div>
 
-      {/* Content - glass morphism design with improved positioning */}
-      <Card className={`absolute top-0 right-0 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-64 sm:w-72 transition-all duration-300 ${
+      {/* Content - positioned to the right of trigger */}
+      <Card className={`absolute top-0 left-full ml-3 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-64 sm:w-72 transition-all duration-300 ${
         isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
         <CardContent className="p-0">

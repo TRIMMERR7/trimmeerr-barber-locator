@@ -33,13 +33,13 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
         />
       </div>
 
-      {/* Top Barbers Slideshow - Better positioned in top-right corner */}
-      <div className="absolute top-4 right-4 z-[100] pointer-events-auto">
+      {/* Top Barbers Slideshow - Positioned on left side, middle */}
+      <div className="absolute top-1/2 left-4 transform -translate-y-1/2 z-[100] pointer-events-auto">
         <TopBarbersSlider />
       </div>
 
-      {/* Advertising Slideshow - Better positioned in bottom-right corner */}
-      <div className="absolute bottom-4 right-4 z-[100] pointer-events-auto">
+      {/* Advertising Slideshow - Positioned on left side, bottom */}
+      <div className="absolute bottom-20 left-4 z-[100] pointer-events-auto">
         <AdSlider />
       </div>
     </div>
