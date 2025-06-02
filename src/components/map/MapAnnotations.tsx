@@ -33,26 +33,49 @@ const MapAnnotations = ({
   const userAnnotationRef = useRef<any>(null);
   const barberAnnotationsRef = useRef<any[]>([]);
   
-  // Simplified helper function to check if map is ready for annotations
+  // Enhanced helper function to check if map is ready for annotations
   const isMapReadyForAnnotations = (mapInstance: any): boolean => {
+    console.log('Checking map readiness:', {
+      hasMapInstance: !!mapInstance,
+      mapInitialized,
+      hasWindow: typeof window !== 'undefined',
+      hasMapkit: !!window.mapkit
+    });
+
     if (!mapInstance || !mapInitialized) {
+      console.log('Map instance or initialization not ready');
+      return false;
+    }
+    
+    if (typeof window === 'undefined' || !window.mapkit) {
+      console.log('MapKit not available on window');
       return false;
     }
     
     try {
-      // Check if the map has essential methods and MapKit is available
-      return (
+      const hasRequiredMethods = (
         typeof mapInstance.addAnnotation === 'function' &&
         typeof mapInstance.removeAnnotation === 'function' &&
         typeof mapInstance.addAnnotations === 'function' &&
         typeof mapInstance.removeAnnotations === 'function' &&
-        window.mapkit &&
+        typeof mapInstance.setRegionAnimated === 'function'
+      );
+
+      const hasMapKitClasses = (
         window.mapkit.MarkerAnnotation &&
         window.mapkit.Annotation &&
         window.mapkit.Coordinate &&
         window.mapkit.CoordinateRegion &&
         window.mapkit.CoordinateSpan
       );
+
+      console.log('Map readiness check:', {
+        hasRequiredMethods,
+        hasMapKitClasses,
+        ready: hasRequiredMethods && hasMapKitClasses
+      });
+
+      return hasRequiredMethods && hasMapKitClasses;
     } catch (error) {
       console.error('Error checking map readiness:', error);
       return false;
@@ -61,18 +84,22 @@ const MapAnnotations = ({
   
   // Add user location marker (blue)
   useEffect(() => {
-    if (!userLocation) return;
-    
-    if (!isMapReadyForAnnotations(map)) {
-      console.log('Map not ready for user location marker, waiting...');
+    if (!userLocation) {
+      console.log('No user location available');
       return;
     }
     
-    console.log('Adding blue client location marker at:', userLocation);
+    if (!isMapReadyForAnnotations(map)) {
+      console.log('Map not ready for user location marker, skipping...');
+      return;
+    }
+    
+    console.log('Adding user location marker at:', userLocation);
 
     try {
       // Remove existing user annotation if it exists
       if (userAnnotationRef.current && map) {
+        console.log('Removing existing user annotation');
         map.removeAnnotation(userAnnotationRef.current);
         userAnnotationRef.current = null;
       }
@@ -105,6 +132,7 @@ const MapAnnotations = ({
     return () => {
       if (userAnnotationRef.current && map) {
         try {
+          console.log('Cleaning up user annotation');
           map.removeAnnotation(userAnnotationRef.current);
           userAnnotationRef.current = null;
         } catch (error) {
@@ -116,30 +144,34 @@ const MapAnnotations = ({
 
   // Add barber markers (red, clickable)
   useEffect(() => {
-    if (!nearbyBarbers.length) return;
-    
-    if (!isMapReadyForAnnotations(map)) {
-      console.log('Map not ready for barber annotations, waiting...');
+    if (!nearbyBarbers.length) {
+      console.log('No nearby barbers to display');
       return;
     }
     
-    console.log('Adding clickable red barber markers...', nearbyBarbers.length, 'barbers');
+    if (!isMapReadyForAnnotations(map)) {
+      console.log('Map not ready for barber annotations, skipping...');
+      return;
+    }
+    
+    console.log('Adding barber markers for', nearbyBarbers.length, 'barbers');
 
     try {
       // Remove existing barber annotations
       if (barberAnnotationsRef.current.length > 0 && map) {
+        console.log('Removing existing barber annotations');
         map.removeAnnotations(barberAnnotationsRef.current);
         barberAnnotationsRef.current = [];
       }
 
       const annotations = nearbyBarbers.map((barber) => {
-        console.log(`Creating clickable marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
+        console.log(`Creating marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
         
         const markerElement = createCustomBarberMarker(barber);
         
         markerElement.addEventListener('click', (event) => {
           event.stopPropagation();
-          console.log('Red barber marker clicked:', barber.name);
+          console.log('Barber marker clicked:', barber.name);
           onBarberSelect(barber);
         });
 
@@ -171,11 +203,12 @@ const MapAnnotations = ({
 
       map.addEventListener('select', handleMapSelect);
 
-      console.log('All clickable red barber markers added successfully');
+      console.log('All barber markers added successfully');
 
       return () => {
         if (map && barberAnnotationsRef.current.length > 0) {
           try {
+            console.log('Cleaning up barber annotations');
             map.removeAnnotations(barberAnnotationsRef.current);
             map.removeEventListener('select', handleMapSelect);
             barberAnnotationsRef.current = [];
