@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -71,6 +70,11 @@ const MapView = ({ userType }: MapViewProps) => {
     }
   ];
 
+  const handleBarberSelect = (barber: Barber) => {
+    console.log('MapView: Barber selected:', barber.name);
+    setSelectedBarber(barber);
+  };
+
   const openInAppleMaps = (barber: Barber) => {
     const appleMapsUrl = `https://maps.apple.com/?daddr=${barber.lat},${barber.lng}&dirflg=d&t=m`;
     window.open(appleMapsUrl, '_blank');
@@ -81,16 +85,21 @@ const MapView = ({ userType }: MapViewProps) => {
   }
 
   if (selectedBarber) {
+    console.log('MapView: Rendering BarberProfile for:', selectedBarber.name);
     return (
       <BarberProfile 
         barber={selectedBarber} 
-        onBack={() => setSelectedBarber(null)}
+        onBack={() => {
+          console.log('MapView: Going back to map');
+          setSelectedBarber(null);
+        }}
         userType={userType}
         onNavigate={() => openInAppleMaps(selectedBarber)}
       />
     );
   }
 
+  console.log('MapView: Rendering map view');
   return (
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
       {/* Header */}
@@ -121,7 +130,7 @@ const MapView = ({ userType }: MapViewProps) => {
               <SheetContent side="right" className="w-full sm:w-96 p-0">
                 <BarberList 
                   nearbyBarbers={nearbyBarbers}
-                  onBarberSelect={setSelectedBarber}
+                  onBarberSelect={handleBarberSelect}
                   onNavigate={openInAppleMaps}
                   onSheetClose={() => setIsSheetOpen(false)}
                 />
@@ -152,14 +161,14 @@ const MapView = ({ userType }: MapViewProps) => {
       <div className="flex-1 flex">
         <MapContainer 
           nearbyBarbers={nearbyBarbers}
-          onBarberSelect={setSelectedBarber}
+          onBarberSelect={handleBarberSelect}
         />
 
         {/* Barber List - Desktop Only */}
         <div className="hidden lg:flex w-96 border-l border-gray-200 flex-col shadow-xl">
           <BarberList 
             nearbyBarbers={nearbyBarbers}
-            onBarberSelect={setSelectedBarber}
+            onBarberSelect={handleBarberSelect}
             onNavigate={openInAppleMaps}
           />
         </div>

@@ -22,6 +22,11 @@ interface MapContainerProps {
 }
 
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
+  const handleBarberClick = (barber: Barber) => {
+    console.log('MapContainer handling barber click:', barber.name);
+    onBarberSelect(barber);
+  };
+
   return (
     <div className="flex-1 relative">
       <StepsIndicator currentStep={1} />
@@ -29,7 +34,7 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
       {/* Map Area */}
       <div className="h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 relative overflow-hidden">
         {/* Your Location (Blue Dot) */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
           <div className="relative">
             <div className="w-6 h-6 bg-blue-500 rounded-full shadow-lg"></div>
             <div className="absolute inset-0 w-6 h-6 bg-blue-500 rounded-full animate-ping opacity-30"></div>
@@ -45,12 +50,12 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
             key={barber.id}
             barber={barber}
             index={index}
-            onClick={onBarberSelect}
+            onClick={handleBarberClick}
           />
         ))}
 
         {/* Grid overlay for better visual */}
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.3)_1px,transparent_0)] bg-[length:40px_40px]"></div>
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.3)_1px,transparent_0)] bg-[length:40px_40px] pointer-events-none"></div>
       </div>
     </div>
   );
