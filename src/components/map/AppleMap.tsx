@@ -23,9 +23,23 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'none'
   });
 
-  const { mapkitLoaded } = useMapKit({ apiKey });
+  const { mapkitLoaded, error } = useMapKit({ apiKey });
 
-  console.log('AppleMap: MapKit loaded:', mapkitLoaded);
+  console.log('AppleMap: MapKit state:', { mapkitLoaded, error });
+
+  if (error) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white text-center p-4">
+          <div className="text-red-400 mb-2">⚠️ MapKit Error</div>
+          <p className="text-sm mb-4">{error}</p>
+          <div className="text-xs text-gray-400">
+            <p>API Key: {apiKey ? 'Present' : 'Missing'}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!mapkitLoaded) {
     return (

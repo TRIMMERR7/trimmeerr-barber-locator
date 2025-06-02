@@ -20,8 +20,17 @@ export const useMapInitialization = ({
   const initialized = useRef(false);
 
   useEffect(() => {
+    console.log('useMapInitialization: Effect triggered with:', {
+      mapkitLoaded,
+      hasApiKey: !!apiKey,
+      hasContainer: !!mapContainer.current,
+      alreadyInitialized: initialized.current,
+      hasExistingMap: !!map.current
+    });
+
     // Only initialize once when all prerequisites are met
     if (!mapkitLoaded || !apiKey || !mapContainer.current || initialized.current) {
+      console.log('useMapInitialization: Skipping initialization - missing prerequisites or already initialized');
       return;
     }
 
@@ -29,6 +38,11 @@ export const useMapInitialization = ({
     initialized.current = true;
 
     try {
+      // Verify MapKit is available
+      if (!window.mapkit) {
+        throw new Error('MapKit not available on window object');
+      }
+
       // Determine center location
       const centerLat = userLocation ? userLocation[0] : 29.7604;
       const centerLng = userLocation ? userLocation[1] : -95.3698;
@@ -36,9 +50,10 @@ export const useMapInitialization = ({
       const center = new window.mapkit.Coordinate(centerLat, centerLng);
 
       console.log('useMapInitialization: Creating map with center:', { centerLat, centerLng });
+      console.log('useMapInitialization: Container element:', mapContainer.current);
 
-      // Create the map
-      map.current = new window.mapkit.Map(mapContainer.current, {
+      // Create the map with explicit configuration
+      const mapInstance = new window.mapkit.Map(mapContainer.current, {
         center: center,
         region: new window.mapkit.CoordinateRegion(
           center,
@@ -57,19 +72,30 @@ export const useMapInitialization = ({
         colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
-      console.log('useMapInitialization: Map created successfully');
+      if (!mapInstance) {
+        throw new Error('Failed to create map instance');
+      }
+
+      map.current = mapInstance;
+      console.log('useMapInitialization: Map created successfully:', mapInstance);
       
       // Set states
       setMapInitialized(true);
       
-      // Mark as ready after a brief delay
+      // Mark as ready after a brief delay to ensure map is fully rendered
       setTimeout(() => {
         console.log('useMapInitialization: Map is ready');
         setMapReady(true);
-      }, 300);
+      }, 500);
 
     } catch (error) {
       console.error('useMapInitialization: Error creating map:', error);
+      console.error('useMapInitialization: Error details:', {
+        message: error.message,
+        stack: error.stack,
+        windowMapkit: !!window.mapkit,
+        container: mapContainer.current
+      });
       initialized.current = false;
       setMapInitialized(false);
       setMapReady(false);
@@ -77,9 +103,10 @@ export const useMapInitialization = ({
 
     // Cleanup function
     return () => {
+      console.log('useMapInitialization: Cleanup triggered');
       if (map.current) {
         try {
-          console.log('useMapInitialization: Cleaning up map');
+          console.log('useMapInitialization: Destroying map instance');
           map.current.destroy();
         } catch (error) {
           console.warn('useMapInitialization: Error destroying map:', error);
@@ -95,7 +122,7 @@ export const useMapInitialization = ({
   // Update map center when user location changes (without re-initializing)
   useEffect(() => {
     if (map.current && userLocation && mapReady) {
-      console.log('useMapInitialization: Updating map center to user location');
+      console.log('useMapInitialization: Updating map center to user location:', userLocation);
       try {
         const center = new window.mapkit.Coordinate(userLocation[0], userLocation[1]);
         const region = new window.mapkit.CoordinateRegion(
@@ -103,11 +130,18 @@ export const useMapInitialization = ({
           new window.mapkit.CoordinateSpan(0.01, 0.01)
         );
         map.current.setRegionAnimated(region, true);
+        console.log('useMapInitialization: Map center updated successfully');
       } catch (error) {
         console.warn('useMapInitialization: Error updating map center:', error);
       }
     }
   }, [userLocation, mapReady]);
+
+  console.log('useMapInitialization: Returning state:', {
+    hasMap: !!map.current,
+    mapInitialized,
+    mapReady
+  });
 
   return {
     map: map.current,
