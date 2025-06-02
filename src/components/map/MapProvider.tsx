@@ -21,23 +21,36 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
     const fetchAppleApiKey = async () => {
       try {
         console.log('MapProvider: Calling Supabase function...');
+        
+        // Get the current session
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('MapProvider: Session check:', { hasSession: !!session });
+        
+        if (!session) {
+          console.log('MapProvider: No session found, user needs to login');
+          setError('Please log in to access the map');
+          setIsLoadingApiKey(false);
+          return;
+        }
+        
         const { data, error } = await supabase.functions.invoke('get-apple-maps-key');
         
         console.log('MapProvider: Supabase response:', { data, error });
         
         if (error) {
           console.error('MapProvider: Supabase function error:', error);
-          setError('Failed to fetch API key from Supabase');
+          setError('Failed to fetch API key from Supabase: ' + (error.message || 'Unknown error'));
         } else if (data?.apiKey) {
           console.log('MapProvider: API key received successfully');
           setAppleApiKey(data.apiKey);
+          setError(null);
         } else {
           console.error('MapProvider: No API key in response');
           setError('No API key found in response');
         }
       } catch (error) {
         console.error('MapProvider: Error fetching Apple Maps API key:', error);
-        setError('Network error fetching API key');
+        setError('Network error fetching API key: ' + (error instanceof Error ? error.message : 'Unknown error'));
       } finally {
         setIsLoadingApiKey(false);
       }
@@ -75,6 +88,11 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
             <p>API Key: {appleApiKey ? 'Present' : 'Missing'}</p>
             <p>Error: {error || 'None'}</p>
           </div>
+          {error?.includes('log in') && (
+            <div className="mt-4">
+              <p className="text-sm text-blue-400">Please sign in to access the map features</p>
+            </div>
+          )}
         </div>
       </div>
     );
