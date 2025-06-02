@@ -1,41 +1,120 @@
 
-import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useEffect, useRef, useState } from 'react';
 
-export const useMapInitialization = (mapContainer: React.RefObject<HTMLDivElement>) => {
-  const map = useRef<L.Map | null>(null);
+interface UseMapInitializationProps {
+  mapkitLoaded: boolean;
+  apiKey: string;
+  userLocation: [number, number] | null;
+  mapContainer: React.RefObject<HTMLDivElement>;
+}
+
+export const useMapInitialization = ({
+  mapkitLoaded,
+  apiKey,
+  userLocation,
+  mapContainer
+}: UseMapInitializationProps) => {
+  const map = useRef<any>(null);
+  const [mapInitialized, setMapInitialized] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) {
+      console.log('useMapInitialization: Skipping initialization:', {
+        mapkitLoaded,
+        hasMapContainer: !!mapContainer.current,
+        mapInitialized,
+        hasApiKey: !!apiKey
+      });
+      return;
+    }
 
-    console.log('useMapInitialization: Initializing map...');
+    console.log('useMapInitialization: Starting map initialization...');
 
-    // Initialize Leaflet map
-    map.current = L.map(mapContainer.current, {
-      zoomControl: false // Disable default zoom control
-    }).setView([40.7829, -73.9654], 14);
+    const center = userLocation 
+      ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
+      : new window.mapkit.Coordinate(29.7604, -95.3698);
 
-    // Add custom zoom control to top-right
-    L.control.zoom({
-      position: 'topright'
-    }).addTo(map.current);
+    console.log('useMapInitialization: Creating map with center:', center);
 
-    // Add dark mode tiles using CartoDB Dark Matter
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap contributors, © CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19
-    }).addTo(map.current);
+    try {
+      map.current = new window.mapkit.Map(mapContainer.current, {
+        center: center,
+        region: new window.mapkit.CoordinateRegion(
+          center,
+          new window.mapkit.CoordinateSpan(0.01, 0.01)
+        ),
+        mapType: window.mapkit.Map.MapTypes.Standard,
+        showsMapTypeControl: false,
+        showsZoomControl: false,
+        showsUserLocationControl: false,
+        showsCompass: window.mapkit.FeatureVisibility.Hidden,
+        showsScale: window.mapkit.FeatureVisibility.Hidden,
+        isRotationEnabled: true,
+        isScrollEnabled: true,
+        isZoomEnabled: true,
+        showsPointsOfInterest: true,
+        colorScheme: window.mapkit.Map.ColorSchemes.Light
+      });
 
-    console.log('useMapInitialization: Map initialized');
+      console.log('useMapInitialization: Map object created:', !!map.current);
 
-    // Cleanup function
+      // Enhanced map ready detection
+      let readyTimeoutId: NodeJS.Timeout;
+      const checkMapReady = () => {
+        console.log('useMapInitialization: Map ready check triggered');
+        if (map.current && map.current.element) {
+          console.log('useMapInitialization: Map is ready for annotations');
+          setMapReady(true);
+          clearTimeout(readyTimeoutId);
+        }
+      };
+
+      // Multiple ways to detect when map is ready
+      map.current.addEventListener('region-change-end', checkMapReady);
+      map.current.addEventListener('configuration-change', checkMapReady);
+      
+      // Immediate check in case map is already ready
+      setTimeout(checkMapReady, 100);
+      
+      // Fallback timeout
+      readyTimeoutId = setTimeout(() => {
+        console.log('useMapInitialization: Map ready timeout - forcing ready state');
+        setMapReady(true);
+      }, 2000);
+
+      setMapInitialized(true);
+      console.log('useMapInitialization: Map initialized successfully');
+
+      // Force a redraw after initialization
+      setTimeout(() => {
+        if (map.current && typeof map.current.redraw === 'function') {
+          console.log('useMapInitialization: Forcing map redraw');
+          map.current.redraw();
+        }
+      }, 500);
+
+    } catch (error) {
+      console.error('useMapInitialization: Error initializing map:', error);
+    }
+
     return () => {
-      console.log('useMapInitialization: Cleaning up map...');
-      map.current?.remove();
+      if (map.current) {
+        try {
+          console.log('useMapInitialization: Cleaning up map...');
+          map.current = null;
+          setMapInitialized(false);
+          setMapReady(false);
+        } catch (error) {
+          console.error('useMapInitialization: Error during cleanup:', error);
+        }
+      }
     };
-  }, [mapContainer]);
+  }, [mapkitLoaded, apiKey, userLocation, mapContainer, mapInitialized]);
 
-  return map.current;
+  return {
+    map: map.current,
+    mapInitialized,
+    mapReady
+  };
 };
