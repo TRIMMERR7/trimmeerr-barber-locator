@@ -1,6 +1,6 @@
 
 import React from 'react';
-import MapboxMap from './MapboxMap';
+import MapProvider from './MapProvider';
 import AdSlider from '../AdSlider';
 import TopBarbersSlider from '../TopBarbersSlider';
 
@@ -25,9 +25,9 @@ interface MapContainerProps {
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   return (
     <div className="flex-1 relative overflow-hidden">
-      {/* Mapbox Map - Lower z-index */}
+      {/* Map Provider with switching capability - Lower z-index */}
       <div className="absolute inset-0 z-10">
-        <MapboxMap 
+        <MapProvider 
           nearbyBarbers={nearbyBarbers}
           onBarberSelect={onBarberSelect}
         />
