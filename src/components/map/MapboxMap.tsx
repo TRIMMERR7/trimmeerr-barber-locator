@@ -15,6 +15,7 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const markers = useRef<L.Marker[]>([]);
   const [map, setMap] = useState<L.Map | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const { userLocation, error, loading } = useGeolocation();
 
   // Initialize Leaflet map
@@ -29,6 +30,12 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
       attribution: '© OpenStreetMap contributors'
     }).addTo(leafletMap);
 
+    // Wait for map to be fully loaded
+    leafletMap.whenReady(() => {
+      console.log('MapboxMap: Map is ready');
+      setMapReady(true);
+    });
+
     setMap(leafletMap);
     
     return () => {
@@ -40,7 +47,7 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
 
   // Handle user location marker
   useEffect(() => {
-    if (!map || !userLocation) return;
+    if (!map || !mapReady || !userLocation) return;
 
     console.log('MapboxMap: Adding user location marker to map');
     const userMarker = createUserLocationMarker(userLocation[0], userLocation[1]);
@@ -55,11 +62,11 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
     return () => {
       userMarker.remove();
     };
-  }, [map, userLocation]);
+  }, [map, mapReady, userLocation]);
 
   // Handle barber markers
   useEffect(() => {
-    if (!map) return;
+    if (!map || !mapReady) return;
 
     console.log('MapboxMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
     
@@ -80,7 +87,7 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
       markers.current.forEach(marker => marker.remove());
       markers.current = [];
     };
-  }, [map, nearbyBarbers, onBarberSelect]);
+  }, [map, mapReady, nearbyBarbers, onBarberSelect]);
 
   return (
     <div className="h-full relative">
