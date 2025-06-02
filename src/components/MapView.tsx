@@ -1,11 +1,12 @@
-
 import React, { useState } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import FilterPage from './FilterPage';
 import AIGeminiPage from './AIGeminiPage';
+import AboutUsPage from './AboutUsPage';
 import MapHeader from './map/MapHeader';
 import MapLayout from './map/MapLayout';
+import MenuDialog from './map/MenuDialog';
 
 interface Barber {
   id: string;
@@ -34,6 +35,8 @@ const MapView = ({ userType }: MapViewProps) => {
   const [showDashboard, setShowDashboard] = useState(false);
   const [showFilterPage, setShowFilterPage] = useState(false);
   const [showAIGeminiPage, setShowAIGeminiPage] = useState(false);
+  const [showAboutUsPage, setShowAboutUsPage] = useState(false);
+  const [showMenuDialog, setShowMenuDialog] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
   // Enhanced barber data with coordinates very close to user's location for visibility
@@ -142,7 +145,15 @@ const MapView = ({ userType }: MapViewProps) => {
   };
 
   const handleMenuClick = () => {
+    setShowMenuDialog(true);
+  };
+
+  const handleAIAssistantClick = () => {
     setShowAIGeminiPage(true);
+  };
+
+  const handleAboutUsClick = () => {
+    setShowAboutUsPage(true);
   };
 
   if (showDashboard && userType === 'barber') {
@@ -168,6 +179,14 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
+  if (showAboutUsPage) {
+    return (
+      <AboutUsPage
+        onBack={() => setShowAboutUsPage(false)}
+      />
+    );
+  }
+
   if (selectedBarber) {
     console.log('MapView: Rendering BarberProfile for:', selectedBarber.name);
     return (
@@ -188,14 +207,22 @@ const MapView = ({ userType }: MapViewProps) => {
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
       <MapHeader 
         userType={userType}
-        onAIAssistantClick={handleMenuClick}
+        onAIAssistantClick={handleAIAssistantClick}
         onDashboardClick={userType === 'barber' ? () => setShowDashboard(true) : undefined}
+        onMenuClick={handleMenuClick}
       />
 
       <MapLayout
         displayBarbers={displayBarbers}
         onBarberSelect={handleBarberSelect}
         onNavigate={openInAppleMaps}
+      />
+
+      <MenuDialog
+        isOpen={showMenuDialog}
+        onClose={() => setShowMenuDialog(false)}
+        onAIAssistantClick={handleAIAssistantClick}
+        onAboutUsClick={handleAboutUsClick}
       />
     </div>
   );
