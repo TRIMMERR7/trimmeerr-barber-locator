@@ -1,15 +1,17 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface MapHeaderProps {
   userType: 'barber' | 'client';
   onAIAssistantClick: () => void;
   onDashboardClick?: () => void;
+  onMenuClick: () => void;
 }
 
-const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick }: MapHeaderProps) => {
+const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick }: MapHeaderProps) => {
   const { signOut } = useAuth();
 
   return (
@@ -28,10 +30,10 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick }: MapHeader
         <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 md:absolute md:right-4">
           <Button 
             variant="ghost" 
-            onClick={onAIAssistantClick}
+            onClick={onMenuClick}
             className="text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
           >
-            AI Assistant
+            <Menu className="w-4 h-4" />
           </Button>
 
           {userType === 'barber' && onDashboardClick && (
