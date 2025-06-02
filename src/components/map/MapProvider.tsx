@@ -1,8 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import MapboxMap from './MapboxMap';
 import AppleMap from './AppleMap';
 
 interface Barber {
@@ -24,9 +22,8 @@ interface MapProviderProps {
 }
 
 const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
-  const [mapType, setMapType] = useState<'leaflet' | 'apple'>('apple');
   const [appleApiKey, setAppleApiKey] = useState('');
-  const [isLoadingApiKey, setIsLoadingApiKey] = useState(false);
+  const [isLoadingApiKey, setIsLoadingApiKey] = useState(true);
 
   // Fetch Apple Maps API key from Supabase secrets
   useEffect(() => {
@@ -39,55 +36,40 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
         }
       } catch (error) {
         console.error('Error fetching Apple Maps API key:', error);
-        // If Apple Maps API key fails to load, fallback to Leaflet
-        setMapType('leaflet');
+      } finally {
+        setIsLoadingApiKey(false);
       }
     };
 
     fetchAppleApiKey();
   }, []);
 
-  const handleMapTypeChange = (type: 'leaflet' | 'apple') => {
-    if (type === 'apple' && !appleApiKey) {
-      console.log('Apple Maps API key not available');
-      return;
-    }
-    setMapType(type);
-  };
+  if (isLoadingApiKey) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white">Loading Apple Maps...</div>
+      </div>
+    );
+  }
+
+  if (!appleApiKey) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white text-center">
+          <p>Apple Maps API key not available</p>
+          <p className="text-sm text-gray-400 mt-2">Please configure your Apple Maps API key</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full relative">
-      {/* Map Type Selector */}
-      <div className="absolute top-4 right-4 z-50 flex gap-2">
-        <Button
-          variant={mapType === 'apple' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => handleMapTypeChange('apple')}
-          disabled={!appleApiKey}
-          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-600 disabled:opacity-50"
-        >
-          Apple Maps
-        </Button>
-        <Button
-          variant={mapType === 'leaflet' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => handleMapTypeChange('leaflet')}
-          className="bg-gray-800 hover:bg-gray-700 text-white border-gray-600"
-        >
-          OpenStreetMap
-        </Button>
-      </div>
-
-      {/* Render appropriate map */}
-      {mapType === 'apple' && appleApiKey ? (
-        <AppleMap 
-          nearbyBarbers={nearbyBarbers} 
-          onBarberSelect={onBarberSelect}
-          apiKey={appleApiKey}
-        />
-      ) : (
-        <MapboxMap nearbyBarbers={nearbyBarbers} onBarberSelect={onBarberSelect} />
-      )}
+      <AppleMap 
+        nearbyBarbers={nearbyBarbers} 
+        onBarberSelect={onBarberSelect}
+        apiKey={appleApiKey}
+      />
     </div>
   );
 };
