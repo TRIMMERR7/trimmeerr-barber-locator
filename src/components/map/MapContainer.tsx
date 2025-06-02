@@ -1,8 +1,7 @@
-
 import React from 'react';
-import StepsIndicator from './StepsIndicator';
 import BarberMarker from './BarberMarker';
 import AdSlider from '../AdSlider';
+import TopBarbersSlider from '../TopBarbersSlider';
 
 interface Barber {
   id: string;
@@ -30,7 +29,8 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
 
   return (
     <div className="flex-1 relative">
-      <StepsIndicator currentStep={1} />
+      {/* Top Barbers Slideshow */}
+      <TopBarbersSlider />
 
       {/* GPS-Style Map Area */}
       <div className="h-full relative overflow-hidden">
