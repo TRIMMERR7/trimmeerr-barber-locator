@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Clock } from "lucide-react";
+import { Clock, Calendar } from "lucide-react";
 
 interface TimeSelectionProps {
   selectedTime: string;
@@ -8,28 +8,69 @@ interface TimeSelectionProps {
 }
 
 const TimeSelection = ({ selectedTime, onTimeSelect }: TimeSelectionProps) => {
-  const availableTimes = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM'];
+  const availableTimes = [
+    { time: '9:00 AM', available: true },
+    { time: '11:00 AM', available: true },
+    { time: '1:00 PM', available: false },
+    { time: '3:00 PM', available: true },
+    { time: '5:00 PM', available: true },
+    { time: '7:00 PM', available: true }
+  ];
+
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
 
   return (
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-gray-600" />
-        <span className="text-sm font-medium text-gray-700">Available Today</span>
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-4">
+        <Calendar className="w-5 h-5 text-red-600" />
+        <div>
+          <span className="text-lg font-semibold text-gray-900">Available Today</span>
+          <p className="text-sm text-gray-600">{getTodayDate()}</p>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        {availableTimes.map((time) => (
+      
+      <div className="grid grid-cols-2 gap-3">
+        {availableTimes.map(({ time, available }) => (
           <button
             key={time}
-            onClick={() => onTimeSelect(time)}
-            className={`p-3 text-center rounded-lg border-2 transition-all font-medium text-sm ${
+            onClick={() => available && onTimeSelect(time)}
+            disabled={!available}
+            className={`p-4 text-center rounded-xl border-2 transition-all duration-200 font-medium relative ${
               selectedTime === time 
-                ? 'border-red-600 bg-red-50 text-red-700' 
-                : 'border-gray-200 hover:border-red-300 hover:bg-red-25'
+                ? 'border-red-600 bg-red-50 text-red-700 shadow-md scale-105' 
+                : available
+                ? 'border-gray-200 hover:border-red-300 hover:bg-red-25 hover:shadow-sm bg-white' 
+                : 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed'
             }`}
           >
-            {time}
+            <div className="flex items-center justify-center gap-2">
+              <Clock className="w-4 h-4" />
+              <span>{time}</span>
+            </div>
+            {!available && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-75 rounded-xl">
+                <span className="text-xs text-gray-500 font-medium">Booked</span>
+              </div>
+            )}
+            {selectedTime === time && (
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full"></div>
+            )}
           </button>
         ))}
+      </div>
+      
+      <div className="text-center">
+        <p className="text-sm text-gray-500">
+          Need a different time? Call the barber directly for more options.
+        </p>
       </div>
     </div>
   );
