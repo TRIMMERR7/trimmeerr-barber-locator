@@ -44,7 +44,7 @@ const AdSlider = () => {
   };
 
   return (
-    <div className="absolute bottom-4 left-4 right-4 z-30">
+    <div className="absolute bottom-4 left-4 right-4 z-50">
       <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-0 overflow-hidden">
         <CardContent className="p-0">
           <div className="relative h-20 overflow-hidden">

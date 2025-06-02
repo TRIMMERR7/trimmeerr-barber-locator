@@ -37,7 +37,7 @@ const TopBarbersSlider = () => {
   }, [topBarbers.length]);
 
   return (
-    <div className="absolute top-4 left-4 z-30">
+    <div className="absolute top-4 left-4 z-50">
       <Card className="bg-white/90 backdrop-blur-sm shadow-lg border-0 overflow-hidden w-64">
         <CardContent className="p-0">
           <div className="relative h-16 overflow-hidden">
