@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -78,44 +77,62 @@ const MapView = ({ userType, onLogout }: MapViewProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-trimmer-dark">
+    <div className="min-h-screen bg-black">
       {/* Header */}
-      <div className="bg-trimmer-slate border-b border-slate-700 p-4">
+      <div className="bg-black border-b border-gray-800 p-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div>
-            <h1 className="text-2xl font-bold gradient-text">TRIMMERR</h1>
-            <p className="text-slate-400 text-sm">
-              {userType === 'guest' ? 'Browse as Guest' : `Welcome, ${userType}`}
-            </p>
+          <div className="text-center">
+            <h1 className="text-lg font-medium text-white">Step 2</h1>
+            <p className="text-white text-sm">Search for the Perfect Barber</p>
           </div>
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="border-trimmer-blue text-trimmer-blue">
-              {nearbyBarbers.length} nearby
-            </Badge>
-            <Button 
-              variant="ghost" 
-              onClick={onLogout}
-              className="text-slate-400 hover:text-white"
-            >
-              {userType === 'guest' ? 'Sign In' : 'Sign Out'}
+          <Button 
+            variant="ghost" 
+            onClick={onLogout}
+            className="text-gray-400 hover:text-white"
+          >
+            {userType === 'guest' ? 'Sign In' : 'Sign Out'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="p-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Find a Barber Near You"
+              className="w-full h-12 pl-12 pr-4 bg-gray-100 border border-gray-300 rounded-lg text-black placeholder-gray-500"
+            />
+            <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          
+          {/* Filter tabs */}
+          <div className="flex gap-4 mt-4">
+            <Button variant="outline" className="bg-white border-gray-300 text-black hover:bg-gray-50">
+              Haircut
+            </Button>
+            <Button variant="outline" className="bg-white border-gray-300 text-black hover:bg-gray-50">
+              Rating
+            </Button>
+            <Button variant="outline" className="bg-white border-gray-300 text-black hover:bg-gray-50">
+              Price
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Map Area Placeholder with Ads */}
+      {/* Map Area */}
       <div className="relative">
-        {/* Simulated Map */}
-        <div className="h-96 bg-gradient-to-br from-slate-800 to-slate-900 relative overflow-hidden">
+        <div className="h-96 bg-gray-200 relative overflow-hidden">
           {/* Your Location (Blue Dot) */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <div className="relative">
-              <div className="w-4 h-4 bg-trimmer-blue rounded-full animate-pulse"></div>
-              <div className="absolute inset-0 w-4 h-4 bg-trimmer-blue rounded-full animate-ping opacity-30"></div>
+              <div className="w-4 h-4 bg-blue-500 rounded-full animate-pulse"></div>
+              <div className="absolute inset-0 w-4 h-4 bg-blue-500 rounded-full animate-ping opacity-30"></div>
             </div>
-            <span className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-trimmer-blue font-medium">
-              You
-            </span>
           </div>
 
           {/* Barber Locations (Red Dots) */}
@@ -130,70 +147,65 @@ const MapView = ({ userType, onLogout }: MapViewProps) => {
               }}
             >
               <div className="relative">
-                <div className="w-3 h-3 bg-trimmer-red rounded-full group-hover:scale-125 transition-transform"></div>
-                <div className="absolute inset-0 w-3 h-3 bg-trimmer-red rounded-full animate-ping opacity-40"></div>
-              </div>
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                {barber.name}
+                <div className="w-3 h-3 bg-red-600 rounded-full group-hover:scale-125 transition-transform"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-red-600 rounded-full animate-ping opacity-40"></div>
               </div>
             </button>
           ))}
 
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2">
-            <Button size="sm" variant="secondary" className="bg-white/90 text-black">
-              📍
-            </Button>
-            <Button size="sm" variant="secondary" className="bg-white/90 text-black">
-              +
-            </Button>
-            <Button size="sm" variant="secondary" className="bg-white/90 text-black">
-              -
-            </Button>
+          {/* Map marker at bottom */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </div>
           </div>
         </div>
 
-        {/* Advertisement Slider */}
         <AdSlider />
       </div>
 
-      {/* Barber List */}
-      <div className="p-4 max-w-7xl mx-auto">
-        <h2 className="text-xl font-semibold text-white mb-4">Nearby Barbers</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {nearbyBarbers.map((barber) => (
-            <Card 
-              key={barber.id} 
-              className="glass-card hover:bg-white/20 transition-all cursor-pointer group"
-              onClick={() => setSelectedBarber(barber)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start gap-3">
-                  <img
-                    src={barber.image}
-                    alt={barber.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-trimmer-red"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-white group-hover:text-trimmer-blue transition-colors">
-                      {barber.name}
-                    </h3>
-                    <p className="text-sm text-slate-400">{barber.specialty}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <div className="flex items-center gap-1">
-                        <span className="text-yellow-400">⭐</span>
-                        <span className="text-sm text-white">{barber.rating}</span>
-                      </div>
-                      <span className="text-slate-500">•</span>
-                      <span className="text-sm text-slate-400">{barber.distance}</span>
-                      <span className="text-slate-500">•</span>
-                      <span className="text-sm text-trimmer-blue">{barber.price}</span>
-                    </div>
-                  </div>
+      {/* Services and Reviews Section */}
+      <div className="p-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-black mb-4">Services</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 className="font-medium text-black">Haircut</h4>
+                  <p className="text-sm text-gray-600">40 min • $60</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 className="font-medium text-black">Beard Trim</h4>
+                  <p className="text-sm text-gray-600">30 min • $20</p>
+                </div>
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold text-black mb-4">Reviews</h3>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {[1, 2, 3].map((i) => (
+                <img
+                  key={i}
+                  src={`https://images.unsplash.com/photo-${1472099645785 + i}?w=100&h=100&fit=crop&crop=face`}
+                  alt={`Review ${i}`}
+                  className="w-full h-20 object-cover rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
