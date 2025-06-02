@@ -105,28 +105,28 @@ const MapView = ({ userType }: MapViewProps) => {
   return (
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
       {/* Header */}
-      <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-4 flex-shrink-0">
+      <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-3 sm:p-4 flex-shrink-0">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <img 
               src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
               alt="TRIMMERR Logo" 
-              className="w-6 h-6"
+              className="w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
             />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+            <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent truncate">
               TRIMMERR
             </h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Mobile Menu Button */}
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  className="lg:hidden text-white hover:bg-gray-800 rounded-xl touch-manipulation"
+                  className="lg:hidden text-white hover:bg-gray-800 rounded-xl touch-manipulation h-9 w-9 sm:h-10 sm:w-10"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-full sm:w-96 p-0">
@@ -142,7 +142,7 @@ const MapView = ({ userType }: MapViewProps) => {
             {userType === 'barber' && (
               <Button 
                 onClick={() => setShowDashboard(true)}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-xl touch-manipulation shadow-lg"
+                className="bg-red-600 hover:bg-red-700 text-white rounded-xl touch-manipulation shadow-lg h-9 sm:h-10 px-3 sm:px-4 text-sm"
               >
                 <span className="hidden sm:inline">Dashboard</span>
                 <span className="sm:hidden">Profile</span>
@@ -151,9 +151,10 @@ const MapView = ({ userType }: MapViewProps) => {
             <Button 
               variant="ghost" 
               onClick={signOut}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl touch-manipulation"
+              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl touch-manipulation h-9 sm:h-10 px-2 sm:px-3 text-sm"
             >
-              Sign Out
+              <span className="hidden sm:inline">Sign Out</span>
+              <span className="sm:hidden">Out</span>
             </Button>
           </div>
         </div>

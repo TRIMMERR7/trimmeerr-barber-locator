@@ -30,12 +30,14 @@ const AuthPage = () => {
           toast({
             title: "Login failed",
             description: error.message,
-            variant: "destructive"
+            variant: "destructive",
+            duration: 2000
           });
         } else {
           toast({
             title: "Welcome back!",
-            description: "You're ready to book appointments."
+            description: "You're ready to book appointments.",
+            duration: 1500
           });
         }
       } else {
@@ -57,12 +59,14 @@ const AuthPage = () => {
           toast({
             title: "Signup failed",
             description: error.message,
-            variant: "destructive"
+            variant: "destructive",
+            duration: 2000
           });
         } else {
           toast({
             title: "Account created!",
-            description: "Please check your email to verify your account."
+            description: "Please check your email to verify your account.",
+            duration: 2000
           });
         }
       }
@@ -70,7 +74,8 @@ const AuthPage = () => {
       toast({
         title: "Error",
         description: "An unexpected error occurred",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
     } finally {
       setLoading(false);
@@ -90,14 +95,16 @@ const AuthPage = () => {
         toast({
           title: "Authentication failed",
           description: error.message,
-          variant: "destructive"
+          variant: "destructive",
+          duration: 2000
         });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "An unexpected error occurred",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 2000
       });
     }
   };
