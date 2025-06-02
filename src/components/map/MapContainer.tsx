@@ -26,21 +26,17 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex-1 relative overflow-hidden">
-      {/* Map Provider with switching capability - Lower z-index */}
-      <div className="absolute inset-0 z-10">
+    <div className="flex-1 relative overflow-hidden flex flex-col">
+      {/* Map Provider - Takes remaining space */}
+      <div className="flex-1 relative">
         <MapProvider 
           nearbyBarbers={nearbyBarbers}
           onBarberSelect={onBarberSelect}
         />
       </div>
 
-      {/* Combined Widget - Top Left Corner */}
-      <div className={`absolute z-[100] pointer-events-auto ${
-        isMobile 
-          ? 'top-4 left-4' 
-          : 'top-6 left-6'
-      }`}>
+      {/* Widget Container - Bottom with border */}
+      <div className="border-t border-gray-700/50 bg-black/20 backdrop-blur-sm">
         <MapWidget />
       </div>
     </div>

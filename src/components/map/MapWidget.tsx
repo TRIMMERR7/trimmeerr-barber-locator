@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -27,7 +26,7 @@ type SlideItem = BarberItem | AdItem;
 
 const MapWidget = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const isMobile = useIsMobile();
 
@@ -120,165 +119,160 @@ const MapWidget = () => {
   const currentItem = allSlides[currentSlide];
 
   return (
-    <div
-      onMouseEnter={() => !isMobile && setIsHovered(true)}
-      onMouseLeave={() => !isMobile && setIsHovered(false)}
-      onClick={() => isMobile && setIsHovered(!isHovered)}
-      className="relative z-[100] group"
-    >
-      {/* Trigger Button - Top Left Corner */}
-      <div className={`${
-        isMobile 
-          ? 'w-12 h-12' 
-          : 'w-14 h-14 md:w-16 md:h-16'
-        } bg-gradient-to-br from-black/40 to-black/60 backdrop-blur-xl rounded-xl flex flex-col items-center justify-center cursor-pointer border border-white/30 hover:border-white/50 transition-all duration-500 shadow-2xl hover:shadow-red-500/30 group-hover:scale-105`}>
-        <div className={`${
-          isMobile ? 'text-base' : 'text-lg md:text-xl'
-        } mb-0.5 transform transition-transform duration-300 group-hover:scale-110`}>
-          {currentItem.type === 'barber' ? '🏆' : '📢'}
-        </div>
-        <div className="w-4 h-0.5 bg-gradient-to-r from-red-500 to-red-600 rounded-full opacity-70"></div>
-      </div>
-
-      {/* Content Panel - Positioned to the right of trigger */}
-      <Card className={`absolute ${
-        isMobile 
-          ? 'top-0 left-full ml-2 w-[280px]' 
-          : 'top-0 left-full ml-4 w-80 md:w-96'
-        } bg-gradient-to-br from-black/50 to-black/70 backdrop-blur-2xl border border-white/30 shadow-2xl overflow-hidden transition-all duration-500 ${
-        isHovered ? 'opacity-100 scale-100 translate-x-0' : 'opacity-0 scale-95 translate-x-2 pointer-events-none'
-      }`}>
+    <div className="p-3 md:p-4">
+      {/* Compact Bottom Panel */}
+      <Card className="bg-gradient-to-r from-black/60 to-black/80 backdrop-blur-xl border border-white/20 shadow-xl overflow-hidden">
         <CardContent className="p-0">
-          {/* Main Content Area */}
-          <div className={`relative ${isMobile ? 'h-24' : 'h-28 md:h-32'} overflow-hidden`}>
-            {/* Barber Content */}
-            {currentItem.type === 'barber' && (
-              <div className="h-full bg-gradient-to-r from-red-600/90 to-red-700/90 backdrop-blur-sm flex items-center p-3 md:p-4 relative overflow-hidden">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 left-0 w-16 h-16 bg-white/20 rounded-full -translate-x-8 -translate-y-8"></div>
-                  <div className="absolute bottom-0 right-0 w-12 h-12 bg-white/10 rounded-full translate-x-6 translate-y-6"></div>
+          <div 
+            className="flex items-center cursor-pointer"
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {/* Trigger Section - Always Visible */}
+            <div className="flex items-center p-3 md:p-4 flex-1">
+              <div className={`${
+                isMobile ? 'w-10 h-10' : 'w-12 h-12'
+              } bg-gradient-to-br from-red-500/80 to-red-600/80 rounded-lg flex items-center justify-center mr-3 shadow-lg`}>
+                <span className={`${isMobile ? 'text-lg' : 'text-xl'}`}>
+                  {currentItem.type === 'barber' ? '🏆' : '📢'}
+                </span>
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <div className={`text-white/80 ${
+                  isMobile ? 'text-xs' : 'text-sm'
+                } font-medium mb-1`}>
+                  {currentItem.type === 'barber' ? 'Top Barber' : 'Special Offer'}
                 </div>
-                
-                <img
-                  src={currentItem.image}
-                  alt={currentItem.name}
-                  className={`${
-                    isMobile ? 'w-12 h-12' : 'w-14 h-14 md:w-16 md:h-16'
-                  } rounded-xl object-cover border-2 border-white/30 mr-3 shadow-xl z-10 relative`}
-                />
-                <div className="flex-1 min-w-0 z-10 relative">
-                  <div className={`text-white/80 ${
-                    isMobile ? 'text-xs' : 'text-xs md:text-sm'
-                  } font-medium mb-1 truncate`}>{currentItem.title}</div>
-                  <h4 className={`text-white font-bold ${
-                    isMobile ? 'text-sm' : 'text-base md:text-lg'
-                  } leading-tight truncate mb-2`}>{currentItem.name}</h4>
-                  <div className="flex items-center gap-2">
-                    <div className={`text-white ${
-                      isMobile ? 'text-xs' : 'text-xs'
-                    } font-bold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1`}>
-                      <span className="text-yellow-300">⭐</span>
-                      {currentItem.rating}
-                    </div>
-                    <div className={`text-white/70 ${
-                      isMobile ? 'text-xs' : 'text-xs'
-                    } font-medium`}>Top Rated</div>
-                  </div>
+                <div className={`text-white font-bold ${
+                  isMobile ? 'text-sm' : 'text-base'
+                } truncate`}>
+                  {currentItem.type === 'barber' ? currentItem.name : currentItem.company}
                 </div>
               </div>
-            )}
 
-            {/* Ad Content */}
-            {currentItem.type === 'ad' && (
-              <div
-                className={`h-full bg-gradient-to-r ${currentItem.color} backdrop-blur-sm flex items-center justify-between p-3 md:p-4 relative overflow-hidden cursor-pointer group/ad`}
-                onClick={() => console.log(`Clicked ad: ${currentItem.company}`)}
-              >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full translate-x-10 -translate-y-10 group-hover/ad:scale-110 transition-transform duration-500"></div>
-                  <div className="absolute bottom-0 left-0 w-12 h-12 bg-white/10 rounded-full -translate-x-6 translate-y-6 group-hover/ad:scale-110 transition-transform duration-500"></div>
-                </div>
-                
-                <div className="flex-1 pr-3 min-w-0 z-10 relative">
-                  <div className={`text-white/80 ${
-                    isMobile ? 'text-xs' : 'text-xs md:text-sm'
-                  } font-medium mb-1 truncate`}>{currentItem.tagline}</div>
-                  <h3 className={`text-white font-bold ${
-                    isMobile ? 'text-sm' : 'text-base md:text-lg'
-                  } leading-tight mb-2 truncate`}>{currentItem.company}</h3>
-                  <div className={`text-white font-semibold ${
-                    isMobile ? 'text-xs' : 'text-sm'
-                  } bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm inline-block max-w-full truncate`}>
-                    {currentItem.offer}
+              {/* Quick Info */}
+              <div className="flex items-center gap-2 mr-3">
+                {currentItem.type === 'barber' && (
+                  <div className="text-white text-xs font-bold bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
+                    <span className="text-yellow-300">⭐</span>
+                    {currentItem.rating}
                   </div>
+                )}
+                {currentItem.type === 'ad' && (
+                  <div className="text-white text-xs font-semibold bg-green-500/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                    Offer
+                  </div>
+                )}
+              </div>
+
+              {/* Expand/Collapse Indicator */}
+              <div className={`text-white/60 transition-transform duration-300 ${
+                isExpanded ? 'rotate-180' : ''
+              }`}>
+                <ChevronRight className="w-5 h-5" />
+              </div>
+            </div>
+          </div>
+
+          {/* Expanded Content */}
+          <div className={`transition-all duration-500 overflow-hidden ${
+            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}>
+            <div className="border-t border-white/10">
+              {/* Detailed Content Area */}
+              <div className={`relative ${isMobile ? 'h-32' : 'h-36'} overflow-hidden`}>
+                {/* Barber Detailed Content */}
+                {currentItem.type === 'barber' && (
+                  <div className="h-full bg-gradient-to-r from-red-600/90 to-red-700/90 backdrop-blur-sm flex items-center p-4 relative overflow-hidden">
+                    <img
+                      src={currentItem.image}
+                      alt={currentItem.name}
+                      className={`${
+                        isMobile ? 'w-16 h-16' : 'w-20 h-20'
+                      } rounded-xl object-cover border-2 border-white/30 mr-4 shadow-xl`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-white/80 ${
+                        isMobile ? 'text-sm' : 'text-base'
+                      } font-medium mb-2`}>{currentItem.title}</div>
+                      <h3 className={`text-white font-bold ${
+                        isMobile ? 'text-lg' : 'text-xl'
+                      } leading-tight mb-3`}>{currentItem.name}</h3>
+                      <div className="flex items-center gap-3">
+                        <div className="text-white text-sm font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm flex items-center gap-1">
+                          <span className="text-yellow-300">⭐</span>
+                          {currentItem.rating}
+                        </div>
+                        <div className="text-white/80 text-sm font-medium">Excellence Award</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Ad Detailed Content */}
+                {currentItem.type === 'ad' && (
+                  <div className={`h-full bg-gradient-to-r ${currentItem.color} backdrop-blur-sm flex items-center justify-between p-4 relative overflow-hidden cursor-pointer group/ad`}>
+                    <div className="flex-1 pr-4 min-w-0">
+                      <div className={`text-white/80 ${
+                        isMobile ? 'text-sm' : 'text-base'
+                      } font-medium mb-2`}>{currentItem.tagline}</div>
+                      <h3 className={`text-white font-bold ${
+                        isMobile ? 'text-lg' : 'text-xl'
+                      } leading-tight mb-3`}>{currentItem.company}</h3>
+                      <div className="text-white font-semibold text-sm bg-white/20 px-3 py-2 rounded-full backdrop-blur-sm inline-block">
+                        {currentItem.offer}
+                      </div>
+                    </div>
+                    
+                    <div className="flex-shrink-0">
+                      <img
+                        src={currentItem.image}
+                        alt={currentItem.company}
+                        className={`${
+                          isMobile ? 'w-16 h-16' : 'w-20 h-20'
+                        } rounded-xl object-cover border-2 border-white/30 shadow-xl group-hover/ad:scale-105 transition-transform duration-300`}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Controls Panel */}
+              <div className="flex justify-between items-center p-4 bg-white/5 backdrop-blur-sm border-t border-white/10">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={(e) => {e.stopPropagation(); handlePrev();}}
+                    className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200 hover:scale-110"
+                  >
+                    <ChevronLeft className="w-4 h-4 text-white" />
+                  </button>
+                  
+                  <div className="flex gap-1">
+                    {allSlides.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {e.stopPropagation(); handleSlideSelect(index);}}
+                        className={`h-2 rounded-full transition-all duration-300 hover:scale-110 ${
+                          index === currentSlide 
+                            ? 'bg-white w-8' 
+                            : 'bg-white/50 hover:bg-white/70 w-2'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  
+                  <button
+                    onClick={(e) => {e.stopPropagation(); handleNext();}}
+                    className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200 hover:scale-110"
+                  >
+                    <ChevronRight className="w-4 h-4 text-white" />
+                  </button>
                 </div>
                 
-                <div className="flex-shrink-0 z-10 relative">
-                  <img
-                    src={currentItem.image}
-                    alt={currentItem.company}
-                    className={`${
-                      isMobile ? 'w-12 h-12' : 'w-14 h-14 md:w-16 md:h-16'
-                    } rounded-xl object-cover border-2 border-white/30 shadow-xl group-hover/ad:scale-105 transition-transform duration-300`}
-                  />
+                <div className="text-white/70 text-sm font-medium">
+                  {currentSlide + 1} of {allSlides.length}
                 </div>
               </div>
-            )}
-          </div>
-          
-          {/* Controls Panel */}
-          <div className={`flex justify-between items-center ${
-            isMobile ? 'p-2' : 'p-3 md:p-4'
-          } bg-white/10 backdrop-blur-sm border-t border-white/20`}>
-            <div className={`${
-              isMobile ? 'text-xs' : 'text-xs md:text-sm'
-            } font-semibold text-white/90 truncate flex items-center gap-1`}>
-              <span className={isMobile ? 'text-sm' : 'text-base'}>
-                {currentItem.type === 'barber' ? '🏆' : '📢'}
-              </span>
-              {currentItem.type === 'barber' ? 'Top Barber' : 'Special Offer'}
-            </div>
-            
-            <div className={`flex items-center ${isMobile ? 'gap-1' : 'gap-2 md:gap-3'}`}>
-              <button
-                onClick={handlePrev}
-                className={`${
-                  isMobile ? 'w-6 h-6' : 'w-7 h-7 md:w-8 md:h-8'
-                } rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
-              >
-                <ChevronLeft className={`${
-                  isMobile ? 'w-3 h-3' : 'w-3 h-3 md:w-4 md:h-4'
-                } text-white`} />
-              </button>
-              
-              <div className="flex gap-1">
-                {allSlides.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSlideSelect(index)}
-                    className={`${
-                      isMobile ? 'h-1' : 'h-1.5 md:h-2'
-                    } rounded-full transition-all duration-300 hover:scale-110 ${
-                      index === currentSlide 
-                        ? `bg-white ${isMobile ? 'w-4' : 'w-6 md:w-8'}` 
-                        : `bg-white/50 hover:bg-white/70 ${isMobile ? 'w-1' : 'w-1.5 md:w-2'}`
-                    }`}
-                  />
-                ))}
-              </div>
-              
-              <button
-                onClick={handleNext}
-                className={`${
-                  isMobile ? 'w-6 h-6' : 'w-7 h-7 md:w-8 md:h-8'
-                } rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95`}
-              >
-                <ChevronRight className={`${
-                  isMobile ? 'w-3 h-3' : 'w-3 h-3 md:w-4 md:h-4'
-                } text-white`} />
-              </button>
             </div>
           </div>
         </CardContent>
