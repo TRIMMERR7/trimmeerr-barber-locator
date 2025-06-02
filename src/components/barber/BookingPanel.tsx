@@ -4,19 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import PriceDisplay from './PriceDisplay';
 import BookingDialog from './BookingDialog';
-
-interface Barber {
-  id: string;
-  name: string;
-  rating: number;
-  specialty: string;
-  image: string;
-  price: string;
-  distance: string;
-  experience: string;
-  lat: number;
-  lng: number;
-}
+import { Barber } from '@/types/barber';
 
 interface Service {
   id: string;

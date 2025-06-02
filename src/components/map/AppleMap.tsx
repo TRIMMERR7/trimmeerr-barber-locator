@@ -2,19 +2,7 @@
 import React from 'react';
 import { useMapKit } from '@/hooks/useMapKit';
 import MapInstance from './MapInstance';
-
-interface Barber {
-  id: string;
-  name: string;
-  rating: number;
-  specialty: string;
-  image: string;
-  price: string;
-  distance: string;
-  experience: string;
-  lat: number;
-  lng: number;
-}
+import { Barber } from '@/types/barber';
 
 interface AppleMapProps {
   nearbyBarbers: Barber[];
