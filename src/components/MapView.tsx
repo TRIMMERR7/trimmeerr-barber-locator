@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -195,7 +194,7 @@ const MapView = ({ userType }: MapViewProps) => {
             <Button 
               variant="ghost" 
               onClick={handleMenuClick}
-              className="text-red-500 hover:text-red-400 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
+              className="text-yellow-500 hover:text-yellow-400 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
             >
               Find Your Barber
             </Button>
