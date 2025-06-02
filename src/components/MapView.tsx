@@ -1,11 +1,11 @@
-
 import React, { useState } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import FilterPage from './FilterPage';
 import AIGeminiPage from './AIGeminiPage';
 import MapHeader from './map/MapHeader';
-import MapLayout from './map/MapLayout';
+import MapWithAI from './map/MapWithAI';
+import AIBookingAssistant from './AIBookingAssistant';
 
 interface Barber {
   id: string;
@@ -171,15 +171,22 @@ const MapView = ({ userType }: MapViewProps) => {
   if (selectedBarber) {
     console.log('MapView: Rendering BarberProfile for:', selectedBarber.name);
     return (
-      <BarberProfile 
-        barber={selectedBarber} 
-        onBack={() => {
-          console.log('MapView: Going back to map');
-          setSelectedBarber(null);
-        }}
-        userType={userType}
-        onNavigate={() => openInAppleMaps(selectedBarber)}
-      />
+      <div className="relative">
+        <BarberProfile 
+          barber={selectedBarber} 
+          onBack={() => {
+            console.log('MapView: Going back to map');
+            setSelectedBarber(null);
+          }}
+          userType={userType}
+          onNavigate={() => openInAppleMaps(selectedBarber)}
+        />
+        <AIBookingAssistant
+          currentStep="select"
+          selectedBarber={selectedBarber}
+          onBarberSelect={handleBarberSelect}
+        />
+      </div>
     );
   }
 
@@ -192,7 +199,7 @@ const MapView = ({ userType }: MapViewProps) => {
         onDashboardClick={userType === 'barber' ? () => setShowDashboard(true) : undefined}
       />
 
-      <MapLayout
+      <MapWithAI
         displayBarbers={displayBarbers}
         onBarberSelect={handleBarberSelect}
         onNavigate={openInAppleMaps}

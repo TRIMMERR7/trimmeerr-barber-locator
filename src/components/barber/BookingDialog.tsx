@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useBookingDialog } from '@/hooks/useBookingDialog';
 import BookingDialogHeader from './BookingDialogHeader';
 import BookingDialogContent from './BookingDialogContent';
+import AIBookingAssistant from '../AIBookingAssistant';
 
 interface Service {
   id: string;
@@ -56,39 +56,49 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
   } = useBookingDialog(barber);
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      
-      <DialogContent className={`${step === 'payment' ? 'sm:max-w-6xl max-w-[98vw] h-[95vh]' : 'sm:max-w-lg max-w-[95vw]'} shadow-2xl border-0 p-0`}>
-        <div className="flex flex-col h-full">
-          <BookingDialogHeader
-            step={step}
-            barberName={barber.name}
-            stepTitle={getStepTitle()}
-            onStepBack={handleStepBack}
-          />
-          
-          <BookingDialogContent
-            step={step}
-            selectedService={selectedService}
-            selectedTime={selectedTime}
-            userPhone={userPhone}
-            user={user}
-            isProcessingPayment={isProcessingPayment}
-            paymentUrl={paymentUrl}
-            paymentLoading={paymentLoading}
-            onServiceSelect={handleServiceSelect}
-            onTimeSelect={handleTimeSelect}
-            setUserPhone={setUserPhone}
-            onBookingAndPayment={handleBookingAndPayment}
-            onPaymentLoad={handlePaymentLoad}
-            onPaymentComplete={handlePaymentComplete}
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+        
+        <DialogContent className={`${step === 'payment' ? 'sm:max-w-6xl max-w-[98vw] h-[95vh]' : 'sm:max-w-lg max-w-[95vw]'} shadow-2xl border-0 p-0`}>
+          <div className="flex flex-col h-full">
+            <BookingDialogHeader
+              step={step}
+              barberName={barber.name}
+              stepTitle={getStepTitle()}
+              onStepBack={handleStepBack}
+            />
+            
+            <BookingDialogContent
+              step={step}
+              selectedService={selectedService}
+              selectedTime={selectedTime}
+              userPhone={userPhone}
+              user={user}
+              isProcessingPayment={isProcessingPayment}
+              paymentUrl={paymentUrl}
+              paymentLoading={paymentLoading}
+              onServiceSelect={handleServiceSelect}
+              onTimeSelect={handleTimeSelect}
+              setUserPhone={setUserPhone}
+              onBookingAndPayment={handleBookingAndPayment}
+              onPaymentLoad={handlePaymentLoad}
+              onPaymentComplete={handlePaymentComplete}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Assistant for booking steps */}
+      {isOpen && (
+        <AIBookingAssistant
+          currentStep="book"
+          selectedBarber={barber}
+        />
+      )}
+    </>
   );
 };
 
