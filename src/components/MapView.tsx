@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
@@ -7,7 +6,7 @@ import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import BarberList from './map/BarberList';
 import MapContainer from './map/MapContainer';
-import BarberFilterPanel from './map/BarberFilterPanel';
+import FilterPage from './FilterPage';
 
 interface Barber {
   id: string;
@@ -34,7 +33,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const { signOut } = useAuth();
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
-  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showFilterPage, setShowFilterPage] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
   // Enhanced barber data with ethnicity, age, languages, and personality traits
@@ -141,11 +140,22 @@ const MapView = ({ userType }: MapViewProps) => {
   };
 
   const handleMenuClick = () => {
-    setShowFilterPanel(true);
+    setShowFilterPage(true);
   };
 
   if (showDashboard && userType === 'barber') {
     return <BarberDashboard onBack={() => setShowDashboard(false)} />;
+  }
+
+  if (showFilterPage) {
+    return (
+      <FilterPage
+        barbers={nearbyBarbers}
+        onBack={() => setShowFilterPage(false)}
+        onBarberSelect={handleBarberSelect}
+        onNavigate={openInAppleMaps}
+      />
+    );
   }
 
   if (selectedBarber) {
@@ -185,7 +195,7 @@ const MapView = ({ userType }: MapViewProps) => {
               variant="ghost" 
               size="icon"
               onClick={handleMenuClick}
-              className="lg:hidden text-white hover:bg-gray-800 rounded-xl touch-manipulation h-8 w-8 sm:h-9 sm:w-9"
+              className="text-white hover:bg-gray-800 rounded-xl touch-manipulation h-8 w-8 sm:h-9 sm:w-9"
             >
               <Menu className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
@@ -227,14 +237,6 @@ const MapView = ({ userType }: MapViewProps) => {
           />
         </div>
       </div>
-
-      {/* Filter Panel */}
-      <BarberFilterPanel
-        isOpen={showFilterPanel}
-        onClose={() => setShowFilterPanel(false)}
-        barbers={nearbyBarbers}
-        onFilteredBarbersChange={setFilteredBarbers}
-      />
     </div>
   );
 };
