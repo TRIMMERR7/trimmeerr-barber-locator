@@ -3,11 +3,32 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+interface BarberItem {
+  id: number;
+  name: string;
+  title: string;
+  image: string;
+  rating: number;
+  type: 'barber';
+}
+
+interface AdItem {
+  id: number;
+  company: string;
+  tagline: string;
+  offer: string;
+  image: string;
+  color: string;
+  type: 'ad';
+}
+
+type SlideItem = BarberItem | AdItem;
+
 const MapWidget = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
-  const topBarbers = [
+  const topBarbers: BarberItem[] = [
     {
       id: 1,
       name: "Marcus Johnson",
@@ -34,7 +55,7 @@ const MapWidget = () => {
     }
   ];
 
-  const companyAds = [
+  const companyAds: AdItem[] = [
     {
       id: 4,
       company: "BarberTools Pro",
@@ -64,7 +85,7 @@ const MapWidget = () => {
     }
   ];
 
-  const allSlides = [...topBarbers, ...companyAds];
+  const allSlides: SlideItem[] = [...topBarbers, ...companyAds];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -89,33 +110,33 @@ const MapWidget = () => {
       onMouseLeave={() => setIsHovered(false)}
       className="relative z-[100]"
     >
-      {/* Hover trigger - compact widget style */}
-      <div className="w-16 h-16 bg-black/20 backdrop-blur-md rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
+      {/* Hover trigger - compact widget style - responsive */}
+      <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-black/20 backdrop-blur-md rounded-xl sm:rounded-2xl flex items-center justify-center cursor-pointer border border-white/10 hover:bg-black/30 transition-all duration-300 shadow-xl">
         <div className="flex flex-col items-center">
-          <span className="text-lg">🏆</span>
-          <span className="text-xs">📢</span>
+          <span className="text-base sm:text-lg md:text-xl">🏆</span>
+          <span className="text-xs sm:text-sm">📢</span>
         </div>
       </div>
 
-      {/* Content - positioned to the right of trigger */}
-      <Card className={`absolute top-0 left-full ml-3 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-80 transition-all duration-300 ${
+      {/* Content - positioned responsively */}
+      <Card className={`absolute top-0 left-full ml-2 sm:ml-3 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden w-72 sm:w-80 md:w-96 transition-all duration-300 ${
         isHovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
         <CardContent className="p-0">
-          <div className="relative h-24 overflow-hidden">
+          <div className="relative h-20 sm:h-24 overflow-hidden">
             {/* Barber Content */}
             {currentItem.type === 'barber' && (
-              <div className="h-full bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-sm flex items-center p-4 border-b border-white/10">
+              <div className="h-full bg-gradient-to-r from-red-600/80 to-red-700/80 backdrop-blur-sm flex items-center p-3 sm:p-4 border-b border-white/10">
                 <img
                   src={currentItem.image}
                   alt={currentItem.name}
-                  className="w-12 h-12 rounded-xl object-cover border border-white/20 mr-4 shadow-lg"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl object-cover border border-white/20 mr-3 sm:mr-4 shadow-lg"
                 />
-                <div className="flex-1">
-                  <div className="text-white/90 text-xs font-medium mb-1">{currentItem.title}</div>
-                  <h4 className="text-white font-bold text-sm leading-tight">{currentItem.name}</h4>
+                <div className="flex-1 min-w-0">
+                  <div className="text-white/90 text-xs font-medium mb-1 truncate">{currentItem.title}</div>
+                  <h4 className="text-white font-bold text-sm leading-tight truncate">{currentItem.name}</h4>
                 </div>
-                <div className="text-white text-xs font-bold bg-white/10 px-2 py-1 rounded-lg backdrop-blur-sm">
+                <div className="text-white text-xs font-bold bg-white/10 px-2 py-1 rounded-lg backdrop-blur-sm flex-shrink-0">
                   ⭐ {currentItem.rating}
                 </div>
               </div>
@@ -124,13 +145,13 @@ const MapWidget = () => {
             {/* Ad Content */}
             {currentItem.type === 'ad' && (
               <div
-                className={`h-full bg-gradient-to-r ${currentItem.color} backdrop-blur-sm flex items-center justify-between p-4 relative overflow-hidden border-b border-white/10 cursor-pointer`}
+                className={`h-full bg-gradient-to-r ${currentItem.color} backdrop-blur-sm flex items-center justify-between p-3 sm:p-4 relative overflow-hidden border-b border-white/10 cursor-pointer`}
                 onClick={() => console.log(`Clicked ad: ${currentItem.company}`)}
               >
-                <div className="flex-1 pr-3">
-                  <div className="text-white/90 text-xs font-medium mb-1">{currentItem.tagline}</div>
-                  <h3 className="text-white font-bold text-sm leading-tight mb-1">{currentItem.company}</h3>
-                  <div className="text-white/80 text-xs font-medium bg-white/10 px-2 py-1 rounded-lg backdrop-blur-sm inline-block">
+                <div className="flex-1 pr-3 min-w-0">
+                  <div className="text-white/90 text-xs font-medium mb-1 truncate">{currentItem.tagline}</div>
+                  <h3 className="text-white font-bold text-sm leading-tight mb-1 truncate">{currentItem.company}</h3>
+                  <div className="text-white/80 text-xs font-medium bg-white/10 px-2 py-1 rounded-lg backdrop-blur-sm inline-block max-w-full truncate">
                     {currentItem.offer}
                   </div>
                 </div>
@@ -139,7 +160,7 @@ const MapWidget = () => {
                   <img
                     src={currentItem.image}
                     alt={currentItem.company}
-                    className="w-14 h-14 rounded-xl object-cover border border-white/20 shadow-lg"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl object-cover border border-white/20 shadow-lg"
                   />
                 </div>
                 
@@ -150,34 +171,34 @@ const MapWidget = () => {
             )}
           </div>
           
-          {/* Header and Controls with glass effect */}
-          <div className="flex justify-between items-center p-3 bg-white/5 backdrop-blur-sm border-t border-white/10">
-            <div className="text-xs font-semibold text-white/90">
+          {/* Header and Controls with glass effect - responsive */}
+          <div className="flex justify-between items-center p-2 sm:p-3 bg-white/5 backdrop-blur-sm border-t border-white/10">
+            <div className="text-xs font-semibold text-white/90 truncate">
               {currentItem.type === 'barber' ? '🏆 Top Barber' : '📢 Partner Offer'}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={handlePrev}
-                className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200"
+                className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200"
               >
-                <ChevronLeft className="w-3 h-3 text-white" />
+                <ChevronLeft className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
               </button>
-              <div className="flex gap-1">
+              <div className="flex gap-0.5 sm:gap-1">
                 {allSlides.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setCurrentSlide(index)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                      index === currentSlide ? 'bg-white w-4' : 'bg-white/40 hover:bg-white/60'
+                    className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300 ${
+                      index === currentSlide ? 'bg-white w-3 sm:w-4' : 'bg-white/40 hover:bg-white/60'
                     }`}
                   />
                 ))}
               </div>
               <button
                 onClick={handleNext}
-                className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200"
+                className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-200"
               >
-                <ChevronRight className="w-3 h-3 text-white" />
+                <ChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
               </button>
             </div>
           </div>
