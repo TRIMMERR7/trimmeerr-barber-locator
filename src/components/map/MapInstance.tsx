@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import MapAnnotations from './MapAnnotations';
@@ -58,7 +59,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         isScrollEnabled: true,
         isZoomEnabled: true,
         showsPointsOfInterest: false,
-        colorScheme: window.mapkit.Map.ColorSchemes.Light
+        colorScheme: window.mapkit.Map.ColorSchemes.Dark
       });
 
       // Wait for map to be fully loaded before proceeding
