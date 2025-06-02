@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,9 +122,9 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
-        {/* Animated Logo */}
-        <div className="text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
+        {/* Large Animated Logo - Hero Section */}
+        <div className="text-center mb-12">
+          <div className="flex flex-col items-center justify-center gap-6 mb-8">
             <div 
               className={`relative transition-all duration-1000 ease-out ${
                 logoAnimated 
@@ -134,34 +135,36 @@ const AuthPage = () => {
               <img 
                 src="/lovable-uploads/abac59f0-abe1-4bf5-96ba-c379b41fbbd4.png" 
                 alt="TRIMMERR Logo" 
-                className="w-12 h-12 transition-transform duration-500 hover:scale-110"
+                className="w-24 h-24 sm:w-32 sm:h-32 transition-transform duration-500 hover:scale-110"
               />
               {/* Animated glow effect */}
               <div 
-                className={`absolute inset-0 w-12 h-12 bg-red-500/30 rounded-lg blur-lg transition-all duration-1000 ${
-                  logoAnimated ? 'opacity-50 animate-pulse' : 'opacity-0'
+                className={`absolute inset-0 w-24 h-24 sm:w-32 sm:h-32 bg-red-500/30 rounded-xl blur-xl transition-all duration-1000 ${
+                  logoAnimated ? 'opacity-60 animate-pulse' : 'opacity-0'
                 }`}
               />
             </div>
-            <h1 
-              className={`text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent transition-all duration-1000 delay-300 ${
-                logoAnimated 
-                  ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-4'
-              }`}
-            >
-              TRIMMERR
-            </h1>
+            <div className="space-y-3">
+              <h1 
+                className={`text-5xl sm:text-6xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent transition-all duration-1000 delay-300 ${
+                  logoAnimated 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-4'
+                }`}
+              >
+                TRIMMERR
+              </h1>
+              <p 
+                className={`text-gray-300 text-xl sm:text-2xl font-medium transition-all duration-1000 delay-500 ${
+                  logoAnimated 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-4'
+                }`}
+              >
+                Book your perfect barber in seconds
+              </p>
+            </div>
           </div>
-          <p 
-            className={`text-gray-400 text-lg transition-all duration-1000 delay-500 ${
-              logoAnimated 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 translate-y-4'
-            }`}
-          >
-            Book your perfect barber in seconds
-          </p>
         </div>
 
         <Card 
