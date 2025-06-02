@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import FilterPage from './FilterPage';
 import AIGeminiPage from './AIGeminiPage';
 import MapHeader from './map/MapHeader';
-import MapWithAI from './map/MapWithAI';
+import MapLayout from './map/MapLayout';
 import AIBookingAssistant from './AIBookingAssistant';
 
 interface Barber {
@@ -199,11 +200,19 @@ const MapView = ({ userType }: MapViewProps) => {
         onDashboardClick={userType === 'barber' ? () => setShowDashboard(true) : undefined}
       />
 
-      <MapWithAI
-        displayBarbers={displayBarbers}
-        onBarberSelect={handleBarberSelect}
-        onNavigate={openInAppleMaps}
-      />
+      <div className="relative flex-1">
+        <MapLayout
+          displayBarbers={displayBarbers}
+          onBarberSelect={handleBarberSelect}
+          onNavigate={openInAppleMaps}
+        />
+        
+        <AIBookingAssistant
+          currentStep="find"
+          nearbyBarbers={displayBarbers}
+          onBarberSelect={handleBarberSelect}
+        />
+      </div>
     </div>
   );
 };
