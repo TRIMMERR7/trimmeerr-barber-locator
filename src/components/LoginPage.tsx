@@ -22,7 +22,14 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-2">TRIMMERR</h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img 
+              src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
+              alt="TRIMMERR Logo" 
+              className="w-12 h-12"
+            />
+            <h1 className="text-4xl font-bold text-white">TRIMMERR</h1>
+          </div>
           <p className="text-gray-400">Find your perfect barber</p>
         </div>
 

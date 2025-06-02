@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -84,7 +85,14 @@ const MapView = ({ userType, onLogout }: MapViewProps) => {
       {/* Header */}
       <div className="bg-black border-b border-gray-800 p-4 flex-shrink-0">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <h1 className="text-2xl font-bold text-white">TRIMMERR</h1>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
+              alt="TRIMMERR Logo" 
+              className="w-8 h-8"
+            />
+            <h1 className="text-2xl font-bold text-white">TRIMMERR</h1>
+          </div>
           <div className="flex items-center gap-3">
             {userType === 'barber' && (
               <Button 
