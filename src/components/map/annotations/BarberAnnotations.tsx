@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { createCustomBarberMarker } from '../utils/markerUtils';
+import { createCustomBarberMarker } from '../utils/markerFactory';
 import { Barber } from '@/types/barber';
 
 interface BarberAnnotationsProps {
