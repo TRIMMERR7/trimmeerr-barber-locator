@@ -16,7 +16,7 @@ const StepsIndicator = ({ currentStep }: StepsIndicatorProps) => {
     <div className="absolute top-6 left-6 bg-black/80 backdrop-blur-sm rounded-2xl p-4 z-10 shadow-xl">
       <div className="flex items-center gap-4">
         {steps.map((step, index) => (
-          <React.Fragment key={step.number}>
+          <div key={step.number} className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                 step.number <= currentStep 
@@ -34,7 +34,7 @@ const StepsIndicator = ({ currentStep }: StepsIndicatorProps) => {
             {index < steps.length - 1 && (
               <div className="w-8 h-px bg-gray-600"></div>
             )}
-          </React.Fragment>
+          </div>
         ))}
       </div>
     </div>
