@@ -2,19 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useGeolocation } from '@/hooks/useGeolocation';
 import MapAnnotations from './MapAnnotations';
-
-interface Barber {
-  id: string;
-  name: string;
-  rating: number;
-  specialty: string;
-  image: string;
-  price: string;
-  distance: string;
-  experience: string;
-  lat: number;
-  lng: number;
-}
+import { Barber } from '@/types/barber';
 
 interface MapInstanceProps {
   nearbyBarbers: Barber[];
@@ -51,35 +39,38 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         ),
         mapType: window.mapkit.Map.MapTypes.Standard,
         showsMapTypeControl: false,
-        showsZoomControl: false, // Disable default zoom control
+        showsZoomControl: false,
         showsUserLocationControl: false,
         showsCompass: window.mapkit.FeatureVisibility.Hidden,
         showsScale: window.mapkit.FeatureVisibility.Hidden,
         isRotationEnabled: true,
         isScrollEnabled: true,
         isZoomEnabled: true,
-        showsPointsOfInterest: false,
-        colorScheme: window.mapkit.Map.ColorSchemes.Dark
+        showsPointsOfInterest: true,
+        colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
-      // Wait for map to be fully loaded before proceeding
-      map.current.addEventListener('region-change-end', () => {
-        if (!mapReady) {
+      // Enhanced map ready detection
+      let readyTimeoutId: number;
+      const checkMapReady = () => {
+        if (map.current && map.current.element) {
           console.log('MapInstance: Map is ready for annotations');
           setMapReady(true);
+          clearTimeout(readyTimeoutId);
         }
-      });
+      };
 
-      // Set initial state
-      setMapInitialized(true);
+      // Multiple ways to detect when map is ready
+      map.current.addEventListener('region-change-end', checkMapReady);
+      map.current.addEventListener('configuration-change', checkMapReady);
       
-      // Trigger an initial region change to activate the ready state
-      setTimeout(() => {
-        if (map.current && !mapReady) {
-          setMapReady(true);
-        }
-      }, 500);
+      // Fallback timeout
+      readyTimeoutId = setTimeout(() => {
+        console.log('MapInstance: Map ready timeout - forcing ready state');
+        setMapReady(true);
+      }, 1000);
 
+      setMapInitialized(true);
       console.log('MapInstance: Map initialized successfully');
 
     } catch (error) {
@@ -98,7 +89,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         }
       }
     };
-  }, [mapkitLoaded, apiKey]);
+  }, [mapkitLoaded, apiKey, userLocation]);
 
   const handleZoomIn = () => {
     if (map.current) {
@@ -125,15 +116,15 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
   };
 
   return (
-    <div className="h-full relative">
-      <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
+    <div className="h-full relative bg-gray-100">
+      <div ref={mapContainer} className="absolute inset-0 rounded-lg bg-gray-200" />
       
-      {/* Custom Zoom Controls - Top Right - Dark Mode */}
+      {/* Custom Zoom Controls */}
       {mapInitialized && (
         <div className="absolute top-4 right-4 z-50 flex flex-col gap-1">
           <button
             onClick={handleZoomIn}
-            className="w-10 h-10 bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl hover:bg-gray-800/90 hover:shadow-2xl transition-all duration-200 flex items-center justify-center text-gray-300 hover:text-white"
+            className="w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg shadow-lg hover:bg-white hover:shadow-xl transition-all duration-200 flex items-center justify-center text-gray-600 hover:text-gray-800"
             aria-label="Zoom in"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -145,7 +136,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
           </button>
           <button
             onClick={handleZoomOut}
-            className="w-10 h-10 bg-gray-900/90 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl hover:bg-gray-800/90 hover:shadow-2xl transition-all duration-200 flex items-center justify-center text-gray-300 hover:text-white"
+            className="w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-300 rounded-lg shadow-lg hover:bg-white hover:shadow-xl transition-all duration-200 flex items-center justify-center text-gray-600 hover:text-gray-800"
             aria-label="Zoom out"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -157,7 +148,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
         </div>
       )}
       
-      {mapInitialized && mapReady && (
+      {mapInitialized && (
         <MapAnnotations
           map={map.current}
           userLocation={userLocation}
@@ -168,14 +159,14 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       )}
       
       {(!mapInitialized || !mapReady) && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900/90 to-black/90 rounded-lg z-50">
-          <div className="text-white text-center">
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100/90 to-gray-200/90 rounded-lg z-50">
+          <div className="text-gray-800 text-center">
             <div className="relative mb-4">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mx-auto"></div>
               <div className="absolute inset-0 rounded-full h-12 w-12 border-4 border-red-300/30 mx-auto"></div>
             </div>
-            <div className="text-lg font-semibold mb-2">Loading Map</div>
-            <div className="text-sm text-gray-300">
+            <div className="text-lg font-semibold mb-2">Loading Apple Maps</div>
+            <div className="text-sm text-gray-600">
               {!mapkitLoaded && "Loading MapKit..."}
               {mapkitLoaded && !mapInitialized && "Initializing map..."}
               {mapInitialized && !mapReady && "Preparing markers..."}
