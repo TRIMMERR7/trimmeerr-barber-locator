@@ -31,11 +31,11 @@ const MapAnnotations = ({
   mapInitialized 
 }: MapAnnotationsProps) => {
   
-  // Add user location marker
+  // Add user location marker (blue)
   useEffect(() => {
     if (!map || !userLocation || !mapInitialized) return;
 
-    console.log('Adding user location marker at:', userLocation);
+    console.log('Adding blue client location marker at:', userLocation);
 
     const userAnnotation = new window.mapkit.MarkerAnnotation(
       new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
@@ -43,7 +43,8 @@ const MapAnnotations = ({
         color: '#007AFF',
         glyphColor: '#FFFFFF',
         title: 'Your Location',
-        subtitle: 'Current position'
+        subtitle: 'Client position',
+        displayPriority: 1000 // High priority to ensure visibility
       }
     );
 
@@ -66,16 +67,23 @@ const MapAnnotations = ({
     };
   }, [map, userLocation, mapInitialized]);
 
-  // Add barber markers
+  // Add barber markers (red, clickable)
   useEffect(() => {
     if (!map || !nearbyBarbers.length || !mapInitialized) return;
 
-    console.log('Adding custom barber markers...', nearbyBarbers.length, 'barbers');
+    console.log('Adding clickable red barber markers...', nearbyBarbers.length, 'barbers');
 
     const annotations = nearbyBarbers.map((barber) => {
-      console.log(`Creating custom marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
+      console.log(`Creating clickable marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
       
       const markerElement = createCustomBarberMarker(barber);
+      
+      // Add click event to the marker element
+      markerElement.addEventListener('click', (event) => {
+        event.stopPropagation();
+        console.log('Red barber marker clicked:', barber.name);
+        onBarberSelect(barber);
+      });
 
       const annotation = new window.mapkit.Annotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
@@ -84,7 +92,8 @@ const MapAnnotations = ({
           animates: true,
           title: barber.name,
           subtitle: `${barber.specialty} - ${barber.price}`,
-          data: barber
+          data: barber,
+          displayPriority: 500
         }
       );
 
@@ -93,23 +102,24 @@ const MapAnnotations = ({
 
     map.addAnnotations(annotations);
 
-    const handleMarkerSelect = (event: any) => {
+    // Also listen for map-level select events as backup
+    const handleMapSelect = (event: any) => {
       const annotation = event.annotation;
       if (annotation.data) {
-        console.log('Custom barber marker clicked:', annotation.data.name);
+        console.log('Map select event - barber marker:', annotation.data.name);
         onBarberSelect(annotation.data);
       }
     };
 
-    map.addEventListener('select', handleMarkerSelect);
+    map.addEventListener('select', handleMapSelect);
 
-    console.log('All custom barber markers added successfully');
+    console.log('All clickable red barber markers added successfully');
 
     return () => {
       if (map && annotations.length > 0) {
         try {
           map.removeAnnotations(annotations);
-          map.removeEventListener('select', handleMarkerSelect);
+          map.removeEventListener('select', handleMapSelect);
         } catch (error) {
           console.error('Error removing barber annotations:', error);
         }
