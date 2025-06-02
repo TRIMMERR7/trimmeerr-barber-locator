@@ -36,7 +36,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [showAIGeminiPage, setShowAIGeminiPage] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
-  // Enhanced barber data with video URLs
+  // Enhanced barber data with coordinates very close to user's location for visibility
   const nearbyBarbers: Barber[] = [
     {
       id: '1',
@@ -45,10 +45,10 @@ const MapView = ({ userType }: MapViewProps) => {
       specialty: 'Fades & Braids',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
       price: '$35',
-      distance: '0.3 mi',
+      distance: '0.1 mi',
       experience: '8 years',
-      lat: 29.7720,
-      lng: -95.3850,
+      lat: 29.771500, // Very close to user location
+      lng: -95.383500,
       ethnicity: 'African American',
       age: 32,
       languages: ['English', 'Spanish'],
@@ -62,10 +62,10 @@ const MapView = ({ userType }: MapViewProps) => {
       specialty: 'Classic Cuts',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
       price: '$30',
-      distance: '0.5 mi',
+      distance: '0.2 mi',
       experience: '12 years',
-      lat: 29.7750,
-      lng: -95.3800,
+      lat: 29.772000, // Very close to user location
+      lng: -95.382000,
       ethnicity: 'Latino/Hispanic',
       age: 45,
       languages: ['Spanish', 'English'],
@@ -79,10 +79,10 @@ const MapView = ({ userType }: MapViewProps) => {
       specialty: 'Beard Styling',
       image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face',
       price: '$40',
-      distance: '0.7 mi',
+      distance: '0.3 mi',
       experience: '6 years',
-      lat: 29.7690,
-      lng: -95.3900,
+      lat: 29.769500, // Very close to user location
+      lng: -95.384000,
       ethnicity: 'Middle Eastern',
       age: 28,
       languages: ['Arabic', 'English', 'French'],
@@ -95,10 +95,10 @@ const MapView = ({ userType }: MapViewProps) => {
       specialty: 'Modern Styles',
       image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
       price: '$45',
-      distance: '1.2 mi',
+      distance: '0.4 mi',
       experience: '5 years',
-      lat: 29.7800,
-      lng: -95.3700,
+      lat: 29.770000, // Very close to user location
+      lng: -95.381500,
       ethnicity: 'Asian',
       age: 26,
       languages: ['English', 'Mandarin'],
@@ -111,10 +111,10 @@ const MapView = ({ userType }: MapViewProps) => {
       specialty: 'Traditional Cuts',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
       price: '$25',
-      distance: '1.5 mi',
+      distance: '0.5 mi',
       experience: '15 years',
-      lat: 29.7650,
-      lng: -95.3950,
+      lat: 29.771000, // Very close to user location
+      lng: -95.384500,
       ethnicity: 'Caucasian',
       age: 52,
       languages: ['English'],
