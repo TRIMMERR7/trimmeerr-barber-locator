@@ -31,13 +31,23 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
       attribution: '© OpenStreetMap contributors'
     }).addTo(leafletMap);
 
-    // Wait for map to be fully loaded and add a small delay to ensure all panes are ready
+    // Wait for map to be fully loaded and ensure all components are ready
     leafletMap.whenReady(() => {
-      console.log('MapboxMap: Map is ready, waiting for full initialization');
+      console.log('MapboxMap: Map whenReady triggered');
+      // Wait longer and check if map panes exist
       setTimeout(() => {
-        console.log('MapboxMap: Map is fully ready for markers');
-        setMapFullyReady(true);
-      }, 100);
+        if (leafletMap.getPane('markerPane') && leafletMap.getPane('overlayPane')) {
+          console.log('MapboxMap: Map panes are ready, setting mapFullyReady to true');
+          setMapFullyReady(true);
+        } else {
+          console.log('MapboxMap: Map panes not ready, retrying...');
+          // Retry after another delay
+          setTimeout(() => {
+            console.log('MapboxMap: Setting mapFullyReady to true (fallback)');
+            setMapFullyReady(true);
+          }, 500);
+        }
+      }, 300);
     });
 
     setMap(leafletMap);
@@ -56,6 +66,12 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
     console.log('MapboxMap: Adding user location marker to map');
     
     try {
+      // Check if map panes are available before adding marker
+      if (!map.getPane('markerPane')) {
+        console.warn('MapboxMap: Marker pane not available, skipping user marker');
+        return;
+      }
+
       // Remove existing user marker if any
       if (userMarker.current) {
         userMarker.current.remove();
@@ -89,6 +105,12 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
     console.log('MapboxMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
     
     try {
+      // Check if map panes are available before adding markers
+      if (!map.getPane('markerPane')) {
+        console.warn('MapboxMap: Marker pane not available, skipping barber markers');
+        return;
+      }
+
       // Clear existing markers
       markers.current.forEach(marker => {
         try {
@@ -132,6 +154,11 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
     <div className="h-full relative">
       <div ref={mapContainer} className="absolute inset-0 rounded-lg" />
       <style dangerouslySetInnerHTML={{ __html: mapStyles }} />
+      {!mapFullyReady && (
+        <div className="absolute inset-0 bg-gray-900 flex items-center justify-center rounded-lg">
+          <div className="text-white text-lg">Loading map...</div>
+        </div>
+      )}
     </div>
   );
 };
