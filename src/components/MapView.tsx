@@ -7,8 +7,7 @@ import BarberDashboard from './BarberDashboard';
 import BarberList from './map/BarberList';
 import MapContainer from './map/MapContainer';
 import FilterPage from './FilterPage';
-import FindYourBarberPage from './FindYourBarberPage';
-import FloatingAIAssistant from './FloatingAIAssistant';
+import AIGeminiPage from './AIGeminiPage';
 
 interface Barber {
   id: string;
@@ -37,7 +36,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showFilterPage, setShowFilterPage] = useState(false);
-  const [showFindBarberPage, setShowFindBarberPage] = useState(false);
+  const [showAIGeminiPage, setShowAIGeminiPage] = useState(false);
   const [filteredBarbers, setFilteredBarbers] = useState<Barber[]>([]);
   
   // Enhanced barber data with video URLs
@@ -147,7 +146,7 @@ const MapView = ({ userType }: MapViewProps) => {
   };
 
   const handleMenuClick = () => {
-    setShowFindBarberPage(true);
+    setShowAIGeminiPage(true);
   };
 
   if (showDashboard && userType === 'barber') {
@@ -165,13 +164,10 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
-  if (showFindBarberPage) {
+  if (showAIGeminiPage) {
     return (
-      <FindYourBarberPage
-        barbers={nearbyBarbers}
-        onBack={() => setShowFindBarberPage(false)}
-        onBarberSelect={handleBarberSelect}
-        onNavigate={openInAppleMaps}
+      <AIGeminiPage
+        onBack={() => setShowAIGeminiPage(false)}
       />
     );
   }
@@ -210,9 +206,9 @@ const MapView = ({ userType }: MapViewProps) => {
             <Button 
               variant="ghost" 
               onClick={handleMenuClick}
-              className="text-yellow-500 hover:text-yellow-400 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
+              className="text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
             >
-              Find Your Barber
+              AI Assistant
             </Button>
 
             {userType === 'barber' && (
@@ -250,9 +246,6 @@ const MapView = ({ userType }: MapViewProps) => {
           />
         </div>
       </div>
-
-      {/* Floating AI Assistant */}
-      <FloatingAIAssistant />
     </div>
   );
 };
