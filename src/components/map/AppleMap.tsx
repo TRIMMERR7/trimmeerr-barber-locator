@@ -44,12 +44,18 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     const script = document.createElement('script');
     script.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
     script.onload = () => {
-      window.mapkit.init({
-        authorizationCallback: (done: (token: string) => void) => {
-          done(apiKey);
-        }
-      });
-      setMapkitLoaded(true);
+      if (window.mapkit) {
+        window.mapkit.init({
+          authorizationCallback: (done: (token: string) => void) => {
+            done(apiKey);
+          }
+        });
+        setMapkitLoaded(true);
+        console.log('AppleMap: MapKit loaded and initialized');
+      }
+    };
+    script.onerror = () => {
+      console.error('AppleMap: Failed to load MapKit script');
     };
     document.head.appendChild(script);
 
@@ -62,7 +68,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
   // Initialize map
   useEffect(() => {
-    if (!mapkitLoaded || !mapContainer.current || mapInitialized) return;
+    if (!mapkitLoaded || !mapContainer.current || mapInitialized || !apiKey) return;
 
     console.log('AppleMap: Initializing Apple Maps...');
 
@@ -75,7 +81,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         center: center,
         region: new window.mapkit.CoordinateRegion(
           center,
-          new window.mapkit.CoordinateSpan(0.01, 0.01) // Smaller span for more detailed street view
+          new window.mapkit.CoordinateSpan(0.005, 0.005) // Even smaller span for detailed street view
         ),
         mapType: window.mapkit.Map.MapTypes.Standard,
         showsMapTypeControl: true,
@@ -87,8 +93,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
         isScrollEnabled: true,
         isZoomEnabled: true,
         showsPointsOfInterest: true,
-        showsBuildings: true,
-        colorScheme: window.mapkit.Map.ColorSchemes.Light // Changed to Light for better street visibility
+        colorScheme: window.mapkit.Map.ColorSchemes.Light
       });
 
       setMapInitialized(true);
@@ -98,23 +103,26 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     }
 
     return () => {
-      if (map.current && typeof map.current.destroy === 'function') {
+      if (map.current) {
         try {
-          map.current.destroy();
+          console.log('AppleMap: Cleaning up map...');
+          if (typeof map.current.destroy === 'function') {
+            map.current.destroy();
+          }
           map.current = null;
           setMapInitialized(false);
         } catch (error) {
-          console.error('AppleMap: Error destroying map:', error);
+          console.error('AppleMap: Error during cleanup:', error);
         }
       }
     };
-  }, [mapkitLoaded, userLocation]);
+  }, [mapkitLoaded, userLocation, apiKey]);
 
   // Add user location marker
   useEffect(() => {
     if (!map.current || !userLocation || !mapInitialized) return;
 
-    console.log('AppleMap: Adding user location marker');
+    console.log('AppleMap: Adding user location marker at:', userLocation);
 
     const userAnnotation = new window.mapkit.MarkerAnnotation(
       new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
@@ -128,12 +136,12 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
     map.current.addAnnotation(userAnnotation);
     
-    // Set region to show streets around user location
+    // Set region to show detailed streets around user location
     const region = new window.mapkit.CoordinateRegion(
       new window.mapkit.Coordinate(userLocation[0], userLocation[1]),
-      new window.mapkit.CoordinateSpan(0.01, 0.01)
+      new window.mapkit.CoordinateSpan(0.005, 0.005)
     );
-    map.current.setRegionAnimated(region);
+    map.current.setRegionAnimated(region, true);
 
     return () => {
       if (map.current && userAnnotation) {
@@ -153,6 +161,8 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     console.log('AppleMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
 
     const annotations = nearbyBarbers.map((barber) => {
+      console.log(`AppleMap: Creating marker for ${barber.name} at ${barber.lat}, ${barber.lng}`);
+      
       const annotation = new window.mapkit.MarkerAnnotation(
         new window.mapkit.Coordinate(barber.lat, barber.lng),
         {
