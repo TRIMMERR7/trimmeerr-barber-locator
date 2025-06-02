@@ -44,7 +44,7 @@ const AdSlider = () => {
   };
 
   return (
-    <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 overflow-hidden">
+    <Card className="bg-white shadow-2xl border-0 overflow-hidden relative z-[100] max-w-md mx-auto lg:mx-0">
       <CardContent className="p-0">
         <div className="relative h-20 overflow-hidden">
           {companyAds.map((ad, index) => (

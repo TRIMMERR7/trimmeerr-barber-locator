@@ -25,21 +25,21 @@ interface MapContainerProps {
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   return (
     <div className="flex-1 relative overflow-hidden">
-      {/* Mapbox Map */}
-      <div className="absolute inset-0">
+      {/* Mapbox Map - Lower z-index */}
+      <div className="absolute inset-0 z-10">
         <MapboxMap 
           nearbyBarbers={nearbyBarbers}
           onBarberSelect={onBarberSelect}
         />
       </div>
 
-      {/* Top Barbers Slideshow - Higher z-index and positioned relative to viewport */}
-      <div className="absolute top-4 left-4 z-[60] pointer-events-auto">
+      {/* Top Barbers Slideshow - Higher z-index and fixed positioning */}
+      <div className="fixed top-20 left-4 z-[100] pointer-events-auto">
         <TopBarbersSlider />
       </div>
 
-      {/* Advertising Slideshow - Higher z-index and positioned relative to viewport */}
-      <div className="absolute bottom-4 left-4 right-4 z-[60] pointer-events-auto">
+      {/* Advertising Slideshow - Higher z-index and fixed positioning */}
+      <div className="fixed bottom-4 left-4 right-4 z-[100] pointer-events-auto">
         <AdSlider />
       </div>
     </div>

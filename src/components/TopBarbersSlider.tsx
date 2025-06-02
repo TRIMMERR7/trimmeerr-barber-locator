@@ -37,7 +37,7 @@ const TopBarbersSlider = () => {
   }, [topBarbers.length]);
 
   return (
-    <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0 overflow-hidden w-64">
+    <Card className="bg-white shadow-2xl border-0 overflow-hidden w-64 relative z-[100]">
       <CardContent className="p-0">
         <div className="relative h-16 overflow-hidden">
           {topBarbers.map((barber, index) => (
