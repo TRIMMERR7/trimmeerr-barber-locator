@@ -14,8 +14,9 @@ interface MapboxMapProps {
 const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const markers = useRef<L.Marker[]>([]);
+  const userMarker = useRef<L.Marker | null>(null);
   const [map, setMap] = useState<L.Map | null>(null);
-  const [mapReady, setMapReady] = useState(false);
+  const [mapFullyReady, setMapFullyReady] = useState(false);
   const { userLocation, error, loading } = useGeolocation();
 
   // Initialize Leaflet map
@@ -30,10 +31,13 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
       attribution: '© OpenStreetMap contributors'
     }).addTo(leafletMap);
 
-    // Wait for map to be fully loaded
+    // Wait for map to be fully loaded and add a small delay to ensure all panes are ready
     leafletMap.whenReady(() => {
-      console.log('MapboxMap: Map is ready');
-      setMapReady(true);
+      console.log('MapboxMap: Map is ready, waiting for full initialization');
+      setTimeout(() => {
+        console.log('MapboxMap: Map is fully ready for markers');
+        setMapFullyReady(true);
+      }, 100);
     });
 
     setMap(leafletMap);
@@ -47,47 +51,82 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
 
   // Handle user location marker
   useEffect(() => {
-    if (!map || !mapReady || !userLocation) return;
+    if (!map || !mapFullyReady || !userLocation) return;
 
     console.log('MapboxMap: Adding user location marker to map');
-    const userMarker = createUserLocationMarker(userLocation[0], userLocation[1]);
-    userMarker.addTo(map);
     
-    console.log('MapboxMap: User location marker added successfully');
-    
-    // Center map on user location
-    map.setView([userLocation[0], userLocation[1]], 14);
-    console.log('MapboxMap: Map centered on user location');
+    try {
+      // Remove existing user marker if any
+      if (userMarker.current) {
+        userMarker.current.remove();
+      }
+
+      const newUserMarker = createUserLocationMarker(userLocation[0], userLocation[1]);
+      newUserMarker.addTo(map);
+      userMarker.current = newUserMarker;
+      
+      console.log('MapboxMap: User location marker added successfully');
+      
+      // Center map on user location
+      map.setView([userLocation[0], userLocation[1]], 14);
+      console.log('MapboxMap: Map centered on user location');
+    } catch (error) {
+      console.error('MapboxMap: Error adding user location marker:', error);
+    }
 
     return () => {
-      userMarker.remove();
+      if (userMarker.current) {
+        userMarker.current.remove();
+        userMarker.current = null;
+      }
     };
-  }, [map, mapReady, userLocation]);
+  }, [map, mapFullyReady, userLocation]);
 
   // Handle barber markers
   useEffect(() => {
-    if (!map || !mapReady) return;
+    if (!map || !mapFullyReady) return;
 
     console.log('MapboxMap: Adding barber markers...', nearbyBarbers.length, 'barbers');
     
-    // Clear existing markers
-    markers.current.forEach(marker => marker.remove());
-    markers.current = [];
+    try {
+      // Clear existing markers
+      markers.current.forEach(marker => {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.warn('MapboxMap: Error removing marker:', e);
+        }
+      });
+      markers.current = [];
 
-    // Add new markers
-    nearbyBarbers.forEach((barber) => {
-      const marker = createBarberMarker(barber, onBarberSelect);
-      marker.addTo(map);
-      markers.current.push(marker);
-    });
+      // Add new markers
+      nearbyBarbers.forEach((barber) => {
+        try {
+          const marker = createBarberMarker(barber, onBarberSelect);
+          marker.addTo(map);
+          markers.current.push(marker);
+          console.log('MapboxMap: Added marker for:', barber.name);
+        } catch (error) {
+          console.error('MapboxMap: Error adding marker for', barber.name, ':', error);
+        }
+      });
 
-    console.log('MapboxMap: All barber markers added successfully');
+      console.log('MapboxMap: All barber markers processed');
+    } catch (error) {
+      console.error('MapboxMap: Error in barber markers effect:', error);
+    }
 
     return () => {
-      markers.current.forEach(marker => marker.remove());
+      markers.current.forEach(marker => {
+        try {
+          marker.remove();
+        } catch (e) {
+          console.warn('MapboxMap: Error removing marker in cleanup:', e);
+        }
+      });
       markers.current = [];
     };
-  }, [map, mapReady, nearbyBarbers, onBarberSelect]);
+  }, [map, mapFullyReady, nearbyBarbers, onBarberSelect]);
 
   return (
     <div className="h-full relative">
