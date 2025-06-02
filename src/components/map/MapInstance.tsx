@@ -51,7 +51,7 @@ const MapInstance = ({ nearbyBarbers, onBarberSelect, mapkitLoaded, apiKey }: Ma
       });
 
       // Enhanced map ready detection
-      let readyTimeoutId: number;
+      let readyTimeoutId: NodeJS.Timeout;
       const checkMapReady = () => {
         if (map.current && map.current.element) {
           console.log('MapInstance: Map is ready for annotations');
