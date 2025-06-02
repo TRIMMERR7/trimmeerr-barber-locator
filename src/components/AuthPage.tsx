@@ -12,7 +12,6 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [userType, setUserType] = useState<'client' | 'barber'>('client');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -36,7 +35,7 @@ const AuthPage = () => {
         } else {
           toast({
             title: "Welcome back!",
-            description: "You have successfully logged in."
+            description: "You're ready to book appointments."
           });
         }
       } else {
@@ -49,7 +48,7 @@ const AuthPage = () => {
             emailRedirectTo: redirectUrl,
             data: {
               full_name: fullName,
-              user_type: userType
+              user_type: 'client'
             }
           }
         });
@@ -118,118 +117,21 @@ const AuthPage = () => {
               TRIMMERR
             </h1>
           </div>
-          <p className="text-gray-400 text-lg">Find your perfect barber</p>
+          <p className="text-gray-400 text-lg">Book your perfect barber in seconds</p>
         </div>
 
         <Card className="glass-card border-gray-800">
           <CardHeader className="text-center pb-6">
             <CardTitle className="text-white text-2xl font-semibold">
-              {isLogin ? 'Welcome Back' : 'Join TRIMMERR'}
+              {isLogin ? 'Sign In to Book' : 'Get Started - It\'s Free!'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <form onSubmit={handleAuth} className="space-y-6">
-              {!isLogin && (
-                <>
-                  {/* User Type Toggle */}
-                  <div className="space-y-3">
-                    <Label className="text-white text-base">I am a</Label>
-                    <div className="flex rounded-xl bg-gray-800 p-1">
-                      <button
-                        type="button"
-                        onClick={() => setUserType('client')}
-                        className={`flex-1 py-4 px-6 rounded-lg text-base font-medium transition-all touch-manipulation ${
-                          userType === 'client' 
-                            ? 'bg-white text-black shadow-lg' 
-                            : 'text-gray-300 hover:text-white'
-                        }`}
-                      >
-                        Client
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setUserType('barber')}
-                        className={`flex-1 py-4 px-6 rounded-lg text-base font-medium transition-all touch-manipulation ${
-                          userType === 'barber' 
-                            ? 'bg-red-600 text-white shadow-lg' 
-                            : 'text-gray-300 hover:text-white'
-                        }`}
-                      >
-                        Barber
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Full Name */}
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-white text-base">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      placeholder="Enter your full name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      className="bg-gray-800 border-gray-700 text-white h-14 text-base rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white text-base">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="bg-gray-800 border-gray-700 text-white h-14 text-base rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-white text-base">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="bg-gray-800 border-gray-700 text-white h-14 text-base rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
-              {/* Auth Button */}
-              <Button 
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-base font-semibold rounded-xl transition-all touch-manipulation shadow-lg"
-              >
-                {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
-              </Button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-gray-900 text-gray-400">or continue with</span>
-              </div>
-            </div>
-
-            {/* Social Login */}
+            {/* Quick Google Login for fastest experience */}
             <Button 
               type="button"
-              variant="outline" 
               onClick={handleGoogleAuth}
-              className="w-full h-14 text-base border-gray-700 bg-gray-800 hover:bg-gray-700 text-white rounded-xl touch-manipulation"
+              className="w-full h-14 text-base bg-white hover:bg-gray-100 text-black rounded-xl touch-manipulation font-semibold"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -240,6 +142,71 @@ const AuthPage = () => {
               Continue with Google
             </Button>
 
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-700"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-gray-900 text-gray-400">or use email</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleAuth} className="space-y-4">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-white text-base">Your Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="bg-gray-800 border-gray-700 text-white h-12 text-base rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              )}
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white text-base">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white h-12 text-base rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white text-base">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder={isLogin ? "Enter password" : "Create password (6+ characters)"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white h-12 text-base rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  required
+                  minLength={!isLogin ? 6 : undefined}
+                />
+              </div>
+
+              {/* Auth Button */}
+              <Button 
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-12 text-base font-semibold rounded-xl transition-all touch-manipulation shadow-lg"
+              >
+                {loading ? 'Please wait...' : (isLogin ? 'Sign In & Book' : 'Create Account & Start Booking')}
+              </Button>
+            </form>
+
             {/* Toggle between login and signup */}
             <div className="text-center pt-4">
               <button
@@ -247,9 +214,22 @@ const AuthPage = () => {
                 onClick={() => setIsLogin(!isLogin)}
                 className="text-red-500 hover:text-red-400 text-base font-medium transition-colors"
               >
-                {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                {isLogin ? "New here? Create free account" : "Have an account? Sign in"}
               </button>
             </div>
+
+            {/* Benefits for new users */}
+            {!isLogin && (
+              <div className="bg-gray-800/50 rounded-xl p-4 mt-6">
+                <h3 className="text-white font-semibold mb-2">Why join TRIMMERR?</h3>
+                <ul className="text-gray-300 text-sm space-y-1">
+                  <li>✓ Find top barbers near you</li>
+                  <li>✓ Book appointments instantly</li>
+                  <li>✓ Read reviews from other clients</li>
+                  <li>✓ Get directions to barbershops</li>
+                </ul>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
