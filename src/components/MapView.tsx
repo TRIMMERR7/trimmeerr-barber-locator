@@ -1,13 +1,11 @@
+
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
-import { useAuth } from '@/contexts/AuthContext';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
-import BarberList from './map/BarberList';
-import MapContainer from './map/MapContainer';
 import FilterPage from './FilterPage';
 import AIGeminiPage from './AIGeminiPage';
+import MapHeader from './map/MapHeader';
+import MapLayout from './map/MapLayout';
 
 interface Barber {
   id: string;
@@ -24,7 +22,7 @@ interface Barber {
   age: number;
   languages: string[];
   personalityTraits: string[];
-  videoUrl?: string; // New optional video URL
+  videoUrl?: string;
 }
 
 interface MapViewProps {
@@ -32,7 +30,6 @@ interface MapViewProps {
 }
 
 const MapView = ({ userType }: MapViewProps) => {
-  const { signOut } = useAuth();
   const [selectedBarber, setSelectedBarber] = useState<Barber | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showFilterPage, setShowFilterPage] = useState(false);
@@ -90,7 +87,6 @@ const MapView = ({ userType }: MapViewProps) => {
       age: 28,
       languages: ['Arabic', 'English', 'French'],
       personalityTraits: ['Creative', 'Young & Trendy', 'Professional']
-      // No video URL - will fallback to image
     },
     {
       id: '4',
@@ -190,62 +186,17 @@ const MapView = ({ userType }: MapViewProps) => {
   console.log('MapView: Rendering map view');
   return (
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
-      <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-2 sm:p-4 flex-shrink-0">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-            <img 
-              src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
-              alt="TRIMMERR Logo" 
-              className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
-            />
-            <h1 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent truncate">
-              TRIMMERR
-            </h1>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-            <Button 
-              variant="ghost" 
-              onClick={handleMenuClick}
-              className="text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
-            >
-              AI Assistant
-            </Button>
+      <MapHeader 
+        userType={userType}
+        onAIAssistantClick={handleMenuClick}
+        onDashboardClick={userType === 'barber' ? () => setShowDashboard(true) : undefined}
+      />
 
-            {userType === 'barber' && (
-              <Button 
-                onClick={() => setShowDashboard(true)}
-                className="bg-red-600 hover:bg-red-700 text-white rounded-xl touch-manipulation shadow-lg h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
-              >
-                <span className="hidden sm:inline">Dashboard</span>
-                <span className="sm:hidden">Profile</span>
-              </Button>
-            )}
-            <Button 
-              variant="ghost" 
-              onClick={signOut}
-              className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
-            >
-              <span className="hidden sm:inline">Sign Out</span>
-              <span className="sm:hidden">Out</span>
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 flex">
-        <MapContainer 
-          nearbyBarbers={displayBarbers}
-          onBarberSelect={handleBarberSelect}
-        />
-
-        <div className="hidden lg:flex w-96 border-l border-gray-200 flex-col shadow-xl">
-          <BarberList 
-            nearbyBarbers={displayBarbers}
-            onBarberSelect={handleBarberSelect}
-            onNavigate={openInAppleMaps}
-          />
-        </div>
-      </div>
+      <MapLayout
+        displayBarbers={displayBarbers}
+        onBarberSelect={handleBarberSelect}
+        onNavigate={openInAppleMaps}
+      />
     </div>
   );
 };
