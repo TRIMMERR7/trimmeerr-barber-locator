@@ -38,10 +38,10 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
   return (
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
       {/* Header */}
-      <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-3 sm:p-4 flex-shrink-0">
+      <div className="bg-black/10 backdrop-blur-2xl border-b border-white/10 p-3 sm:p-4 flex-shrink-0">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-            <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 sm:h-10 sm:w-10 touch-manipulation">
+            <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 sm:h-10 sm:w-10 touch-manipulation text-white hover:bg-white/10">
               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </Button>
             <div className="flex items-center gap-1 sm:gap-2 min-w-0">
@@ -55,7 +55,7 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
               </h1>
             </div>
           </div>
-          <Button variant="ghost" onClick={signOut} className="text-gray-400 hover:text-white text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9 touch-manipulation">
+          <Button variant="ghost" onClick={signOut} className="text-white/70 hover:text-white hover:bg-white/10 text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9 touch-manipulation">
             <span className="hidden sm:inline">Sign Out</span>
             <span className="sm:hidden">Out</span>
           </Button>
@@ -83,10 +83,10 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
           </div>
 
           {/* Mission Statement */}
-          <Card className="bg-gray-900/90 border-red-500/30 border-2">
+          <Card className="bg-white/5 backdrop-blur-2xl border-white/10 border shadow-2xl">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
-              <p className="text-gray-300 leading-relaxed">
+              <p className="text-white/80 leading-relaxed">
                 At TRIMMERR, we believe everyone deserves access to quality grooming services. 
                 Our platform bridges the gap between skilled barbers and clients, making it easier 
                 than ever to find, connect with, and book appointments with talented professionals 
@@ -98,15 +98,15 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-gray-900/90 border-white/20 hover:border-red-500/50 transition-colors">
+              <Card key={index} className="bg-white/5 backdrop-blur-2xl border-white/10 hover:border-red-500/30 transition-colors shadow-xl">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="bg-red-600/20 p-3 rounded-lg border border-red-500/30">
+                    <div className="bg-red-600/20 p-3 rounded-lg border border-red-500/30 backdrop-blur-sm">
                       <feature.icon className="w-6 h-6 text-red-400" />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
-                      <p className="text-gray-300">{feature.description}</p>
+                      <p className="text-white/70">{feature.description}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -115,13 +115,13 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
           </div>
 
           {/* Contact Info */}
-          <Card className="bg-gray-900/90 border-red-500/30 border-2">
+          <Card className="bg-white/5 backdrop-blur-2xl border-white/10 border shadow-2xl">
             <CardContent className="p-6 text-center">
               <h2 className="text-2xl font-bold text-white mb-4">Get In Touch</h2>
-              <p className="text-gray-300 mb-4">
+              <p className="text-white/80 mb-4">
                 Have questions or feedback? We'd love to hear from you.
               </p>
-              <div className="space-y-2 text-gray-400">
+              <div className="space-y-2 text-white/60">
                 <p>Email: support@trimmerr.com</p>
                 <p>Follow us on social media for updates and tips</p>
               </div>

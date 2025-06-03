@@ -54,7 +54,7 @@ const MapWidget = () => {
   return (
     <div className="p-2 md:p-3">
       <Card 
-        className="bg-gradient-to-br from-gray-900/95 via-black/95 to-gray-900/95 backdrop-blur-xl border border-white/20 shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-3xl"
+        className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl overflow-hidden transition-all duration-500 hover:shadow-3xl"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
@@ -68,7 +68,7 @@ const MapWidget = () => {
               {/* Modern Ad Icon */}
               <div className={`${
                 isMobile ? 'w-10 h-10' : 'w-12 h-12'
-              } bg-gradient-to-br from-blue-500/90 via-purple-600/90 to-pink-600/90 rounded-xl flex items-center justify-center mr-3 shadow-lg transition-all duration-300 group-hover:scale-110`}>
+              } bg-gradient-to-br from-blue-500/20 via-purple-600/20 to-pink-600/20 backdrop-blur-sm border border-white/20 rounded-xl flex items-center justify-center mr-3 shadow-lg transition-all duration-300 group-hover:scale-110`}>
                 <Zap className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'} text-white`} />
               </div>
               
@@ -89,7 +89,7 @@ const MapWidget = () => {
               {/* Live Indicator */}
               <div className="flex items-center gap-2 mr-3">
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                   <span className="text-white/80 text-xs font-medium">LIVE</span>
                 </div>
               </div>

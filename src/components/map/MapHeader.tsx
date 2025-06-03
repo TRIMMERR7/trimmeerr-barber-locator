@@ -15,7 +15,7 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
   const { signOut } = useAuth();
 
   return (
-    <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-2 sm:p-4 flex-shrink-0">
+    <div className="bg-black/10 backdrop-blur-2xl border-b border-white/10 p-2 sm:p-4 flex-shrink-0">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-1 sm:gap-3 flex-1 justify-center md:justify-start">
           <img 
@@ -33,13 +33,13 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
             onClick={onMenuClick}
             className="text-white hover:text-red-300 hover:bg-white/10 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold backdrop-blur-sm"
           >
-            <Menu className="w-4 h-4" />
+            <Menu className="w-4 h-4 text-white" />
           </Button>
 
           {userType === 'barber' && onDashboardClick && (
             <Button 
               onClick={onDashboardClick}
-              className="bg-red-600/80 hover:bg-red-700/90 text-white rounded-xl touch-manipulation shadow-lg h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm backdrop-blur-sm border border-white/20"
+              className="bg-red-600/20 hover:bg-red-700/30 text-white rounded-xl touch-manipulation shadow-lg h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm backdrop-blur-sm border border-red-500/30"
             >
               <span className="hidden sm:inline">Dashboard</span>
               <span className="sm:hidden">Profile</span>
