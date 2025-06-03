@@ -23,7 +23,7 @@ const PaymentIframe = ({
   const [paymentStatus, setPaymentStatus] = useState<'loading' | 'ready' | 'processing' | 'complete'>('loading');
   const [iframeRef, setIframeRef] = useState<HTMLIFrameElement | null>(null);
 
-  console.log('PaymentIframe: Setting up payment iframe', { paymentUrl });
+  console.log('PaymentIframe: Rendering with URL:', paymentUrl);
 
   usePaymentMessageHandler({
     paymentUrl,
@@ -43,24 +43,27 @@ const PaymentIframe = ({
     return (
       <div className="w-full h-full flex items-center justify-center p-8">
         <div className="text-center">
-          <p className="text-gray-600">No payment URL available</p>
+          <p className="text-gray-600">Loading payment...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="p-4 space-y-4 flex-shrink-0">
+    <div className="w-full h-full flex flex-col bg-gray-50">
+      {/* Security Notice - Fixed at top */}
+      <div className="flex-shrink-0 p-4 bg-white border-b">
         <PaymentSecurityNotice />
         <PaymentStatusDisplay paymentStatus={paymentStatus} paymentLoading={paymentLoading} />
       </div>
       
-      <div className="flex-1 p-4">
+      {/* Payment Iframe - Takes remaining space */}
+      <div className="flex-1 p-4 min-h-0">
         <PaymentIframeContainer paymentUrl={paymentUrl} onIframeRef={setIframeRef} />
       </div>
       
-      <div className="p-4 flex-shrink-0">
+      {/* Trust Indicators - Fixed at bottom */}
+      <div className="flex-shrink-0 p-4 bg-white border-t">
         <PaymentTrustIndicators />
       </div>
     </div>

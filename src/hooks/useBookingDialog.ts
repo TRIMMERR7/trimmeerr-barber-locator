@@ -115,13 +115,15 @@ export const useBookingDialog = (barber: Barber) => {
           variant: "destructive",
         });
         setIsProcessingPayment(false);
+        setPaymentLoading(false);
         return;
       }
 
       if (data?.url) {
-        console.log('BookingDialog: Setting payment URL');
+        console.log('BookingDialog: Setting payment URL and moving to payment step');
         setPaymentUrl(data.url);
         setStep('payment');
+        setPaymentLoading(false);
         
         toast({
           title: "Payment Ready",
@@ -138,6 +140,7 @@ export const useBookingDialog = (barber: Barber) => {
         variant: "destructive",
       });
       setIsProcessingPayment(false);
+      setPaymentLoading(false);
     } finally {
       setIsProcessingPayment(false);
     }

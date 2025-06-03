@@ -27,7 +27,7 @@ const PaymentIframeContainer = ({ paymentUrl, onIframeRef }: PaymentIframeContai
         </div>
       </div>
       
-      <div className="flex-1 relative">
+      <div className="flex-1 relative min-h-0">
         <iframe
           ref={handleRef}
           src={paymentUrl}
@@ -37,7 +37,11 @@ const PaymentIframeContainer = ({ paymentUrl, onIframeRef }: PaymentIframeContai
           allow="payment; camera; microphone"
           style={{ 
             border: 'none',
-            backgroundColor: 'white'
+            backgroundColor: 'white',
+            minHeight: '500px'
+          }}
+          onLoad={() => {
+            console.log('PaymentIframe: Iframe loaded successfully');
           }}
         />
       </div>

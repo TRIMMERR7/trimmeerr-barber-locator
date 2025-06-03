@@ -55,13 +55,20 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
     handleDialogOpenChange
   } = useBookingDialog(barber);
 
+  const getDialogClassName = () => {
+    if (step === 'payment') {
+      return 'sm:max-w-4xl max-w-[95vw] h-[90vh] shadow-2xl border-0 p-0';
+    }
+    return 'sm:max-w-lg max-w-[95vw] max-h-[90vh] shadow-2xl border-0 p-0';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
       
-      <DialogContent className={`${step === 'payment' ? 'sm:max-w-6xl max-w-[98vw] h-[95vh]' : 'sm:max-w-lg max-w-[95vw]'} shadow-2xl border-0 p-0`}>
+      <DialogContent className={getDialogClassName()}>
         <div className="flex flex-col h-full">
           <BookingDialogHeader
             step={step}
