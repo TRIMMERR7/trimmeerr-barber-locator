@@ -3,7 +3,6 @@ import React from 'react';
 import ProfileHeader from './barber/ProfileHeader';
 import StepsIndicator from './barber/StepsIndicator';
 import BarberInfo from './barber/BarberInfo';
-import ServicesList from './barber/ServicesList';
 import ContactInfo from './barber/ContactInfo';
 import Portfolio from './barber/Portfolio';
 import Reviews from './barber/Reviews';
@@ -58,10 +57,7 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
 
             <BarberInfo barber={barber} />
             
-            <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-              <ServicesList />
-              <ContactInfo />
-            </div>
+            <ContactInfo />
 
             <Portfolio />
             <Reviews />
