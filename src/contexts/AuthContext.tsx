@@ -1,13 +1,14 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+
+type UserType = 'barber' | 'client';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
+  userType: UserType;
   loading: boolean;
-  userType: 'barber' | 'client';
   signOut: () => Promise<void>;
 }
 
@@ -21,85 +22,92 @@ export const useAuth = () => {
   return context;
 };
 
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [userType, setUserType] = useState<UserType>('client');
   const [loading, setLoading] = useState(true);
-  const [userType, setUserType] = useState<'barber' | 'client'>('client');
 
   useEffect(() => {
-    // Set up auth state listener
+    console.log('AuthProvider: Initializing...');
+    
+    // Set a timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      console.log('AuthProvider: Loading timeout reached, forcing completion');
+      setLoading(false);
+    }, 8000); // 8 second timeout
+
+    // Get initial session
+    const getSession = async () => {
+      try {
+        console.log('AuthProvider: Getting initial session...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('AuthProvider: Error getting session:', error);
+        } else {
+          console.log('AuthProvider: Initial session:', !!session?.user);
+          setUser(session?.user ?? null);
+          
+          // Set default user type for now
+          if (session?.user) {
+            setUserType('client'); // Default to client
+          }
+        }
+      } catch (error) {
+        console.error('AuthProvider: Exception getting session:', error);
+      } finally {
+        console.log('AuthProvider: Session check complete');
+        clearTimeout(loadingTimeout);
+        setLoading(false);
+      }
+    };
+
+    getSession();
+
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setSession(session);
+        console.log('AuthProvider: Auth state changed:', event, !!session?.user);
         setUser(session?.user ?? null);
         
-        // Fetch user type when user logs in
         if (session?.user) {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('user_type')
-              .eq('id', session.user.id)
-              .single();
-            
-            const profileUserType = profile?.user_type;
-            setUserType((profileUserType === 'barber' || profileUserType === 'client') ? profileUserType : 'client');
-          } catch (error) {
-            console.error('Error fetching user type:', error);
-            setUserType('client');
-          }
-        } else {
-          setUserType('client');
+          setUserType('client'); // Default to client
         }
         
-        setLoading(false);
+        if (!loading) {
+          clearTimeout(loadingTimeout);
+          setLoading(false);
+        }
       }
     );
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('user_type')
-            .eq('id', session.user.id)
-            .single();
-          
-          const profileUserType = profile?.user_type;
-          setUserType((profileUserType === 'barber' || profileUserType === 'client') ? profileUserType : 'client');
-        } catch (error) {
-          console.error('Error fetching user type:', error);
-          setUserType('client');
-        }
-      }
-      
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      console.log('AuthProvider: Cleaning up...');
+      clearTimeout(loadingTimeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUserType('client');
+    console.log('AuthProvider: Signing out...');
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('AuthProvider: Error signing out:', error);
+    }
   };
 
   const value = {
     user,
-    session,
-    loading,
     userType,
-    signOut
+    loading,
+    signOut,
   };
+
+  console.log('AuthProvider: Rendering with state:', { 
+    hasUser: !!user, 
+    userType, 
+    loading 
+  });
 
   return (
     <AuthContext.Provider value={value}>
