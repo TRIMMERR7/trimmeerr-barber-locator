@@ -1,50 +1,74 @@
 
-import React, { useRef } from 'react';
-import { CreditCard } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { createSecurePostMessageHandler } from '@/utils/securityHelpers';
 
 interface PaymentIframeContainerProps {
   paymentUrl: string;
-  onIframeRef: (ref: HTMLIFrameElement | null) => void;
+  onPaymentComplete: () => void;
+  onPaymentLoad: () => void;
 }
 
-const PaymentIframeContainer = ({ paymentUrl, onIframeRef }: PaymentIframeContainerProps) => {
+const PaymentIframeContainer = ({ 
+  paymentUrl, 
+  onPaymentComplete, 
+  onPaymentLoad 
+}: PaymentIframeContainerProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const handleRef = (ref: HTMLIFrameElement | null) => {
-    iframeRef.current = ref;
-    onIframeRef(ref);
-  };
+  useEffect(() => {
+    // Enhanced security for postMessage handling
+    const allowedOrigins = [
+      'https://checkout.stripe.com',
+      'https://js.stripe.com'
+    ];
 
-  return (
-    <div className="w-full h-full flex flex-col rounded-xl overflow-hidden shadow-xl border border-gray-200 bg-white">
-      <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 p-4 flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <CreditCard className="w-5 h-5 text-gray-600" />
-          <span className="font-medium text-gray-800">Secure Checkout</span>
-          <div className="ml-auto text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">
-            SSL Encrypted
-          </div>
-        </div>
-      </div>
+    const secureMessageHandler = createSecurePostMessageHandler(allowedOrigins);
+
+    const handleMessage = (event: MessageEvent) => {
+      const validatedData = secureMessageHandler(event);
       
-      <div className="flex-1 relative min-h-0">
-        <iframe
-          ref={handleRef}
-          src={paymentUrl}
-          className="absolute inset-0 w-full h-full border-0"
-          title="Secure Payment Checkout"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation allow-top-navigation-by-user-activation allow-popups allow-popups-to-escape-sandbox"
-          allow="payment; camera; microphone"
-          style={{ 
-            border: 'none',
-            backgroundColor: 'white',
-            minHeight: '500px'
-          }}
-          onLoad={() => {
-            console.log('PaymentIframe: Iframe loaded successfully');
-          }}
-        />
-      </div>
+      if (!validatedData) return;
+
+      console.log('PaymentIframe: Received validated message:', validatedData);
+
+      // Handle specific payment events
+      if (validatedData.type === 'payment_success' || validatedData.event === 'checkout.session.completed') {
+        console.log('PaymentIframe: Payment completed successfully');
+        onPaymentComplete();
+      }
+
+      if (validatedData.type === 'payment_loaded' || validatedData.event === 'checkout.session.loaded') {
+        console.log('PaymentIframe: Payment form loaded');
+        onPaymentLoad();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [onPaymentComplete, onPaymentLoad]);
+
+  // Enhanced iframe security
+  return (
+    <div className="w-full h-full bg-white rounded-lg overflow-hidden">
+      <iframe
+        ref={iframeRef}
+        src={paymentUrl}
+        className="w-full h-full border-0"
+        title="Secure Payment"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation-by-user-activation"
+        referrerPolicy="strict-origin-when-cross-origin"
+        loading="lazy"
+        onLoad={() => {
+          console.log('PaymentIframe: Iframe loaded successfully');
+          onPaymentLoad();
+        }}
+        onError={(e) => {
+          console.error('PaymentIframe: Failed to load payment form', e);
+        }}
+      />
     </div>
   );
 };

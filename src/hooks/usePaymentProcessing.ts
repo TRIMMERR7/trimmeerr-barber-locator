@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Service, Barber } from '@/types/booking';
-import { validatePhoneNumber } from '@/utils/bookingValidation';
+import { validateBookingData } from '@/utils/bookingValidation';
+import { isValidAmount, sanitizeInput } from '@/utils/securityHelpers';
 
 interface UsePaymentProcessingProps {
   selectedService: Service | null;
@@ -30,6 +31,23 @@ export const usePaymentProcessing = ({
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const handleBookingAndPayment = async () => {
+    // Enhanced validation using security helpers
+    const validationResult = validateBookingData({
+      selectedService,
+      selectedTime,
+      userPhone,
+      user
+    });
+
+    if (!validationResult.isValid) {
+      toast({
+        title: "Validation Error",
+        description: validationResult.errors[0],
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!selectedService || !selectedTime) {
       toast({
         title: "Missing Information",
@@ -48,10 +66,11 @@ export const usePaymentProcessing = ({
       return;
     }
 
-    if (userPhone && !validatePhoneNumber(userPhone)) {
+    // Validate payment amount
+    if (!isValidAmount(selectedService.price * 100)) {
       toast({
-        title: "Invalid Phone Number",
-        description: "Please enter a valid phone number",
+        title: "Invalid Amount",
+        description: "Service price is invalid",
         variant: "destructive",
       });
       return;
@@ -61,23 +80,26 @@ export const usePaymentProcessing = ({
     setPaymentLoading(true);
     
     try {
-      console.log('BookingDialog: Starting payment process...');
+      console.log('BookingDialog: Starting secure payment process...');
       
       toast({
         title: "Creating Payment Session",
         description: "Setting up your secure checkout...",
       });
 
+      // Sanitize inputs before sending
+      const sanitizedData = {
+        amount: selectedService.price * 100,
+        currency: 'usd',
+        serviceType: sanitizeInput(`barber_service_${barber.id}`),
+        serviceName: sanitizeInput(selectedService.name),
+        barberName: sanitizeInput(barber.name),
+        appointmentTime: sanitizeInput(selectedTime),
+        userPhone: userPhone ? sanitizeInput(userPhone) : ''
+      };
+
       const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: {
-          amount: selectedService.price * 100,
-          currency: 'usd',
-          serviceType: `barber_service_${barber.id}`,
-          serviceName: selectedService.name,
-          barberName: barber.name,
-          appointmentTime: selectedTime,
-          userPhone: userPhone
-        }
+        body: sanitizedData
       });
 
       console.log('BookingDialog: Payment response:', { data, error });
@@ -96,13 +118,27 @@ export const usePaymentProcessing = ({
 
       if (data?.url) {
         console.log('BookingDialog: Opening payment URL in new window');
-        // Open payment in new tab/window
-        window.open(data.url, '_blank');
-        
-        toast({
-          title: "Payment Opened",
-          description: "Complete your payment in the new tab to confirm your booking",
-        });
+        // Enhanced security: validate URL before opening
+        try {
+          const url = new URL(data.url);
+          if (url.hostname === 'checkout.stripe.com') {
+            window.open(data.url, '_blank', 'noopener,noreferrer');
+            
+            toast({
+              title: "Payment Opened",
+              description: "Complete your payment in the new tab to confirm your booking",
+            });
+          } else {
+            throw new Error('Invalid payment URL');
+          }
+        } catch (urlError) {
+          console.error('Invalid payment URL:', urlError);
+          toast({
+            title: "Security Error",
+            description: "Invalid payment URL received",
+            variant: "destructive",
+          });
+        }
         
         setPaymentLoading(false);
       } else {

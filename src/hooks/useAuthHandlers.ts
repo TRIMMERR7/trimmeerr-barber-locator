@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { validateEmail, sanitizeInput } from '@/utils/securityHelpers';
 
 export const useAuthHandlers = () => {
   const [loading, setLoading] = useState(false);
@@ -16,12 +17,38 @@ export const useAuthHandlers = () => {
     userType: 'client' | 'barber'
   ) => {
     e.preventDefault();
+    
+    // Enhanced input validation
+    if (!validateEmail(email)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+        duration: 2000
+      });
+      return;
+    }
+
+    if (password.length < 8) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 8 characters long",
+        variant: "destructive",
+        duration: 2000
+      });
+      return;
+    }
+
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeInput(email.toLowerCase().trim());
+    const sanitizedFullName = sanitizeInput(fullName.trim());
+
     setLoading(true);
 
     try {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
-          email,
+          email: sanitizedEmail,
           password
         });
 
@@ -40,15 +67,25 @@ export const useAuthHandlers = () => {
           });
         }
       } else {
+        if (!sanitizedFullName) {
+          toast({
+            title: "Name Required",
+            description: "Please enter your full name",
+            variant: "destructive",
+            duration: 2000
+          });
+          return;
+        }
+
         const redirectUrl = `${window.location.origin}/`;
         
         const { error } = await supabase.auth.signUp({
-          email,
+          email: sanitizedEmail,
           password,
           options: {
             emailRedirectTo: redirectUrl,
             data: {
-              full_name: fullName,
+              full_name: sanitizedFullName,
               user_type: userType
             }
           }
@@ -82,19 +119,21 @@ export const useAuthHandlers = () => {
   };
 
   const handleForgotPassword = async (email: string) => {
-    if (!email) {
+    if (!validateEmail(email)) {
       toast({
-        title: "Email required",
-        description: "Please enter your email address",
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
         variant: "destructive",
         duration: 2000
       });
       return;
     }
 
+    const sanitizedEmail = sanitizeInput(email.toLowerCase().trim());
+
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
         redirectTo: `${window.location.origin}/`
       });
 
