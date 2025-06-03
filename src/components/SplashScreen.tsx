@@ -43,24 +43,31 @@ const SplashScreen = ({ onComplete }: SplashScreenProps) => {
         <img 
           src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
           alt="TRIMMERR Logo" 
-          className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 mb-6"
+          className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 mb-8 drop-shadow-2xl"
         />
       </div>
 
-      {/* Text */}
+      {/* Text with glow effect */}
       <div className={`transform transition-all duration-1000 delay-300 ease-out ${showText ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent mb-4">
+        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent mb-6 text-center tracking-wider animate-pulse drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]" 
+            style={{
+              textShadow: '0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(239, 68, 68, 0.3), 0 0 60px rgba(239, 68, 68, 0.1)',
+              filter: 'drop-shadow(0 0 20px rgba(239, 68, 68, 0.4))'
+            }}>
           TRIMMERR
         </h1>
-        <p className="text-gray-300 text-lg sm:text-xl md:text-2xl text-center animate-pulse">
+        <p className="text-gray-300 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-center animate-pulse tracking-wide">
           Book your perfect barber in seconds
         </p>
       </div>
 
-      {/* Loading indicator */}
-      <div className={`mt-12 transition-all duration-500 delay-1000 ${showText ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="w-16 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full overflow-hidden">
-          <div className="h-full bg-white/30 animate-pulse"></div>
+      {/* Enhanced loading indicator with glow */}
+      <div className={`mt-16 transition-all duration-500 delay-1000 ${showText ? 'opacity-100' : 'opacity-0'}`}>
+        <div className="w-20 h-2 bg-gradient-to-r from-red-500 to-red-600 rounded-full overflow-hidden shadow-lg"
+             style={{
+               boxShadow: '0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3)'
+             }}>
+          <div className="h-full bg-white/40 animate-pulse rounded-full"></div>
         </div>
       </div>
     </div>

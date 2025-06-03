@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import AuthHeader from './auth/AuthHeader';
-import GoogleAuthButton from './auth/GoogleAuthButton';
+import SocialAuthButtons from './auth/SocialAuthButtons';
 import AuthDivider from './auth/AuthDivider';
 import EmailPasswordForm from './auth/EmailPasswordForm';
 import ForgotPasswordForm from './auth/ForgotPasswordForm';
@@ -158,6 +158,33 @@ const AuthPage = () => {
     }
   };
 
+  const handleAppleAuth = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Authentication failed",
+          description: error.message,
+          variant: "destructive",
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred",
+        variant: "destructive",
+        duration: 2000
+      });
+    }
+  };
+
   const handleGuestLogin = () => {
     toast({
       title: "Guest Mode",
@@ -188,7 +215,10 @@ const AuthPage = () => {
               />
             ) : (
               <>
-                <GoogleAuthButton onGoogleAuth={handleGoogleAuth} />
+                <SocialAuthButtons 
+                  onGoogleAuth={handleGoogleAuth}
+                  onAppleAuth={handleAppleAuth}
+                />
                 <AuthDivider />
                 <EmailPasswordForm
                   isLogin={isLogin}
