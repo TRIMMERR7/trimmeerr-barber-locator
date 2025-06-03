@@ -1,9 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
-import PriceDisplay from './PriceDisplay';
-import BookingDialog from './BookingDialog';
+import { Calendar, MapPin, Star, DollarSign } from "lucide-react";
+import SimpleBookingDialog from './SimpleBookingDialog';
 
 interface Barber {
   id: string;
@@ -18,45 +18,59 @@ interface Barber {
   lng: number;
 }
 
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: string;
-  icon: React.ComponentType<{ className?: string }>;
-  popular: boolean;
-  description: string;
-}
-
 interface BookingPanelProps {
   barber: Barber;
 }
 
 const BookingPanel = ({ barber }: BookingPanelProps) => {
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-
   return (
-    <div className="w-full lg:w-96 bg-white/5 backdrop-blur-2xl border-t lg:border-t-0 lg:border-l border-white/10 p-4 lg:p-6 flex-shrink-0 shadow-2xl">
-      {/* Quick Info */}
-      <div className="flex items-center gap-3 mb-4">
-        <Calendar className="w-5 h-5 text-red-500" />
-        <div>
-          <h3 className="text-lg font-semibold text-white">Book Appointment</h3>
-          <p className="text-sm text-white/70">with {barber.name}</p>
-        </div>
-      </div>
-      
-      {/* Price Display */}
-      <PriceDisplay selectedService={selectedService} barber={barber} />
+    <div className="w-full lg:w-80 lg:flex-shrink-0">
+      <Card className="bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl sticky top-4">
+        <CardContent className="p-6 space-y-6">
+          <div className="text-center">
+            <h2 className="text-xl font-bold text-white mb-2">Book Appointment</h2>
+            <div className="flex items-center justify-center gap-4 text-sm text-white/80">
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 text-yellow-400" />
+                <span>{barber.rating}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                <span>{barber.distance}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <DollarSign className="w-4 h-4" />
+                <span>{barber.price}</span>
+              </div>
+            </div>
+          </div>
 
-      {/* Book Now Button with Dialog */}
-      <BookingDialog barber={barber}>
-        <Button 
-          className="w-full bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-700/90 hover:to-red-800/90 text-white h-12 text-lg font-semibold rounded-xl shadow-lg backdrop-blur-sm border border-white/20"
-        >
-          Book Now
-        </Button>
-      </BookingDialog>
+          <div className="space-y-3">
+            <div className="bg-white/5 rounded-lg p-4 border border-white/10">
+              <h3 className="font-semibold text-white mb-2">Quick Facts</h3>
+              <ul className="space-y-1 text-sm text-white/80">
+                <li>• {barber.experience} experience</li>
+                <li>• Specialty: {barber.specialty}</li>
+                <li>• Same day appointments</li>
+                <li>• Premium products used</li>
+              </ul>
+            </div>
+          </div>
+
+          <SimpleBookingDialog barber={barber}>
+            <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl">
+              <Calendar className="w-5 h-5 mr-2" />
+              Book Now
+            </Button>
+          </SimpleBookingDialog>
+
+          <div className="text-center">
+            <p className="text-xs text-white/60">
+              💳 Secure payment • 📱 Instant confirmation
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
