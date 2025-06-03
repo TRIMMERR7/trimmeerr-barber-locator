@@ -29,7 +29,8 @@ const Index = () => {
             // Default to client if profile not found
             setUserType('client');
           } else {
-            setUserType(profile?.user_type || 'client');
+            const profileUserType = profile?.user_type;
+            setUserType((profileUserType === 'barber' || profileUserType === 'client') ? profileUserType : 'client');
           }
         } catch (error) {
           console.error('Error fetching user profile:', error);

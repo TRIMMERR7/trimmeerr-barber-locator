@@ -47,7 +47,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
               .eq('id', session.user.id)
               .single();
             
-            setUserType(profile?.user_type || 'client');
+            const profileUserType = profile?.user_type;
+            setUserType((profileUserType === 'barber' || profileUserType === 'client') ? profileUserType : 'client');
           } catch (error) {
             console.error('Error fetching user type:', error);
             setUserType('client');
@@ -73,7 +74,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             .eq('id', session.user.id)
             .single();
           
-          setUserType(profile?.user_type || 'client');
+          const profileUserType = profile?.user_type;
+          setUserType((profileUserType === 'barber' || profileUserType === 'client') ? profileUserType : 'client');
         } catch (error) {
           console.error('Error fetching user type:', error);
           setUserType('client');
