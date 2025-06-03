@@ -16,45 +16,18 @@ export const useMapKitInitialization = ({ apiKey }: UseMapKitInitializationProps
       return;
     }
 
-    console.log('MapKit: Starting initialization with API key:', !!apiKey);
+    console.log('MapKit: Starting initialization with API key present');
 
-    if (window.mapkit) {
-      console.log('MapKit: Already loaded, checking if initialized...');
-      if (window.mapkit.isInitialized) {
-        console.log('MapKit: Already initialized');
-        setMapkitLoaded(true);
-        return;
-      } else {
-        console.log('MapKit: Initializing existing mapkit...');
-        try {
-          window.mapkit.init({
-            authorizationCallback: (done: (token: string) => void) => {
-              console.log('MapKit: Authorization callback called');
-              done(apiKey);
-            }
-          });
-          setMapkitLoaded(true);
-          console.log('MapKit: Initialization complete');
-        } catch (error) {
-          console.error('MapKit: Error initializing:', error);
-          setError('Failed to initialize MapKit');
-        }
-      }
+    // Check if MapKit is already available and initialized
+    if (window.mapkit && window.mapkit.isInitialized) {
+      console.log('MapKit: Already initialized');
+      setMapkitLoaded(true);
+      setError(null);
       return;
     }
 
-    console.log('MapKit: Loading script...');
-    const script = document.createElement('script');
-    script.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
-    script.crossOrigin = 'anonymous';
-    
-    const timeout = setTimeout(() => {
-      console.error('MapKit: Script loading timeout');
-      setError('Script loading timeout');
-    }, 10000);
-    
-    script.onload = () => {
-      clearTimeout(timeout);
+    // If MapKit script exists but not initialized
+    if (window.mapkit && !window.mapkit.isInitialized) {
       console.log('MapKit: Script loaded, initializing...');
       try {
         window.mapkit.init({
@@ -65,25 +38,62 @@ export const useMapKitInitialization = ({ apiKey }: UseMapKitInitializationProps
         });
         console.log('MapKit: Initialization complete');
         setMapkitLoaded(true);
-      } catch (error) {
-        console.error('MapKit: Error during initialization:', error);
+        setError(null);
+      } catch (initError) {
+        console.error('MapKit: Error initializing:', initError);
         setError('Failed to initialize MapKit');
+      }
+      return;
+    }
+
+    // Load MapKit script
+    console.log('MapKit: Loading script...');
+    const script = document.createElement('script');
+    script.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
+    script.crossOrigin = 'anonymous';
+    
+    const timeout = setTimeout(() => {
+      console.error('MapKit: Script loading timeout');
+      setError('Script loading timeout - please check your internet connection');
+    }, 15000); // Increased timeout
+    
+    script.onload = () => {
+      clearTimeout(timeout);
+      console.log('MapKit: Script loaded successfully');
+      
+      if (!window.mapkit) {
+        setError('MapKit script loaded but window.mapkit is not available');
+        return;
+      }
+      
+      try {
+        console.log('MapKit: Initializing after script load...');
+        window.mapkit.init({
+          authorizationCallback: (done: (token: string) => void) => {
+            console.log('MapKit: Authorization callback called with API key');
+            done(apiKey);
+          }
+        });
+        console.log('MapKit: Initialization complete');
+        setMapkitLoaded(true);
+        setError(null);
+      } catch (initError) {
+        console.error('MapKit: Error during initialization:', initError);
+        setError(`Failed to initialize MapKit: ${initError.message}`);
       }
     };
 
-    script.onerror = (error) => {
+    script.onerror = (scriptError) => {
       clearTimeout(timeout);
-      console.error('MapKit: Error loading script:', error);
-      setError('Failed to load MapKit script');
+      console.error('MapKit: Error loading script:', scriptError);
+      setError('Failed to load MapKit script - please check your internet connection');
     };
 
     document.head.appendChild(script);
 
     return () => {
       clearTimeout(timeout);
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
+      // Don't remove script as it might be used by other components
     };
   }, [apiKey]);
 
