@@ -1,19 +1,10 @@
 
 import React from 'react';
 import BookingStepContent from './BookingStepContent';
-
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: string;
-  icon: React.ComponentType<{ className?: string }>;
-  popular: boolean;
-  description: string;
-}
+import type { Service, BookingStep } from '@/types/booking';
 
 interface BookingDialogContentProps {
-  step: 'service' | 'time' | 'details' | 'payment';
+  step: BookingStep;
   selectedService: Service | null;
   selectedTime: string;
   userPhone: string;

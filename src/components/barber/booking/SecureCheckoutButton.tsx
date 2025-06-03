@@ -3,16 +3,7 @@ import React from 'react';
 import { CreditCard, Loader2, Sparkles } from "lucide-react";
 import { motion } from 'framer-motion';
 import AnimatedButton from '../AnimatedButton';
-
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: string;
-  icon: React.ComponentType<{ className?: string }>;
-  popular: boolean;
-  description: string;
-}
+import type { Service } from '@/types/booking';
 
 interface SecureCheckoutButtonProps {
   selectedService: Service | null;

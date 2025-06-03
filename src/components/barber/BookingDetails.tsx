@@ -6,16 +6,7 @@ import PhoneNumberInput from './booking/PhoneNumberInput';
 import BookingSummaryCard from './booking/BookingSummaryCard';
 import SecureCheckoutButton from './booking/SecureCheckoutButton';
 import SecurityNotice from './booking/SecurityNotice';
-
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: string;
-  icon: React.ComponentType<{ className?: string }>;
-  popular: boolean;
-  description: string;
-}
+import type { Service } from '@/types/booking';
 
 interface BookingDetailsProps {
   selectedService: Service | null;

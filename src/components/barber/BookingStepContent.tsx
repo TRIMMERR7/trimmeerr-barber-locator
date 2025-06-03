@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import ServiceSelection from './ServiceSelection';
@@ -7,19 +6,10 @@ import BookingDetails from './BookingDetails';
 import PaymentIframe from './PaymentIframe';
 import BookingAnimations from './BookingAnimations';
 import SuccessConfetti from './SuccessConfetti';
-
-interface Service {
-  id: string;
-  name: string;
-  price: number;
-  duration: string;
-  icon: React.ComponentType<{ className?: string }>;
-  popular: boolean;
-  description: string;
-}
+import type { Service, BookingStep } from '@/types/booking';
 
 interface BookingStepContentProps {
-  step: 'service' | 'time' | 'details' | 'payment';
+  step: BookingStep;
   selectedService: Service | null;
   selectedTime: string;
   userPhone: string;
