@@ -2,7 +2,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Bot, Info, X } from 'lucide-react';
+import { Bot, Info } from 'lucide-react';
 
 interface MenuDialogProps {
   isOpen: boolean;
@@ -25,13 +25,10 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: Men
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="bg-black/40 backdrop-blur-2xl border border-white/20 text-white max-w-md shadow-2xl">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
             Menu
           </DialogTitle>
-          <Button variant="ghost" size="icon" onClick={onClose} className="text-white/70 hover:text-white hover:bg-white/10">
-            <X className="w-4 h-4" />
-          </Button>
         </DialogHeader>
         
         <div className="space-y-3 mt-6">
