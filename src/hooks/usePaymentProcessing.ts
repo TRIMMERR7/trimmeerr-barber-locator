@@ -95,15 +95,16 @@ export const usePaymentProcessing = ({
       }
 
       if (data?.url) {
-        console.log('BookingDialog: Setting payment URL and moving to payment step');
-        setPaymentUrl(data.url);
-        setStep('payment');
-        setPaymentLoading(false);
+        console.log('BookingDialog: Opening payment URL in new window');
+        // Open payment in new tab/window
+        window.open(data.url, '_blank');
         
         toast({
-          title: "Payment Ready",
-          description: "Complete your secure payment below",
+          title: "Payment Opened",
+          description: "Complete your payment in the new tab to confirm your booking",
         });
+        
+        setPaymentLoading(false);
       } else {
         throw new Error('No payment URL received');
       }

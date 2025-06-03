@@ -1,11 +1,11 @@
 
-import type { Service, BookingStep } from '@/types/booking';
 import { useToast } from '@/hooks/use-toast';
+import type { Service, BookingStep } from '@/types/booking';
 
 interface UseBookingStepsProps {
   step: BookingStep;
   setStep: (step: BookingStep) => void;
-  setSelectedService: (service: Service) => void;
+  setSelectedService: (service: Service | null) => void;
   setSelectedTime: (time: string) => void;
   resetBooking: () => void;
   setIsOpen: (open: boolean) => void;
@@ -28,50 +28,59 @@ export const useBookingSteps = ({
   const { toast } = useToast();
 
   const handleServiceSelect = (service: Service) => {
+    console.log('BookingDialog: Service selected:', service);
     setSelectedService(service);
     setStep('time');
   };
 
   const handleTimeSelect = (time: string) => {
+    console.log('BookingDialog: Time selected:', time);
     setSelectedTime(time);
     setStep('details');
   };
 
   const handleStepBack = () => {
-    if (step === 'time') setStep('service');
-    if (step === 'details') setStep('time');
-    if (step === 'payment') setStep('details');
+    console.log('BookingDialog: Going back from step:', step);
+    if (step === 'time') {
+      setStep('service');
+    } else if (step === 'details') {
+      setStep('time');
+    }
   };
 
   const handlePaymentComplete = () => {
-    console.log('BookingDialog: Payment completed, closing dialog');
-    setIsOpen(false);
-    resetBooking();
+    console.log('BookingDialog: Payment completed');
     toast({
-      title: "🎉 Booking Confirmed!",
-      description: `Your ${selectedService?.name} appointment with ${barberName} is confirmed for ${selectedTime}`,
-      duration: 6000,
+      title: "Booking Confirmed!",
+      description: `Your appointment with ${barberName} has been booked successfully.`,
     });
+    resetBooking();
+    setIsOpen(false);
   };
 
   const handlePaymentLoad = () => {
-    console.log('BookingDialog: Payment iframe loaded');
+    console.log('BookingDialog: Payment loaded');
   };
 
   const getStepTitle = () => {
     switch (step) {
-      case 'service': return 'Select Service';
-      case 'time': return 'Choose Time';
-      case 'details': return 'Booking Details';
-      case 'payment': return 'Complete Payment';
-      default: return 'Book Appointment';
+      case 'service':
+        return 'Choose Service';
+      case 'time':
+        return 'Select Time';
+      case 'details':
+        return 'Booking Details';
+      default:
+        return 'Book Appointment';
     }
   };
 
   const handleDialogOpenChange = (open: boolean) => {
     console.log('BookingDialog: Dialog open state changed:', open);
     setIsOpen(open);
-    if (!open) resetBooking();
+    if (!open) {
+      resetBooking();
+    }
   };
 
   return {

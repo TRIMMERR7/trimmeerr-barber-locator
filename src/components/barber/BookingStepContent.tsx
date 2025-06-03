@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import ServiceSelection from './ServiceSelection';
 import TimeSelection from './TimeSelection';
 import BookingDetails from './BookingDetails';
-import PaymentIframe from './PaymentIframe';
 import BookingAnimations from './BookingAnimations';
 import SuccessConfetti from './SuccessConfetti';
 import type { Service, BookingStep } from '@/types/booking';
@@ -89,19 +89,6 @@ const BookingStepContent = ({
               onBookingAndPayment={onBookingAndPayment}
               isProcessingPayment={isProcessingPayment}
               user={user}
-            />
-          </div>
-        );
-
-      case 'payment':
-        console.log('BookingStepContent: Rendering payment step', { paymentUrl, paymentLoading });
-        return (
-          <div className="h-full w-full">
-            <PaymentIframe
-              paymentUrl={paymentUrl}
-              paymentLoading={paymentLoading}
-              onPaymentLoad={onPaymentLoad}
-              onPaymentComplete={onPaymentComplete}
             />
           </div>
         );

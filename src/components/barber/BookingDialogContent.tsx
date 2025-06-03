@@ -21,10 +21,8 @@ interface BookingDialogContentProps {
 }
 
 const BookingDialogContent = (props: BookingDialogContentProps) => {
-  const { step } = props;
-  
   return (
-    <div className={`flex-1 overflow-hidden ${step !== 'payment' ? 'p-6' : ''}`}>
+    <div className="flex-1 overflow-hidden p-6">
       <BookingStepContent {...props} />
     </div>
   );
