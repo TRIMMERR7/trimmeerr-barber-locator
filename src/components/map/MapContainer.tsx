@@ -26,7 +26,7 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="h-full w-full flex flex-col relative">
+    <div className="h-full w-full flex flex-col relative mobile-full-height">
       {/* Map Provider - Takes most of the space */}
       <div className="flex-1 min-h-0 w-full relative overflow-hidden rounded-lg">
         <MapProvider 
@@ -35,7 +35,7 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
         />
       </div>
 
-      {/* Widget Container - Bottom section, only on mobile */}
+      {/* Widget Container - Bottom section, only on mobile with safe area */}
       {isMobile && (
         <div className="shrink-0 border-t border-gray-700/50 bg-black/20 backdrop-blur-sm pb-safe">
           <MapWidget />
