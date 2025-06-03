@@ -12,7 +12,12 @@ interface MapHeaderProps {
 }
 
 const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick }: MapHeaderProps) => {
-  const { signOut } = useAuth();
+  const { signOut, setUserType } = useAuth();
+
+  const toggleUserType = () => {
+    const newType = userType === 'barber' ? 'client' : 'barber';
+    setUserType(newType);
+  };
 
   return (
     <div className="bg-black/10 backdrop-blur-2xl border-b border-white/10 p-2 sm:p-4 flex-shrink-0">
@@ -34,6 +39,15 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
             className="text-white hover:text-red-300 hover:bg-white/10 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold backdrop-blur-sm"
           >
             <Menu className="w-4 h-4 text-white" />
+          </Button>
+
+          {/* User Type Switcher for Testing */}
+          <Button 
+            onClick={toggleUserType}
+            variant="outline"
+            className="border-gray-600 text-gray-300 hover:bg-gray-700 rounded-xl h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
+          >
+            {userType === 'barber' ? '👤 Barber' : '🧑‍💼 Client'}
           </Button>
 
           {userType === 'barber' && onDashboardClick && (

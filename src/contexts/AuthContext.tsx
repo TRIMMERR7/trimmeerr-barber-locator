@@ -10,6 +10,7 @@ interface AuthContextType {
   userType: UserType;
   loading: boolean;
   signOut: () => Promise<void>;
+  setUserType: (type: UserType) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,7 +25,7 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [userType, setUserType] = useState<UserType>('client');
+  const [userType, setUserTypeState] = useState<UserType>('client');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,9 +49,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('AuthProvider: Initial session:', !!session?.user);
           setUser(session?.user ?? null);
           
-          // Set default user type for now
+          // Get user type from metadata or localStorage
           if (session?.user) {
-            setUserType('client'); // Default to client
+            const storedUserType = localStorage.getItem('userType') as UserType;
+            const metadataUserType = session.user.user_metadata?.user_type as UserType;
+            const finalUserType = metadataUserType || storedUserType || 'client';
+            console.log('AuthProvider: Setting user type to:', finalUserType);
+            setUserTypeState(finalUserType);
           }
         }
       } catch (error) {
@@ -71,7 +76,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          setUserType('client'); // Default to client
+          const storedUserType = localStorage.getItem('userType') as UserType;
+          const metadataUserType = session.user.user_metadata?.user_type as UserType;
+          const finalUserType = metadataUserType || storedUserType || 'client';
+          console.log('AuthProvider: Setting user type to:', finalUserType);
+          setUserTypeState(finalUserType);
         }
         
         if (!loading) {
@@ -90,10 +99,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     console.log('AuthProvider: Signing out...');
+    localStorage.removeItem('userType');
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('AuthProvider: Error signing out:', error);
     }
+  };
+
+  const setUserType = (type: UserType) => {
+    console.log('AuthProvider: Setting user type to:', type);
+    setUserTypeState(type);
+    localStorage.setItem('userType', type);
   };
 
   const value = {
@@ -101,6 +117,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     userType,
     loading,
     signOut,
+    setUserType,
   };
 
   console.log('AuthProvider: Rendering with state:', { 

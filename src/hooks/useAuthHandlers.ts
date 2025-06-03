@@ -1,12 +1,13 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail, sanitizeInput } from '@/utils/securityHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useAuthHandlers = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { setUserType } = useAuth();
 
   const handleAuth = async (
     e: React.FormEvent,
@@ -60,6 +61,9 @@ export const useAuthHandlers = () => {
             duration: 2000
           });
         } else {
+          // Store user type in localStorage for login
+          localStorage.setItem('userType', userType);
+          setUserType(userType);
           toast({
             title: "Welcome back!",
             description: userType === 'barber' ? "Ready to manage your clients!" : "You're ready to book appointments.",
@@ -99,6 +103,9 @@ export const useAuthHandlers = () => {
             duration: 2000
           });
         } else {
+          // Store user type for signup
+          localStorage.setItem('userType', userType);
+          setUserType(userType);
           toast({
             title: "Account created!",
             description: "Please check your email to verify your account.",
