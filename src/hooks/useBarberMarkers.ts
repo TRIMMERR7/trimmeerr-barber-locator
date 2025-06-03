@@ -1,7 +1,5 @@
 
 import { useRef, useEffect } from 'react';
-import { ensureStylesLoaded } from '@/utils/markerStyles';
-import { createMarkerElement } from '@/utils/markerElement';
 import { createBarberAnnotation, setMapRegionForBarbers } from '@/utils/mapAnnotations';
 
 interface Barber {
@@ -53,16 +51,9 @@ export const useBarberMarkers = ({ map, nearbyBarbers, onBarberSelect }: UseBarb
       }
     }
 
-    // Ensure styles are loaded
-    ensureStylesLoaded();
-
-    const annotations = nearbyBarbers.map((barber, index) => {
+    const annotations = nearbyBarbers.map((barber) => {
       console.log('useBarberMarkers: Creating marker for barber:', barber.name, 'at', barber.lat, barber.lng);
-
-      const markerElement = createMarkerElement(barber, index);
-      const annotation = createBarberAnnotation(barber, markerElement, onBarberSelect);
-
-      return annotation;
+      return createBarberAnnotation(barber, onBarberSelect);
     });
 
     barberAnnotations.current = annotations;
