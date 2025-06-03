@@ -2,6 +2,7 @@
 import React from 'react';
 import MapContainer from './MapContainer';
 import BarberList from './BarberList';
+import AdSlider from '../AdSlider';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Barber {
@@ -41,14 +42,16 @@ const MapLayout = ({ displayBarbers, onBarberSelect, onNavigate }: MapLayoutProp
         />
       </div>
 
-      {/* Barber List - 30% width on desktop, hidden on mobile */}
+      {/* Desktop Ads Panel - 30% width on desktop, hidden on mobile */}
       {!isMobile && (
         <div className="flex-[0.3] h-full border-l border-gray-700/30 flex flex-col shadow-xl bg-gradient-to-b from-gray-900 to-black overflow-hidden">
-          <BarberList 
-            nearbyBarbers={displayBarbers}
-            onBarberSelect={onBarberSelect}
-            onNavigate={onNavigate}
-          />
+          <div className="p-4 border-b border-gray-700/30">
+            <h3 className="text-lg font-semibold text-white mb-2">Partner Offers</h3>
+            <p className="text-gray-400 text-sm">Discover amazing deals from our partners</p>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            <AdSlider />
+          </div>
         </div>
       )}
     </div>
