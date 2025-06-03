@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { logSecurityEvent } from '@/utils/securityHelpers';
@@ -51,7 +52,7 @@ export const useSecurityMonitoring = () => {
       }
     };
 
-    // Monitor for console access attempts (potential debugging/tampering)
+    // Store original console methods before overriding
     const originalConsole = { ...console };
     let consoleAccessCount = 0;
 
@@ -65,8 +66,9 @@ export const useSecurityMonitoring = () => {
       }
     };
 
-    // Override console methods to monitor access
-    Object.keys(console).forEach(method => {
+    // Override console methods to monitor access (excluding warn and error to avoid loops)
+    const methodsToMonitor = ['log', 'info', 'debug', 'table', 'trace'];
+    methodsToMonitor.forEach(method => {
       if (typeof console[method as keyof Console] === 'function') {
         const originalMethod = console[method as keyof Console] as Function;
         (console as any)[method] = (...args: any[]) => {

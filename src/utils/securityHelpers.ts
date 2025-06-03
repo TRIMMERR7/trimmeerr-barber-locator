@@ -1,6 +1,13 @@
 
 // Security utility functions
 
+// Store original console methods to avoid infinite loops when logging security events
+const originalConsole = {
+  warn: console.warn.bind(console),
+  error: console.error.bind(console),
+  log: console.log.bind(console)
+};
+
 export const sanitizeHtml = (html: string): string => {
   // Remove script tags and dangerous attributes
   return html
@@ -47,13 +54,13 @@ export const createSecurePostMessageHandler = (allowedOrigins: string[]) => {
   return (event: MessageEvent) => {
     // Validate origin
     if (!allowedOrigins.includes(event.origin)) {
-      console.warn('Blocked message from unauthorized origin:', event.origin);
+      originalConsole.warn('Blocked message from unauthorized origin:', event.origin);
       return;
     }
 
     // Validate message structure
     if (!event.data || typeof event.data !== 'object') {
-      console.warn('Invalid message format received');
+      originalConsole.warn('Invalid message format received');
       return;
     }
 
@@ -123,11 +130,12 @@ export const logSecurityEvent = (event: string, details: any, severity: 'low' | 
     userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
   };
   
-  console.warn(`[SECURITY ${severity.toUpperCase()}] ${event}:`, logEntry);
+  // Use original console methods to avoid infinite loops
+  originalConsole.warn(`[SECURITY ${severity.toUpperCase()}] ${event}:`, logEntry);
   
   // In production, you might want to send this to a logging service
   if (severity === 'high') {
     // Could trigger alerts or additional security measures
-    console.error('HIGH SEVERITY SECURITY EVENT:', logEntry);
+    originalConsole.error('HIGH SEVERITY SECURITY EVENT:', logEntry);
   }
 };
