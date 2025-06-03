@@ -30,7 +30,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick, onBar
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-black/40 backdrop-blur-2xl border border-white/20 text-white max-w-md shadow-2xl">
+      <DialogContent className="bg-gradient-to-br from-black via-gray-900 to-black backdrop-blur-2xl border border-white/20 text-white max-w-md shadow-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
             Menu
@@ -40,7 +40,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick, onBar
         <div className="space-y-3 mt-6">
           <Button
             onClick={handleAIClick}
-            className="w-full justify-start bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 rounded-xl p-4 backdrop-blur-sm"
+            className="w-full justify-start glass-morphism-dark hover:bg-red-600/20 text-red-300 border border-red-500/30 rounded-xl p-4 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
           >
             <Bot className="w-5 h-5 mr-3" />
             AI Styling Assistant
@@ -48,7 +48,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick, onBar
           
           <Button
             onClick={handleBarbersOfTheYearClick}
-            className="w-full justify-start bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-300 border border-yellow-500/30 rounded-xl p-4 backdrop-blur-sm"
+            className="w-full justify-start glass-morphism-dark hover:bg-yellow-600/20 text-yellow-300 border border-yellow-500/30 rounded-xl p-4 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
           >
             <Trophy className="w-5 h-5 mr-3" />
             Barbers of the Year
@@ -56,7 +56,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick, onBar
           
           <Button
             onClick={handleAboutClick}
-            className="w-full justify-start bg-white/10 hover:bg-white/20 text-white border border-white/30 rounded-xl p-4 backdrop-blur-sm"
+            className="w-full justify-start glass-morphism-dark hover:bg-white/10 text-white border border-white/30 rounded-xl p-4 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02]"
           >
             <Info className="w-5 h-5 mr-3" />
             About Us
