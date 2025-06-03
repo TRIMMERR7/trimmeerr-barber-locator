@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
 import FilterPage from './FilterPage';
 import AIGeminiPage from './AIGeminiPage';
 import AboutUsPage from './AboutUsPage';
+import BarbersOfTheYearPage from './BarbersOfTheYearPage';
 import MapHeader from './map/MapHeader';
 import MapLayout from './map/MapLayout';
 import MenuDialog from './map/MenuDialog';
@@ -19,6 +19,7 @@ const MapView = ({ userType }: MapViewProps) => {
   console.log('MapView: Rendering for user type:', userType);
   
   const [isMapViewLoading, setIsMapViewLoading] = useState(true);
+  const [showBarbersOfTheYearPage, setShowBarbersOfTheYearPage] = useState(false);
   
   const {
     selectedBarber,
@@ -41,6 +42,10 @@ const MapView = ({ userType }: MapViewProps) => {
     handleAIAssistantClick,
     handleAboutUsClick
   } = useMapViewState();
+
+  const handleBarbersOfTheYearClick = () => {
+    setShowBarbersOfTheYearPage(true);
+  };
 
   // Initialize filtered barbers and mark as loaded
   useEffect(() => {
@@ -122,6 +127,14 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
+  if (showBarbersOfTheYearPage) {
+    return (
+      <BarbersOfTheYearPage
+        onBack={() => setShowBarbersOfTheYearPage(false)}
+      />
+    );
+  }
+
   // Barber profile - clients can book, barbers can view but not book
   if (selectedBarber) {
     console.log('MapView: Rendering BarberProfile for:', selectedBarber.name);
@@ -159,6 +172,7 @@ const MapView = ({ userType }: MapViewProps) => {
         onClose={() => setShowMenuDialog(false)}
         onAIAssistantClick={handleAIAssistantClick}
         onAboutUsClick={handleAboutUsClick}
+        onBarbersOfTheYearClick={handleBarbersOfTheYearClick}
       />
     </div>
   );

@@ -2,16 +2,17 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Bot, Info } from 'lucide-react';
+import { Bot, Info, Trophy } from 'lucide-react';
 
 interface MenuDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onAIAssistantClick: () => void;
   onAboutUsClick: () => void;
+  onBarbersOfTheYearClick: () => void;
 }
 
-const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: MenuDialogProps) => {
+const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick, onBarbersOfTheYearClick }: MenuDialogProps) => {
   const handleAIClick = () => {
     onAIAssistantClick();
     onClose();
@@ -19,6 +20,11 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: Men
 
   const handleAboutClick = () => {
     onAboutUsClick();
+    onClose();
+  };
+
+  const handleBarbersOfTheYearClick = () => {
+    onBarbersOfTheYearClick();
     onClose();
   };
 
@@ -38,6 +44,14 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: Men
           >
             <Bot className="w-5 h-5 mr-3" />
             AI Styling Assistant
+          </Button>
+          
+          <Button
+            onClick={handleBarbersOfTheYearClick}
+            className="w-full justify-start bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-300 border border-yellow-500/30 rounded-xl p-4 backdrop-blur-sm"
+          >
+            <Trophy className="w-5 h-5 mr-3" />
+            Barbers of the Year
           </Button>
           
           <Button
