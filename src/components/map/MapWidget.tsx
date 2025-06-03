@@ -15,13 +15,13 @@ const MapWidget = () => {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    if (isPaused || isHovering) return;
+    if (isPaused || isHovering || !isExpanded) return;
     
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % companyAds.length);
-    }, 5000);
+    }, 8000); // Longer duration for videos
     return () => clearInterval(timer);
-  }, [isPaused, isHovering]);
+  }, [isPaused, isHovering, isExpanded]);
 
   const handlePrev = () => {
     setCurrentSlide((prev) => (prev - 1 + companyAds.length) % companyAds.length);
@@ -112,6 +112,7 @@ const MapWidget = () => {
               <AdDisplay 
                 ad={currentAd}
                 onAdClick={handleAdClick}
+                isActive={isExpanded}
               />
               
               {/* Enhanced Controls Panel */}

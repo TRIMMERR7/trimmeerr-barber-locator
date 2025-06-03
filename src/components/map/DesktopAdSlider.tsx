@@ -1,21 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ExternalLink, Play, Pause } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight, ExternalLink, Play, Pause, Volume2, VolumeX } from 'lucide-react';
 import { companyAds } from './AdData';
 
 const DesktopAdSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
   useEffect(() => {
     if (isPaused || isHovering) return;
     
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % companyAds.length);
-    }, 5000);
+    }, 8000); // Longer duration for videos
     return () => clearInterval(timer);
   }, [isPaused, isHovering]);
+
+  // Handle video playback
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (video) {
+        if (index === currentSlide) {
+          video.currentTime = 0;
+          video.play().catch(() => {
+            // Handle autoplay restrictions
+          });
+        } else {
+          video.pause();
+        }
+      }
+    });
+  }, [currentSlide]);
 
   const handlePrev = () => {
     setCurrentSlide((prev) => (prev - 1 + companyAds.length) % companyAds.length);
@@ -31,6 +49,15 @@ const DesktopAdSlider = () => {
 
   const handleAdClick = (website: string) => {
     window.open(`https://${website}`, '_blank');
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+    videoRefs.current.forEach(video => {
+      if (video) {
+        video.muted = !isMuted;
+      }
+    });
   };
 
   const currentAd = companyAds[currentSlide];
@@ -53,43 +80,44 @@ const DesktopAdSlider = () => {
               }`}
               onClick={() => handleAdClick(ad.website)}
             >
-              <div className={`h-full bg-gradient-to-br ${ad.color} backdrop-blur-sm flex flex-col justify-between p-6 relative overflow-hidden`}>
-                {/* Content Section */}
-                <div className="flex-1 z-10">
-                  <div className="text-white/90 text-sm font-semibold mb-3 tracking-wide">
-                    {ad.tagline}
-                  </div>
-                  <h3 className="text-white font-bold text-3xl leading-tight mb-4 drop-shadow-lg">
-                    {ad.company}
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="text-white font-bold text-xl bg-white/20 px-6 py-3 rounded-2xl backdrop-blur-sm inline-block shadow-lg">
-                      {ad.offer}
-                    </div>
-                    <button className="flex items-center gap-3 text-white font-semibold text-base bg-white/15 hover:bg-white/25 px-6 py-3 rounded-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 w-fit">
-                      {ad.ctaText}
-                      <ExternalLink className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
+              <div className="relative h-full overflow-hidden">
+                {/* Video Background */}
+                <video
+                  ref={el => videoRefs.current[index] = el}
+                  src={ad.videoUrl}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  muted={isMuted}
+                  loop
+                  playsInline
+                />
                 
-                {/* Image Section */}
-                <div className="flex justify-center z-10 mt-6">
-                  <div className="relative">
-                    <img
-                      src={ad.image}
-                      alt={ad.company}
-                      className="w-32 h-32 rounded-3xl object-cover border-4 border-white/40 shadow-2xl transition-all duration-500 hover:scale-110 hover:rotate-3"
-                    />
-                    <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-sm opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                {/* Overlay with gradient and content */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${ad.color} backdrop-blur-sm flex flex-col justify-between p-6 relative overflow-hidden`}>
+                  {/* Content Section */}
+                  <div className="flex-1 z-10">
+                    <div className="text-white/90 text-sm font-semibold mb-3 tracking-wide">
+                      {ad.tagline}
+                    </div>
+                    <h3 className="text-white font-bold text-3xl leading-tight mb-4 drop-shadow-lg">
+                      {ad.company}
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="text-white font-bold text-xl bg-white/20 px-6 py-3 rounded-2xl backdrop-blur-sm inline-block shadow-lg">
+                        {ad.offer}
+                      </div>
+                      <button className="flex items-center gap-3 text-white font-semibold text-base bg-white/15 hover:bg-white/25 px-6 py-3 rounded-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 w-fit">
+                        {ad.ctaText}
+                        <ExternalLink className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                {/* Decorative Elements */}
-                <div className="absolute -right-12 -top-12 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
-                <div className="absolute -left-8 -bottom-8 w-16 h-16 bg-white/5 rounded-full blur-lg"></div>
-                <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse"></div>
-                <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse delay-1000"></div>
+                  {/* Decorative Elements */}
+                  <div className="absolute -right-12 -top-12 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
+                  <div className="absolute -left-8 -bottom-8 w-16 h-16 bg-white/5 rounded-full blur-lg"></div>
+                  <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse"></div>
+                  <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse delay-1000"></div>
+                </div>
               </div>
             </div>
           ))}
@@ -141,6 +169,20 @@ const DesktopAdSlider = () => {
         
         {/* Right Controls */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleMute();
+            }}
+            className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg backdrop-blur-sm"
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4 text-white" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-white" />
+            )}
+          </button>
+          
           <button
             onClick={(e) => {
               e.stopPropagation();
