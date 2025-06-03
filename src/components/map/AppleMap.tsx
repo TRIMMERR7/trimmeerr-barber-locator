@@ -90,15 +90,22 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     <div className="h-full relative">
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 rounded-lg" 
+        className="absolute inset-0 rounded-lg overflow-hidden" 
         style={{ 
           touchAction: 'manipulation',
-          minHeight: '400px' // Ensure minimum height for map container
+          minHeight: '400px',
+          width: '100%',
+          height: '100%'
         }}
       />
       {error && (
-        <div className="absolute top-4 left-4 right-4 bg-red-600/90 text-white p-3 rounded-lg text-sm">
+        <div className="absolute top-4 left-4 right-4 bg-red-600/90 text-white p-3 rounded-lg text-sm z-10">
           Location access denied. Showing default location.
+        </div>
+      )}
+      {loading && (
+        <div className="absolute top-4 left-4 right-4 bg-blue-600/90 text-white p-3 rounded-lg text-sm z-10">
+          Getting your location...
         </div>
       )}
     </div>
