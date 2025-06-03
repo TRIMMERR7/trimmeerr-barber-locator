@@ -60,3 +60,74 @@ export const createSecurePostMessageHandler = (allowedOrigins: string[]) => {
     return event.data;
   };
 };
+
+// Enhanced validation functions for better security
+export const validateUserId = (userId: string): boolean => {
+  // UUID v4 validation
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(userId);
+};
+
+export const validateServiceName = (serviceName: string): boolean => {
+  // Service name should be alphanumeric with spaces, max 100 chars
+  const serviceRegex = /^[a-zA-Z0-9\s\-&]{1,100}$/;
+  return serviceRegex.test(serviceName);
+};
+
+export const validateBarberName = (name: string): boolean => {
+  // Name should contain only letters, spaces, apostrophes, hyphens, max 100 chars
+  const nameRegex = /^[a-zA-Z\s'\-]{1,100}$/;
+  return nameRegex.test(name);
+};
+
+export const validateDateTime = (dateTime: string): boolean => {
+  const date = new Date(dateTime);
+  const now = new Date();
+  
+  // Check if valid date and not in the past
+  return !isNaN(date.getTime()) && date > now;
+};
+
+export const validateStripeAccountId = (accountId: string): boolean => {
+  // Stripe account IDs start with 'acct_' followed by 16 alphanumeric characters
+  const stripeAccountRegex = /^acct_[a-zA-Z0-9]{16}$/;
+  return stripeAccountRegex.test(accountId);
+};
+
+export const rateLimiter = (() => {
+  const requests = new Map<string, number[]>();
+  
+  return (identifier: string, maxRequests: number = 10, windowMs: number = 60000): boolean => {
+    const now = Date.now();
+    const userRequests = requests.get(identifier) || [];
+    
+    // Remove old requests outside the window
+    const validRequests = userRequests.filter(time => now - time < windowMs);
+    
+    if (validRequests.length >= maxRequests) {
+      return false; // Rate limit exceeded
+    }
+    
+    validRequests.push(now);
+    requests.set(identifier, validRequests);
+    return true;
+  };
+})();
+
+export const logSecurityEvent = (event: string, details: any, severity: 'low' | 'medium' | 'high') => {
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    event,
+    details,
+    severity,
+    userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
+  };
+  
+  console.warn(`[SECURITY ${severity.toUpperCase()}] ${event}:`, logEntry);
+  
+  // In production, you might want to send this to a logging service
+  if (severity === 'high') {
+    // Could trigger alerts or additional security measures
+    console.error('HIGH SEVERITY SECURITY EVENT:', logEntry);
+  }
+};
