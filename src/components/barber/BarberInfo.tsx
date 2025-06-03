@@ -23,6 +23,11 @@ interface BarberInfoProps {
 }
 
 const BarberInfo = ({ barber }: BarberInfoProps) => {
+  const handleInstagramClick = () => {
+    const instagramUsername = `${barber.name.toLowerCase().replace(' ', '_')}_cuts`;
+    window.open(`https://www.instagram.com/${instagramUsername}`, '_blank');
+  };
+
   return (
     <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-4 md:p-6">
@@ -74,7 +79,10 @@ const BarberInfo = ({ barber }: BarberInfoProps) => {
 
               {/* Instagram Section */}
               <div className="mt-4">
-                <button className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-full transition-all duration-200 mx-auto">
+                <button 
+                  onClick={handleInstagramClick}
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 py-2 rounded-full transition-all duration-200 mx-auto hover:scale-105 transform"
+                >
                   <Instagram className="w-4 h-4" />
                   <span className="text-sm font-medium">@{barber.name.toLowerCase().replace(' ', '_')}_cuts</span>
                 </button>
