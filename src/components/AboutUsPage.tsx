@@ -77,13 +77,13 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
             <h1 className="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
               TRIMMERR
             </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <p className="text-xl text-white max-w-2xl mx-auto">
               Connecting you with the best barbers in your area for the perfect cut, every time.
             </p>
           </div>
 
           {/* Mission Statement */}
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-900/90 border-red-500/30 border-2">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
               <p className="text-gray-300 leading-relaxed">
@@ -98,10 +98,10 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
           {/* Features Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-gray-800/50 border-gray-700 hover:bg-gray-800/70 transition-colors">
+              <Card key={index} className="bg-gray-900/90 border-white/20 hover:border-red-500/50 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className="bg-red-600/20 p-3 rounded-lg">
+                    <div className="bg-red-600/20 p-3 rounded-lg border border-red-500/30">
                       <feature.icon className="w-6 h-6 text-red-400" />
                     </div>
                     <div>
@@ -115,7 +115,7 @@ const AboutUsPage = ({ onBack }: AboutUsPageProps) => {
           </div>
 
           {/* Contact Info */}
-          <Card className="bg-gray-800/50 border-gray-700">
+          <Card className="bg-gray-900/90 border-red-500/30 border-2">
             <CardContent className="p-6 text-center">
               <h2 className="text-2xl font-bold text-white mb-4">Get In Touch</h2>
               <p className="text-gray-300 mb-4">

@@ -24,7 +24,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: Men
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900/95 backdrop-blur-xl border border-white/20 text-white max-w-md">
+      <DialogContent className="bg-black/95 backdrop-blur-xl border-2 border-red-500/50 text-white max-w-md">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
             Menu
@@ -37,7 +37,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: Men
         <div className="space-y-3 mt-6">
           <Button
             onClick={handleAIClick}
-            className="w-full justify-start bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 rounded-xl p-4"
+            className="w-full justify-start bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30 rounded-xl p-4"
           >
             <Bot className="w-5 h-5 mr-3" />
             AI Styling Assistant
@@ -45,7 +45,7 @@ const MenuDialog = ({ isOpen, onClose, onAIAssistantClick, onAboutUsClick }: Men
           
           <Button
             onClick={handleAboutClick}
-            className="w-full justify-start bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl p-4"
+            className="w-full justify-start bg-gray-800/50 hover:bg-gray-700/50 text-white border border-white/30 rounded-xl p-4"
           >
             <Info className="w-5 h-5 mr-3" />
             About Us
