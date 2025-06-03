@@ -1,11 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthPage from '@/components/AuthPage';
 import MapView from '@/components/MapView';
+import SplashScreen from '@/components/SplashScreen';
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Show splash screen first
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
 
   if (loading) {
     return (
