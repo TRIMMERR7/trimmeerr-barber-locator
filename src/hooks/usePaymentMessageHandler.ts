@@ -31,7 +31,7 @@ export const usePaymentMessageHandler = ({
           setPaymentStatus('complete');
           setTimeout(() => {
             onPaymentComplete();
-          }, 1000);
+          }, 1500);
         }
         
         if (messageData.type === 'checkout.session.async_payment_succeeded') {
@@ -39,7 +39,7 @@ export const usePaymentMessageHandler = ({
           setPaymentStatus('complete');
           setTimeout(() => {
             onPaymentComplete();
-          }, 1000);
+          }, 1500);
         }
         
         if (messageData === 'stripe_checkout_closed' || messageData.type === 'checkout.session.canceled') {
@@ -55,7 +55,7 @@ export const usePaymentMessageHandler = ({
           setPaymentStatus('complete');
           setTimeout(() => {
             onPaymentComplete();
-          }, 1000);
+          }, 1500);
         }
       }
     };

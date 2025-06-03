@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useBookingDialog } from '@/hooks/useBookingDialog';
@@ -34,7 +35,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
 
   const getDialogClassName = () => {
     if (step === 'payment') {
-      return 'sm:max-w-4xl max-w-[95vw] h-[90vh] shadow-2xl border-0 p-0';
+      return 'sm:max-w-5xl max-w-[95vw] h-[95vh] shadow-2xl border-0 p-0';
     }
     return 'sm:max-w-lg max-w-[95vw] max-h-[90vh] shadow-2xl border-0 p-0';
   };
@@ -46,13 +47,15 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
       </DialogTrigger>
       
       <DialogContent className={getDialogClassName()}>
-        <div className="flex flex-col h-full">
-          <BookingDialogHeader
-            step={step}
-            barberName={barber.name}
-            stepTitle={getStepTitle()}
-            onStepBack={handleStepBack}
-          />
+        <div className="flex flex-col h-full overflow-hidden">
+          {step !== 'payment' && (
+            <BookingDialogHeader
+              step={step}
+              barberName={barber.name}
+              stepTitle={getStepTitle()}
+              onStepBack={handleStepBack}
+            />
+          )}
           
           <BookingDialogContent
             step={step}
