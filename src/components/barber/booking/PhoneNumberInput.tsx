@@ -35,8 +35,8 @@ const PhoneNumberInput = ({ userPhone, setUserPhone }: PhoneNumberInputProps) =>
       animate={{ scale: 1 }}
       transition={{ delay: 0.2 }}
     >
-      <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700">
-        <Phone className="w-4 h-4" />
+      <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-white">
+        <Phone className="w-4 h-4 text-white" />
         Phone Number
       </Label>
       <Input
@@ -45,10 +45,10 @@ const PhoneNumberInput = ({ userPhone, setUserPhone }: PhoneNumberInputProps) =>
         placeholder="(555) 123-4567"
         value={userPhone}
         onChange={handlePhoneChange}
-        className="w-full h-12 transition-all focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg"
+        className="w-full h-12 transition-all focus:ring-2 focus:ring-red-500 focus:border-red-500 text-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/60"
         maxLength={14}
       />
-      <p className="text-xs text-gray-500 flex items-center gap-1">
+      <p className="text-xs text-white/60 flex items-center gap-1">
         <span>📱 Optional - We'll send appointment confirmations</span>
       </p>
     </motion.div>

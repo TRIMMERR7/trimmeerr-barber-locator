@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ProfileHeader from './barber/ProfileHeader';
 import StepsIndicator from './barber/StepsIndicator';
@@ -31,7 +32,7 @@ interface BarberProfileProps {
 
 const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfileProps) => {
   return (
-    <div className="h-screen bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-black flex flex-col backdrop-blur-sm">
+    <div className="h-screen bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-black/80 flex flex-col backdrop-blur-sm">
       <ProfileHeader onBack={onBack} onNavigate={onNavigate} />
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">

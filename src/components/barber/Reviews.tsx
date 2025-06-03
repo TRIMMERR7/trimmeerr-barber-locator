@@ -32,16 +32,16 @@ const Reviews = () => {
   ];
 
   return (
-    <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-0">
+    <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Reviews & Ratings</h3>
+        <h3 className="text-lg font-semibold text-white mb-4">Reviews & Ratings</h3>
         
         {/* Overall rating summary */}
-        <div className="bg-gray-50 rounded-xl p-4 mb-4">
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 mb-4 border border-white/20">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-2xl font-bold text-gray-900">4.9</span>
+                <span className="text-2xl font-bold text-white">4.9</span>
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -51,10 +51,10 @@ const Reviews = () => {
                   ))}
                 </div>
               </div>
-              <p className="text-sm text-gray-600">Based on 127 reviews</p>
+              <p className="text-sm text-white/70">Based on 127 reviews</p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-600">98% recommend</p>
+              <p className="text-sm text-white/70">98% recommend</p>
             </div>
           </div>
         </div>
@@ -62,17 +62,17 @@ const Reviews = () => {
         {/* Individual reviews */}
         <div className="space-y-4">
           {reviews.map((review) => (
-            <div key={review.id} className="border-b border-gray-100 last:border-b-0 pb-4 last:pb-0">
+            <div key={review.id} className="border-b border-white/20 last:border-b-0 pb-4 last:pb-0">
               <div className="flex gap-3">
                 <img
                   src={review.avatar}
                   alt={review.name}
-                  className="w-10 h-10 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover border border-white/20"
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <div>
-                      <h4 className="font-medium text-gray-900">{review.name}</h4>
+                      <h4 className="font-medium text-white">{review.name}</h4>
                       <div className="flex items-center gap-2">
                         <div className="flex">
                           {[1, 2, 3, 4, 5].map((star) => (
@@ -81,23 +81,23 @@ const Reviews = () => {
                               className={`w-3 h-3 ${
                                 star <= review.rating
                                   ? "text-yellow-500 fill-current"
-                                  : "text-gray-300"
+                                  : "text-white/30"
                               }`}
                             />
                           ))}
                         </div>
-                        <span className="text-xs text-gray-500">{review.date}</span>
+                        <span className="text-xs text-white/50">{review.date}</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                  <p className="text-sm text-white/80 leading-relaxed">{review.comment}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
         
-        <button className="w-full mt-4 py-2 text-red-600 font-medium text-sm hover:bg-red-50 rounded-lg transition-colors">
+        <button className="w-full mt-4 py-2 text-red-400 font-medium text-sm hover:bg-red-500/10 rounded-lg transition-colors border border-red-500/30 backdrop-blur-sm">
           View All Reviews
         </button>
       </CardContent>

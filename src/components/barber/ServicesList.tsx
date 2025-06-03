@@ -36,7 +36,7 @@ const ServicesList = () => {
   ];
   
   return (
-    <Card className="glass-card border-white/20 shadow-2xl">
+    <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-4 md:p-6">
         <h3 className="text-lg font-semibold text-white mb-4">Services & Pricing</h3>
         <div className="space-y-3">
@@ -48,7 +48,7 @@ const ServicesList = () => {
               }`}>
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    service.popular ? 'bg-red-600' : 'bg-white/20 backdrop-blur-sm'
+                    service.popular ? 'bg-red-600/60' : 'bg-white/20 backdrop-blur-sm'
                   }`}>
                     <IconComponent className="w-4 h-4 text-white" />
                   </div>
@@ -56,10 +56,10 @@ const ServicesList = () => {
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-white">{service.name}</span>
                       {service.popular && (
-                        <span className="text-xs bg-red-600 text-white px-2 py-1 rounded-full">Popular</span>
+                        <span className="text-xs bg-red-600/80 text-white px-2 py-1 rounded-full">Popular</span>
                       )}
                     </div>
-                    <span className="text-sm text-gray-300">{service.duration}</span>
+                    <span className="text-sm text-white/70">{service.duration}</span>
                   </div>
                 </div>
                 <div className="text-right">

@@ -33,12 +33,12 @@ const PriceDisplay = ({ selectedService, barber }: PriceDisplayProps) => {
   const currentPrice = selectedService ? selectedService.price : parseInt(barber.price.replace('$', ''));
 
   return (
-    <div className="bg-gray-50 rounded-lg p-3 mb-4">
+    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 mb-4 border border-white/20">
       <div className="flex justify-between items-center">
-        <span className="text-gray-600 text-sm">
+        <span className="text-white/70 text-sm">
           {selectedService ? selectedService.name : 'Service Price'}
         </span>
-        <span className="font-bold text-lg text-red-600">
+        <span className="font-bold text-lg text-red-400">
           ${currentPrice}
         </span>
       </div>

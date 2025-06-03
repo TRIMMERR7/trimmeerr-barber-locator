@@ -37,17 +37,17 @@ const Portfolio = () => {
   ];
 
   return (
-    <Card className="glass-card border-white/20 shadow-2xl">
+    <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-3 md:p-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base md:text-lg font-semibold text-white">Recent Work</h3>
-          <span className="text-xs md:text-sm text-gray-400">Portfolio</span>
+          <span className="text-xs md:text-sm text-white/60">Portfolio</span>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
           {portfolioImages.map((image) => (
             <div key={image.id} className="relative group cursor-pointer">
-              <div className="aspect-square w-full overflow-hidden rounded-lg md:rounded-xl border border-white/20">
+              <div className="aspect-square w-full overflow-hidden rounded-lg md:rounded-xl border border-white/20 backdrop-blur-sm">
                 <img
                   src={image.url}
                   alt={image.title}
