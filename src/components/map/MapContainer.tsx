@@ -26,19 +26,21 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="h-full w-full flex flex-col">
+    <div className="h-full w-full flex flex-col relative">
       {/* Map Provider - Takes most of the space */}
-      <div className="flex-1 min-h-0 w-full">
+      <div className="flex-1 min-h-0 w-full relative overflow-hidden rounded-lg">
         <MapProvider 
           nearbyBarbers={nearbyBarbers}
           onBarberSelect={onBarberSelect}
         />
       </div>
 
-      {/* Widget Container - Bottom section */}
-      <div className={`shrink-0 border-t border-gray-700/50 bg-black/20 backdrop-blur-sm ${isMobile ? 'pb-safe' : ''}`}>
-        <MapWidget />
-      </div>
+      {/* Widget Container - Bottom section, only on mobile */}
+      {isMobile && (
+        <div className="shrink-0 border-t border-gray-700/50 bg-black/20 backdrop-blur-sm pb-safe">
+          <MapWidget />
+        </div>
+      )}
     </div>
   );
 };

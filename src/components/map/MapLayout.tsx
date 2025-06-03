@@ -32,18 +32,18 @@ const MapLayout = ({ displayBarbers, onBarberSelect, onNavigate }: MapLayoutProp
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row h-full min-h-0">
-      {/* Map Container - Full height on mobile, left side on desktop */}
-      <div className="flex-1 h-full min-h-0">
+    <div className="flex-1 flex flex-col lg:flex-row h-full min-h-0 overflow-hidden">
+      {/* Map Container - Takes 70% width on desktop, full width on mobile */}
+      <div className={`${isMobile ? 'flex-1' : 'flex-[0.7]'} h-full min-h-0 relative`}>
         <MapContainer 
           nearbyBarbers={displayBarbers}
           onBarberSelect={onBarberSelect}
         />
       </div>
 
-      {/* Barber List - Only show on desktop in sidebar */}
+      {/* Barber List - 30% width on desktop, hidden on mobile */}
       {!isMobile && (
-        <div className="w-96 h-full border-l border-gray-200 flex flex-col shadow-xl bg-white">
+        <div className="flex-[0.3] h-full border-l border-gray-700/30 flex flex-col shadow-xl bg-gradient-to-b from-gray-900 to-black overflow-hidden">
           <BarberList 
             nearbyBarbers={displayBarbers}
             onBarberSelect={onBarberSelect}

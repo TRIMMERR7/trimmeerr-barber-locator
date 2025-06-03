@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
@@ -153,7 +154,7 @@ const MapView = ({ userType }: MapViewProps) => {
 
   console.log('MapView: Rendering main map view for user type:', userType);
   return (
-    <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col overflow-hidden">
+    <div className="h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex flex-col overflow-hidden">
       <MapHeader 
         userType={userType}
         onAIAssistantClick={handleAIAssistantClick}
