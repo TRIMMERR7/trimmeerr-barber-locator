@@ -33,16 +33,16 @@ declare global {
 
 const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const { userLocation, error, loading } = useGeolocation();
+  const { userLocation, error: geoError, loading: geoLoading } = useGeolocation();
   
   console.log('AppleMap: Rendering with API key:', !!apiKey);
   console.log('AppleMap: Barbers count:', nearbyBarbers.length);
   console.log('AppleMap: User location:', userLocation);
-  console.log('AppleMap: Geolocation error:', error);
+  console.log('AppleMap: Geolocation error:', geoError);
   
   // Initialize MapKit
-  const { mapkitLoaded } = useMapKitInitialization({ apiKey });
-  console.log('AppleMap: MapKit loaded:', mapkitLoaded);
+  const { mapkitLoaded, error: mapkitError } = useMapKitInitialization({ apiKey });
+  console.log('AppleMap: MapKit loaded:', mapkitLoaded, 'error:', mapkitError);
   
   // Initialize the map
   const { map } = useAppleMapInitialization({
@@ -75,6 +75,23 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     );
   }
 
+  if (mapkitError) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white text-center">
+          <p>Failed to load Apple Maps</p>
+          <p className="text-sm text-gray-400 mt-2">{mapkitError}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!mapkitLoaded) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
@@ -98,12 +115,12 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
           height: '100%'
         }}
       />
-      {error && (
+      {geoError && (
         <div className="absolute top-4 left-4 right-4 bg-red-600/90 text-white p-3 rounded-lg text-sm z-10">
           Location access denied. Showing default location.
         </div>
       )}
-      {loading && (
+      {geoLoading && (
         <div className="absolute top-4 left-4 right-4 bg-blue-600/90 text-white p-3 rounded-lg text-sm z-10">
           Getting your location...
         </div>

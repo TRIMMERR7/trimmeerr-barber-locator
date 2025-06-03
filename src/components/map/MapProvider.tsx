@@ -24,18 +24,29 @@ interface MapProviderProps {
 const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
   const [appleApiKey, setAppleApiKey] = useState('');
   const [isLoadingApiKey, setIsLoadingApiKey] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch Apple Maps API key from Supabase secrets
   useEffect(() => {
     const fetchAppleApiKey = async () => {
+      console.log('MapProvider: Fetching Apple Maps API key...');
       try {
         const { data, error } = await supabase.functions.invoke('get-apple-maps-key');
-        if (data?.apiKey) {
+        console.log('MapProvider: API key response:', { data, error });
+        
+        if (error) {
+          console.error('MapProvider: Error from function:', error);
+          setError('Failed to fetch API key');
+        } else if (data?.apiKey) {
           setAppleApiKey(data.apiKey);
-          console.log('Apple Maps API key loaded successfully');
+          console.log('MapProvider: Apple Maps API key loaded successfully');
+        } else {
+          console.warn('MapProvider: No API key in response');
+          setError('No API key available');
         }
       } catch (error) {
-        console.error('Error fetching Apple Maps API key:', error);
+        console.error('MapProvider: Error fetching Apple Maps API key:', error);
+        setError('Network error while fetching API key');
       } finally {
         setIsLoadingApiKey(false);
       }
@@ -44,20 +55,31 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
     fetchAppleApiKey();
   }, []);
 
+  console.log('MapProvider: Render state - loading:', isLoadingApiKey, 'apiKey:', !!appleApiKey, 'error:', error);
+
   if (isLoadingApiKey) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
-        <div className="text-white">Loading Apple Maps...</div>
+        <div className="text-white flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          Loading Apple Maps API...
+        </div>
       </div>
     );
   }
 
-  if (!appleApiKey) {
+  if (error || !appleApiKey) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
         <div className="text-white text-center">
-          <p>Apple Maps API key not available</p>
-          <p className="text-sm text-gray-400 mt-2">Please configure your Apple Maps API key</p>
+          <p>Apple Maps unavailable</p>
+          <p className="text-sm text-gray-400 mt-2">{error || 'No API key configured'}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
