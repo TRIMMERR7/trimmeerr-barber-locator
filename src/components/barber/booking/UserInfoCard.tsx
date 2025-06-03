@@ -10,7 +10,7 @@ interface UserInfoCardProps {
 const UserInfoCard = ({ user }: UserInfoCardProps) => {
   return (
     <motion.div 
-      className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4"
+      className="bg-gradient-to-r from-blue-50/80 to-indigo-50/80 backdrop-blur-xl border border-blue-200/30 rounded-xl p-4 shadow-lg"
       initial={{ scale: 0.9 }}
       animate={{ scale: 1 }}
       transition={{ delay: 0.1 }}

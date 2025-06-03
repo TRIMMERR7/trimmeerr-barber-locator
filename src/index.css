@@ -80,11 +80,24 @@
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-lg bg-black/90 border border-gray-800 shadow-2xl;
+    @apply backdrop-blur-2xl bg-white/10 border border-white/20 shadow-2xl;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-2xl bg-black/40 border border-white/20 shadow-2xl;
   }
   
   .gradient-text {
     @apply bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent;
+  }
+
+  /* Modern glass morphism effects */
+  .glass-morphism {
+    @apply backdrop-blur-xl bg-white/10 border border-white/20 shadow-lg;
+  }
+
+  .glass-morphism-dark {
+    @apply backdrop-blur-xl bg-black/20 border border-white/10 shadow-lg;
   }
 
   /* Improved touch targets for mobile */
@@ -100,14 +113,14 @@
     @apply transition-all duration-300 ease-out;
   }
 
-  /* Better button styles */
+  /* Better button styles with glass effect */
   .btn-primary {
-    @apply bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95;
+    @apply bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-700/90 hover:to-red-800/90 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 active:scale-95 backdrop-blur-sm border border-white/20;
   }
 
-  /* Card hover effects */
+  /* Card hover effects with glass morphism */
   .card-hover {
-    @apply transition-all duration-200 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98];
+    @apply transition-all duration-200 hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] backdrop-blur-xl;
   }
 
   /* Mobile-first responsive spacing */
@@ -119,9 +132,9 @@
     @apply mx-4 sm:mx-6 lg:mx-8;
   }
 
-  /* Better form inputs */
+  /* Better form inputs with glass effect */
   .form-input {
-    @apply h-12 sm:h-14 px-4 text-base rounded-xl border-2 transition-all duration-200 focus:ring-2 focus:ring-red-500 focus:border-transparent;
+    @apply h-12 sm:h-14 px-4 text-base rounded-xl border-2 transition-all duration-200 focus:ring-2 focus:ring-red-500 focus:border-transparent backdrop-blur-sm bg-white/10 border-white/20;
   }
 }
 
@@ -159,7 +172,7 @@
   animation: slideInUp 0.3s ease-out;
 }
 
-/* Loading states */
+/* Loading states with glass effect */
 .loading-shimmer {
   background: linear-gradient(
     90deg,
@@ -178,4 +191,13 @@
   100% {
     background-position: 468px 0;
   }
+}
+
+/* Modern glass effects for dialogs and cards */
+.modern-dialog {
+  @apply backdrop-blur-2xl bg-black/30 border border-white/20 shadow-2xl;
+}
+
+.modern-card {
+  @apply backdrop-blur-xl bg-white/5 border border-white/10 shadow-xl rounded-2xl;
 }

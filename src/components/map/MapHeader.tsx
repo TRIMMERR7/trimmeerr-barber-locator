@@ -15,7 +15,7 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
   const { signOut } = useAuth();
 
   return (
-    <div className="bg-black/90 backdrop-blur-sm border-b border-gray-800 p-2 sm:p-4 flex-shrink-0">
+    <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 p-2 sm:p-4 flex-shrink-0">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         <div className="flex items-center gap-1 sm:gap-3 flex-1 justify-center md:justify-start">
           <img 
@@ -31,7 +31,7 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
           <Button 
             variant="ghost" 
             onClick={onMenuClick}
-            className="text-purple-400 hover:text-purple-300 hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold"
+            className="text-white hover:text-red-300 hover:bg-white/10 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold backdrop-blur-sm"
           >
             <Menu className="w-4 h-4" />
           </Button>
@@ -39,7 +39,7 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
           {userType === 'barber' && onDashboardClick && (
             <Button 
               onClick={onDashboardClick}
-              className="bg-red-600 hover:bg-red-700 text-white rounded-xl touch-manipulation shadow-lg h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
+              className="bg-red-600/80 hover:bg-red-700/90 text-white rounded-xl touch-manipulation shadow-lg h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm backdrop-blur-sm border border-white/20"
             >
               <span className="hidden sm:inline">Dashboard</span>
               <span className="sm:hidden">Profile</span>
@@ -48,7 +48,7 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
           <Button 
             variant="ghost" 
             onClick={signOut}
-            className="text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
+            className="text-white hover:text-red-300 hover:bg-white/10 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm backdrop-blur-sm"
           >
             <span className="hidden sm:inline">Sign Out</span>
             <span className="sm:hidden">Out</span>
