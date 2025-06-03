@@ -16,6 +16,7 @@ export const createBarberAnnotation = (
   barber: Barber, 
   onBarberSelect: (barber: Barber) => void
 ) => {
+  // Create a custom marker annotation with enhanced styling
   const annotation = new window.mapkit.MarkerAnnotation(
     new window.mapkit.Coordinate(barber.lat, barber.lng),
     {
@@ -23,7 +24,9 @@ export const createBarberAnnotation = (
       glyphColor: '#FFFFFF',
       title: barber.name,
       subtitle: `${barber.specialty} • ${barber.price}`,
-      data: { barber }
+      data: { barber },
+      displayPriority: 750,
+      animates: true
     }
   );
 

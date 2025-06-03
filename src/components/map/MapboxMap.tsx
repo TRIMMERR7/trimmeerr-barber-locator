@@ -4,6 +4,7 @@ import { useGeolocation } from '@/hooks/useGeolocation';
 import { useMapInitialization } from '@/hooks/useMapInitialization';
 import { createUserLocationMarker, createBarberMarker } from '@/utils/mapMarkers';
 import { mapStyles } from '@/utils/mapStyles';
+import { ensureStylesLoaded } from '@/utils/markerStyles';
 import L from 'leaflet';
 
 interface Barber {
@@ -29,6 +30,11 @@ const MapboxMap = ({ nearbyBarbers, onBarberSelect }: MapboxMapProps) => {
   const markers = useRef<L.Marker[]>([]);
   const map = useMapInitialization(mapContainer);
   const { userLocation, error, loading } = useGeolocation();
+
+  // Ensure enhanced marker styles are loaded
+  useEffect(() => {
+    ensureStylesLoaded();
+  }, []);
 
   // Handle user location marker
   useEffect(() => {

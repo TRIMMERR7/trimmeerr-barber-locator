@@ -40,17 +40,24 @@ export const createBarberMarker = (barber: Barber, onBarberSelect: (barber: Barb
   console.log('createBarberMarker: Adding marker for barber:', barber.name);
 
   const barberIcon = L.divIcon({
-    className: 'barber-marker',
+    className: 'enhanced-barber-marker',
     html: `
       <div class="barber-marker-container">
-        <div class="barber-marker-pin">
-          <img src="${barber.image}" alt="${barber.name}" class="barber-avatar" />
+        <div class="barber-marker-wrapper">
+          <div class="barber-marker-pin">
+            <div class="barber-avatar-container">
+              <img src="${barber.image}" alt="${barber.name}" class="barber-avatar" />
+              <div class="barber-status-indicator"></div>
+            </div>
+            <div class="barber-price-badge">${barber.price}</div>
+          </div>
+          <div class="barber-marker-pulse"></div>
+          <div class="barber-marker-glow"></div>
         </div>
-        <div class="barber-marker-pulse"></div>
       </div>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20]
+    iconSize: [80, 80],
+    iconAnchor: [40, 40]
   });
 
   const marker = L.marker([barber.lat, barber.lng], { icon: barberIcon })
