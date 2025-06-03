@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import BarberProfileManager from './barber/BarberProfileManager';
-import CustomerDiscovery from './barber/CustomerDiscovery';
+import DashboardHeader from './barber/dashboard/DashboardHeader';
+import DashboardNavigation from './barber/dashboard/DashboardNavigation';
+import DashboardContent from './barber/dashboard/DashboardContent';
 import MessagingInterface from './barber/MessagingInterface';
 
 interface BarberProfileData {
@@ -61,7 +61,6 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
 
   const handleUpdateProfile = (updatedProfile: BarberProfileData) => {
     setProfile(updatedProfile);
-    // In real app, this would save to backend
     console.log('Profile updated:', updatedProfile);
   };
 
@@ -87,65 +86,20 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
 
   return (
     <div className="h-screen bg-black flex flex-col">
-      {/* Header */}
-      <div className="bg-black border-b border-gray-800 p-2 sm:p-4 flex-shrink-0">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={onBack}
-              className="text-gray-400 hover:text-white h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
-            >
-              ← Back
-            </Button>
-            <h1 className="text-sm sm:text-xl font-semibold text-white">Barber Dashboard</h1>
-          </div>
-        </div>
-      </div>
+      <DashboardHeader onBack={onBack} />
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Navigation Tabs */}
-        <div className="lg:w-64 bg-gray-900 border-b lg:border-r lg:border-b-0 border-gray-800 p-2 lg:p-4 overflow-x-auto lg:overflow-x-visible">
-          <div className="flex lg:flex-col gap-1 lg:gap-2 min-w-max lg:min-w-0">
-            {[
-              { id: 'profile', label: 'My Profile', icon: '👤', description: 'Manage your profile' },
-              { id: 'customers', label: 'Discover Customers', icon: '👥', description: 'Find potential clients' },
-              { id: 'messages', label: 'Messages', icon: '💬', description: 'Chat with customers' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-shrink-0 lg:w-full p-2 lg:p-3 text-left rounded-lg transition-colors flex items-center gap-2 lg:gap-3 text-xs sm:text-sm lg:text-base ${
-                  activeTab === tab.id
-                    ? 'bg-red-600 text-white'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                }`}
-              >
-                <span className="text-sm lg:text-lg">{tab.icon}</span>
-                <div className="flex flex-col">
-                  <span className="whitespace-nowrap font-medium">{tab.label}</span>
-                  <span className="text-xs opacity-70 hidden lg:block">{tab.description}</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+        <DashboardNavigation 
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
 
-        {/* Content Area */}
-        <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto">
-          {activeTab === 'profile' && (
-            <BarberProfileManager 
-              profile={profile}
-              onUpdateProfile={handleUpdateProfile}
-            />
-          )}
-
-          {activeTab === 'customers' && (
-            <CustomerDiscovery 
-              onMessageCustomer={handleMessageCustomer}
-            />
-          )}
-        </div>
+        <DashboardContent 
+          activeTab={activeTab}
+          profile={profile}
+          onUpdateProfile={handleUpdateProfile}
+          onMessageCustomer={handleMessageCustomer}
+        />
       </div>
     </div>
   );
