@@ -146,7 +146,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
   if (!apiKey) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gray-900 rounded-lg">
         <div className="text-white text-center">
           <p>No Apple Maps API key available</p>
           <p className="text-sm text-gray-400 mt-2">Please check your configuration</p>
@@ -157,7 +157,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
   if (mapkitError) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gray-900 rounded-lg">
         <div className="text-white text-center max-w-md p-4">
           <p className="text-red-400 font-semibold">Failed to load Apple Maps</p>
           <p className="text-sm text-gray-400 mt-2">{mapkitError}</p>
@@ -174,7 +174,7 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
 
   if (!mapkitLoaded) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+      <div className="w-full h-full flex items-center justify-center bg-gray-900 rounded-lg">
         <div className="text-white flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -189,12 +189,12 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   }
 
   return (
-    <div className="h-full relative">
+    <div className="w-full h-full relative">
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 rounded-lg overflow-hidden bg-gray-100" 
+        className="absolute inset-0 w-full h-full rounded-lg overflow-hidden bg-gray-100" 
         style={{ 
-          minHeight: '400px',
+          minHeight: '300px',
           width: '100%',
           height: '100%'
         }}
