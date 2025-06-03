@@ -23,9 +23,11 @@ const UserTypeSelection = ({ selectedUserType, onUserTypeChange }: UserTypeSelec
               : 'bg-white/20 hover:bg-white/30 border-white/20 text-white'
           }`}
         >
-          <div className="flex items-center space-x-3">
-            <Users className="w-6 h-6" />
-            <div>
+          <div className="flex items-center justify-start space-x-4 w-full px-2">
+            <div className="flex-shrink-0">
+              <Users className="w-7 h-7" />
+            </div>
+            <div className="flex-1 text-left">
               <div className="text-base font-semibold">Customer</div>
               <div className="text-sm opacity-80">Book appointments & find barbers</div>
             </div>
@@ -41,9 +43,11 @@ const UserTypeSelection = ({ selectedUserType, onUserTypeChange }: UserTypeSelec
               : 'bg-white/20 hover:bg-white/30 border-white/20 text-white'
           }`}
         >
-          <div className="flex items-center space-x-3">
-            <Scissors className="w-6 h-6" />
-            <div>
+          <div className="flex items-center justify-start space-x-4 w-full px-2">
+            <div className="flex-shrink-0">
+              <Scissors className="w-7 h-7" />
+            </div>
+            <div className="flex-1 text-left">
               <div className="text-base font-semibold">Barber</div>
               <div className="text-sm opacity-80">Manage your shop & clients</div>
             </div>
