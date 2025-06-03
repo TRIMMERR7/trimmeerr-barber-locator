@@ -47,16 +47,18 @@ const MapView = ({ userType }: MapViewProps) => {
 
   const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : nearbyBarbers;
 
+  // Show barber dashboard for barber users
   if (showDashboard && userType === 'barber') {
     return <BarberDashboard onBack={() => setShowDashboard(false)} />;
   }
 
+  // Filter page - available for both user types but with different interactions
   if (showFilterPage) {
     return (
       <FilterPage
         barbers={nearbyBarbers}
         onBack={() => setShowFilterPage(false)}
-        onBarberSelect={handleBarberSelect}
+        onBarberSelect={userType === 'client' ? handleBarberSelect : undefined}
         onNavigate={openInAppleMaps}
       />
     );
@@ -78,6 +80,7 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
+  // Barber profile - clients can book, barbers can view but not book
   if (selectedBarber) {
     console.log('MapView: Rendering BarberProfile for:', selectedBarber.name);
     return (
@@ -93,7 +96,7 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
-  console.log('MapView: Rendering map view');
+  console.log('MapView: Rendering map view for user type:', userType);
   return (
     <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
       <MapHeader 
@@ -105,7 +108,7 @@ const MapView = ({ userType }: MapViewProps) => {
 
       <MapLayout
         displayBarbers={displayBarbers}
-        onBarberSelect={handleBarberSelect}
+        onBarberSelect={userType === 'client' ? handleBarberSelect : undefined}
         onNavigate={openInAppleMaps}
       />
 

@@ -9,12 +9,14 @@ import AuthDivider from './auth/AuthDivider';
 import EmailPasswordForm from './auth/EmailPasswordForm';
 import ForgotPasswordForm from './auth/ForgotPasswordForm';
 import AdditionalAuthOptions from './auth/AdditionalAuthOptions';
+import UserTypeSelection from './auth/UserTypeSelection';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [userType, setUserType] = useState<'client' | 'barber'>('client');
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { toast } = useToast();
@@ -40,7 +42,7 @@ const AuthPage = () => {
         } else {
           toast({
             title: "Welcome back!",
-            description: "You're ready to book appointments.",
+            description: userType === 'barber' ? "Ready to manage your clients!" : "You're ready to book appointments.",
             duration: 1500
           });
         }
@@ -54,7 +56,7 @@ const AuthPage = () => {
             emailRedirectTo: redirectUrl,
             data: {
               full_name: fullName,
-              user_type: 'client'
+              user_type: userType
             }
           }
         });
@@ -220,6 +222,14 @@ const AuthPage = () => {
                   onAppleAuth={handleAppleAuth}
                 />
                 <AuthDivider />
+                
+                {!isLogin && (
+                  <UserTypeSelection
+                    selectedUserType={userType}
+                    onUserTypeChange={setUserType}
+                  />
+                )}
+                
                 <EmailPasswordForm
                   isLogin={isLogin}
                   email={email}
