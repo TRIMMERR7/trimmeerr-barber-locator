@@ -46,16 +46,6 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
           <div className={`p-3 sm:p-4 space-y-4 ${isMobile ? 'pb-safe' : ''}`}>
             <StepsIndicator />
             
-            {/* Top Booking Button */}
-            <div className="w-full">
-              <SimpleBookingDialog barber={barber}>
-                <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl">
-                  <Calendar className="w-5 h-5 mr-2" />
-                  Book Now - {barber.price}
-                </Button>
-              </SimpleBookingDialog>
-            </div>
-
             <BarberInfo barber={barber} />
             
             <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
@@ -66,12 +56,15 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
             <Portfolio />
             <Reviews />
             
-            {/* On mobile, show booking panel inline */}
-            {isMobile && (
-              <div className="mt-6">
-                <BookingPanel barber={barber} />
-              </div>
-            )}
+            {/* Bottom Booking Button for both mobile and desktop */}
+            <div className="mt-6">
+              <SimpleBookingDialog barber={barber}>
+                <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl">
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Book Now - {barber.price}
+                </Button>
+              </SimpleBookingDialog>
+            </div>
           </div>
         </div>
 
