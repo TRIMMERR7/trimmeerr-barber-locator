@@ -17,17 +17,17 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
   return (
     <div className="bg-black/10 backdrop-blur-2xl border-b border-white/10 p-2 sm:p-4 flex-shrink-0">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
-        <div className="flex items-center gap-1 sm:gap-3 flex-1 justify-center md:justify-start">
+        <div className="flex items-center gap-2 sm:gap-4">
           <img 
             src="/lovable-uploads/2c7510e8-8ef4-48d7-b2e9-8ee1afed1e54.png" 
             alt="TRIMMERR Logo" 
-            className="w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0"
+            className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex-shrink-0"
           />
-          <h1 className="text-lg sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
             TRIMMERR
           </h1>
         </div>
-        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0 md:absolute md:right-4">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <Button 
             variant="ghost" 
             onClick={onMenuClick}
