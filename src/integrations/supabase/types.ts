@@ -36,6 +36,93 @@ export type Database = {
         }
         Relationships: []
       }
+      barber_accounts: {
+        Row: {
+          account_status: string | null
+          barber_id: string
+          charges_enabled: boolean | null
+          created_at: string
+          details_submitted: boolean | null
+          id: string
+          onboarding_completed: boolean | null
+          payouts_enabled: boolean | null
+          stripe_account_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_status?: string | null
+          barber_id: string
+          charges_enabled?: boolean | null
+          created_at?: string
+          details_submitted?: boolean | null
+          id?: string
+          onboarding_completed?: boolean | null
+          payouts_enabled?: boolean | null
+          stripe_account_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_status?: string | null
+          barber_id?: string
+          charges_enabled?: boolean | null
+          created_at?: string
+          details_submitted?: boolean | null
+          id?: string
+          onboarding_completed?: boolean | null
+          payouts_enabled?: boolean | null
+          stripe_account_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          barber_id: string
+          client_id: string | null
+          client_name: string | null
+          client_phone: string | null
+          created_at: string
+          id: string
+          service_name: string
+          service_price: number
+          status: string | null
+          stripe_session_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          barber_id: string
+          client_id?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          id?: string
+          service_name: string
+          service_price: number
+          status?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          barber_id?: string
+          client_id?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          id?: string
+          service_name?: string
+          service_price?: number
+          status?: string | null
+          stripe_session_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number

@@ -2,8 +2,10 @@
 import React from 'react';
 import BarberProfileManager from '../BarberProfileManager';
 import CustomerDiscovery from '../CustomerDiscovery';
+import BarberCalendar from '../BarberCalendar';
+import BankAccountPage from '../BankAccountPage';
 
-type TabType = 'profile' | 'customers' | 'messages';
+type TabType = 'profile' | 'customers' | 'messages' | 'calendar' | 'bank';
 
 interface BarberProfileData {
   id: string;
@@ -48,6 +50,14 @@ const DashboardContent = ({
         <CustomerDiscovery 
           onMessageCustomer={onMessageCustomer}
         />
+      )}
+
+      {activeTab === 'calendar' && (
+        <BarberCalendar />
+      )}
+
+      {activeTab === 'bank' && (
+        <BankAccountPage />
       )}
     </div>
   );

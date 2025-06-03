@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import DashboardHeader from './barber/dashboard/DashboardHeader';
 import DashboardNavigation from './barber/dashboard/DashboardNavigation';
@@ -27,7 +26,7 @@ interface BarberDashboardProps {
 }
 
 const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'customers' | 'messages'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'customers' | 'messages' | 'calendar' | 'bank'>('profile');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   const [profile, setProfile] = useState<BarberProfileData>({
