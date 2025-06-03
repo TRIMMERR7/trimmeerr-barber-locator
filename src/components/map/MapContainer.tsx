@@ -35,8 +35,8 @@ const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
         />
       </div>
 
-      {/* Widget Container - Bottom with border */}
-      <div className="border-t border-gray-700/50 bg-black/20 backdrop-blur-sm">
+      {/* Widget Container - Bottom with border, optimized for mobile */}
+      <div className={`border-t border-gray-700/50 bg-black/20 backdrop-blur-sm ${isMobile ? 'pb-safe' : ''}`}>
         <MapWidget />
       </div>
     </div>

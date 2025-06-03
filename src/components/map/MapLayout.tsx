@@ -2,6 +2,7 @@
 import React from 'react';
 import MapContainer from './MapContainer';
 import BarberList from './BarberList';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Barber {
   id: string;
@@ -28,20 +29,28 @@ interface MapLayoutProps {
 }
 
 const MapLayout = ({ displayBarbers, onBarberSelect, onNavigate }: MapLayoutProps) => {
-  return (
-    <div className="flex-1 flex">
-      <MapContainer 
-        nearbyBarbers={displayBarbers}
-        onBarberSelect={onBarberSelect}
-      />
+  const isMobile = useIsMobile();
 
-      <div className="hidden lg:flex w-96 border-l border-gray-200 flex-col shadow-xl">
-        <BarberList 
+  return (
+    <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      {/* Map Container - Full width on mobile, left side on desktop */}
+      <div className="flex-1 relative">
+        <MapContainer 
           nearbyBarbers={displayBarbers}
           onBarberSelect={onBarberSelect}
-          onNavigate={onNavigate}
         />
       </div>
+
+      {/* Barber List - Only show on desktop in sidebar */}
+      {!isMobile && (
+        <div className="w-96 border-l border-gray-200 flex-col shadow-xl bg-white">
+          <BarberList 
+            nearbyBarbers={displayBarbers}
+            onBarberSelect={onBarberSelect}
+            onNavigate={onNavigate}
+          />
+        </div>
+      )}
     </div>
   );
 };

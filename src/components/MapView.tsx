@@ -98,7 +98,7 @@ const MapView = ({ userType }: MapViewProps) => {
 
   console.log('MapView: Rendering map view for user type:', userType);
   return (
-    <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col">
+    <div className="h-screen bg-gradient-to-br from-black via-gray-900 to-black flex flex-col overflow-hidden">
       <MapHeader 
         userType={userType}
         onAIAssistantClick={handleAIAssistantClick}

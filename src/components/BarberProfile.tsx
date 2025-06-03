@@ -8,6 +8,7 @@ import ContactInfo from './barber/ContactInfo';
 import Portfolio from './barber/Portfolio';
 import Reviews from './barber/Reviews';
 import BookingPanel from './barber/BookingPanel';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Barber {
   id: string;
@@ -31,13 +32,15 @@ interface BarberProfileProps {
 }
 
 const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfileProps) => {
+  const isMobile = useIsMobile();
+
   return (
-    <div className="h-screen bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-black/80 flex flex-col backdrop-blur-sm">
+    <div className="h-screen bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-black/80 flex flex-col backdrop-blur-sm overflow-hidden">
       <ProfileHeader onBack={onBack} onNavigate={onNavigate} />
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className={`p-3 sm:p-4 space-y-4 ${isMobile ? 'pb-safe' : ''}`}>
             <StepsIndicator />
             <BarberInfo barber={barber} />
             
@@ -48,10 +51,18 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
 
             <Portfolio />
             <Reviews />
+            
+            {/* On mobile, show booking panel inline */}
+            {isMobile && (
+              <div className="mt-6">
+                <BookingPanel barber={barber} />
+              </div>
+            )}
           </div>
         </div>
 
-        <BookingPanel barber={barber} />
+        {/* Desktop booking panel */}
+        {!isMobile && <BookingPanel barber={barber} />}
       </div>
     </div>
   );
