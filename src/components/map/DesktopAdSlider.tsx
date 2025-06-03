@@ -1,87 +1,33 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, ExternalLink, Play, Pause, Volume2, VolumeX } from 'lucide-react';
+import React from 'react';
 import { companyAds } from './AdData';
+import { useAdSlider } from './hooks/useAdSlider';
+import VideoAdSlide from './components/VideoAdSlide';
+import AdSlideControls from './components/AdSlideControls';
 
 const DesktopAdSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-
-  useEffect(() => {
-    if (isPaused || isHovering) return;
-    
-    const timer = setInterval(() => {
-      handleSlideChange((prev) => (prev + 1) % companyAds.length);
-    }, 8000); // Longer duration for videos
-    return () => clearInterval(timer);
-  }, [isPaused, isHovering]);
-
-  // Handle video playback
-  useEffect(() => {
-    videoRefs.current.forEach((video, index) => {
-      if (video) {
-        if (index === currentSlide && !isTransitioning) {
-          video.currentTime = 0;
-          video.play().catch(() => {
-            // Handle autoplay restrictions
-          });
-        } else {
-          video.pause();
-        }
-      }
-    });
-  }, [currentSlide, isTransitioning]);
-
-  const handleSlideChange = (newSlideOrFunction: number | ((prev: number) => number)) => {
-    setIsTransitioning(true);
-    
-    setTimeout(() => {
-      if (typeof newSlideOrFunction === 'function') {
-        setCurrentSlide(newSlideOrFunction);
-      } else {
-        setCurrentSlide(newSlideOrFunction);
-      }
-      
-      setTimeout(() => {
-        setIsTransitioning(false);
-      }, 100);
-    }, 200);
-  };
-
-  const handlePrev = () => {
-    const newSlide = (currentSlide - 1 + companyAds.length) % companyAds.length;
-    handleSlideChange(newSlide);
-  };
-
-  const handleNext = () => {
-    const newSlide = (currentSlide + 1) % companyAds.length;
-    handleSlideChange(newSlide);
-  };
-
-  const handleSlideSelect = (index: number) => {
-    if (index !== currentSlide) {
-      handleSlideChange(index);
-    }
-  };
+  const {
+    currentSlide,
+    isPaused,
+    setIsPaused,
+    isHovering,
+    setIsHovering,
+    isMuted,
+    isTransitioning,
+    videoRefs,
+    handlePrev,
+    handleNext,
+    handleSlideSelect,
+    toggleMute
+  } = useAdSlider();
 
   const handleAdClick = (website: string) => {
     window.open(`https://${website}`, '_blank');
   };
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    videoRefs.current.forEach(video => {
-      if (video) {
-        video.muted = !isMuted;
-      }
-    });
+  const handleTogglePause = () => {
+    setIsPaused(!isPaused);
   };
-
-  const currentAd = companyAds[currentSlide];
 
   return (
     <div 
@@ -93,156 +39,32 @@ const DesktopAdSlider = () => {
       <div className="flex-1 relative overflow-hidden">
         <div className="relative h-full">
           {companyAds.map((ad, index) => (
-            <div
+            <VideoAdSlide
               key={ad.id}
-              className={`absolute inset-0 cursor-pointer transition-all duration-700 ease-in-out ${
-                index === currentSlide ? 
-                  `translate-x-0 opacity-100 scale-100 ${isTransitioning ? 'scale-105' : ''}` : 
-                  index < currentSlide ? 
-                    '-translate-x-full opacity-0 scale-95' : 
-                    'translate-x-full opacity-0 scale-95'
-              }`}
-              onClick={() => handleAdClick(ad.website)}
-            >
-              <div className={`relative h-full overflow-hidden transition-all duration-500 ${
-                index === currentSlide && !isTransitioning ? 'hover:scale-[1.02]' : ''
-              }`}>
-                {/* Video Background */}
-                <video
-                  ref={el => videoRefs.current[index] = el}
-                  src={ad.videoUrl}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  muted={isMuted}
-                  loop
-                  playsInline
-                />
-                
-                {/* Overlay with gradient and content */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${ad.color} backdrop-blur-sm flex flex-col justify-between p-6 relative overflow-hidden transition-all duration-700 ${
-                  index === currentSlide ? (isTransitioning ? 'scale-110 opacity-90' : 'scale-100 opacity-100') : 'scale-95 opacity-70'
-                }`}>
-                  {/* Content Section */}
-                  <div className={`flex-1 z-10 transition-all duration-500 ${
-                    index === currentSlide ? (isTransitioning ? 'translate-y-2 opacity-80' : 'translate-y-0 opacity-100') : 'translate-y-4 opacity-0'
-                  }`}>
-                    <div className="text-white/90 text-sm font-semibold mb-3 tracking-wide">
-                      {ad.tagline}
-                    </div>
-                    <h3 className="text-white font-bold text-3xl leading-tight mb-4 drop-shadow-lg">
-                      {ad.company}
-                    </h3>
-                    <div className="space-y-4">
-                      <div className="text-white font-bold text-xl bg-white/20 px-6 py-3 rounded-2xl backdrop-blur-sm inline-block shadow-lg transform transition-all duration-300 hover:scale-105">
-                        {ad.offer}
-                      </div>
-                      <button className="flex items-center gap-3 text-white font-semibold text-base bg-white/15 hover:bg-white/25 px-6 py-3 rounded-2xl backdrop-blur-sm transition-all duration-300 hover:scale-105 w-fit">
-                        {ad.ctaText}
-                        <ExternalLink className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Decorative Elements with enhanced animations */}
-                  <div className={`absolute -right-12 -top-12 w-24 h-24 bg-white/5 rounded-full blur-xl transition-all duration-700 ${
-                    index === currentSlide ? (isTransitioning ? 'scale-150 opacity-30' : 'scale-100 opacity-100') : 'scale-75 opacity-0'
-                  }`}></div>
-                  <div className={`absolute -left-8 -bottom-8 w-16 h-16 bg-white/5 rounded-full blur-lg transition-all duration-700 delay-100 ${
-                    index === currentSlide ? (isTransitioning ? 'scale-125 opacity-40' : 'scale-100 opacity-100') : 'scale-75 opacity-0'
-                  }`}></div>
-                  <div className={`absolute top-1/3 left-1/4 w-3 h-3 bg-white/20 rounded-full transition-all duration-500 ${
-                    index === currentSlide ? 'animate-pulse scale-100' : 'scale-0'
-                  }`}></div>
-                  <div className={`absolute bottom-1/3 right-1/4 w-2 h-2 bg-white/30 rounded-full transition-all duration-500 delay-200 ${
-                    index === currentSlide ? 'animate-pulse scale-100' : 'scale-0'
-                  }`}></div>
-                </div>
-              </div>
-            </div>
+              ad={ad}
+              index={index}
+              currentSlide={currentSlide}
+              isTransitioning={isTransitioning}
+              videoRef={el => videoRefs.current[index] = el}
+              isMuted={isMuted}
+              onAdClick={handleAdClick}
+            />
           ))}
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex justify-between items-center p-4 bg-gradient-to-r from-white/5 via-white/10 to-white/5 backdrop-blur-sm border-t border-white/10">
-        {/* Left Controls */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePrev();
-            }}
-            disabled={isTransitioning}
-            className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          
-          {/* Indicators */}
-          <div className="flex gap-2">
-            {companyAds.map((_, index) => (
-              <button
-                key={index}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSlideSelect(index);
-                }}
-                disabled={isTransitioning}
-                className={`h-2 rounded-full transition-all duration-500 hover:scale-125 disabled:cursor-not-allowed ${
-                  index === currentSlide 
-                    ? 'bg-white w-8 shadow-lg' 
-                    : 'bg-white/50 hover:bg-white/70 w-2'
-                }`}
-              />
-            ))}
-          </div>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNext();
-            }}
-            disabled={isTransitioning}
-            className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRight className="w-5 h-5 text-white" />
-          </button>
-        </div>
-        
-        {/* Right Controls */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleMute();
-            }}
-            className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg backdrop-blur-sm"
-          >
-            {isMuted ? (
-              <VolumeX className="w-4 h-4 text-white" />
-            ) : (
-              <Volume2 className="w-4 h-4 text-white" />
-            )}
-          </button>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsPaused(!isPaused);
-            }}
-            className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg backdrop-blur-sm"
-          >
-            {isPaused ? (
-              <Play className="w-4 h-4 text-white ml-0.5" />
-            ) : (
-              <Pause className="w-4 h-4 text-white" />
-            )}
-          </button>
-          
-          <div className="text-white/80 text-sm font-medium">
-            {currentSlide + 1} / {companyAds.length}
-          </div>
-        </div>
-      </div>
+      <AdSlideControls
+        currentSlide={currentSlide}
+        isPaused={isPaused}
+        isMuted={isMuted}
+        isTransitioning={isTransitioning}
+        onPrev={handlePrev}
+        onNext={handleNext}
+        onSlideSelect={handleSlideSelect}
+        onTogglePause={handleTogglePause}
+        onToggleMute={toggleMute}
+      />
     </div>
   );
 };
