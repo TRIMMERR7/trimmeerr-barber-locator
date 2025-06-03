@@ -8,6 +8,9 @@ import ContactInfo from './barber/ContactInfo';
 import Portfolio from './barber/Portfolio';
 import Reviews from './barber/Reviews';
 import BookingPanel from './barber/BookingPanel';
+import SimpleBookingDialog from './barber/SimpleBookingDialog';
+import { Button } from "@/components/ui/button";
+import { Calendar } from "lucide-react";
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Barber {
@@ -42,6 +45,17 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
         <div className="flex-1 overflow-y-auto">
           <div className={`p-3 sm:p-4 space-y-4 ${isMobile ? 'pb-safe' : ''}`}>
             <StepsIndicator />
+            
+            {/* Top Booking Button */}
+            <div className="w-full">
+              <SimpleBookingDialog barber={barber}>
+                <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl">
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Book Now - {barber.price}
+                </Button>
+              </SimpleBookingDialog>
+            </div>
+
             <BarberInfo barber={barber} />
             
             <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">

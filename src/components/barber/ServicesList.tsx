@@ -1,9 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, Scissors, Zap, Flame } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Check, Scissors, Zap, Flame, ChevronDown } from "lucide-react";
 
 const ServicesList = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const services = [
     {
       name: 'Classic Haircut',
@@ -38,41 +41,45 @@ const ServicesList = () => {
   return (
     <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Services & Pricing</h3>
-        <div className="space-y-3">
-          {services.map((service) => {
-            const IconComponent = service.icon;
-            return (
-              <div key={service.name} className={`flex items-center justify-between p-3 rounded-xl transition-all backdrop-blur-sm ${
-                service.popular ? 'bg-red-600/20 border border-red-400/30' : 'bg-white/10 hover:bg-white/20 border border-white/20'
-              }`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                    service.popular ? 'bg-red-600/60' : 'bg-white/20 backdrop-blur-sm'
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full text-left">
+            <h3 className="text-lg font-semibold text-white">Services & Pricing</h3>
+            <ChevronDown className={`w-5 h-5 text-white transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="overflow-hidden">
+            <div className="space-y-3 mt-4">
+              {services.map((service) => {
+                const IconComponent = service.icon;
+                return (
+                  <div key={service.name} className={`flex items-center justify-between p-3 rounded-xl transition-all backdrop-blur-sm ${
+                    service.popular ? 'bg-red-600/20 border border-red-400/30' : 'bg-white/10 hover:bg-white/20 border border-white/20'
                   }`}>
-                    <IconComponent className="w-4 h-4 text-white" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-white">{service.name}</span>
-                      {service.popular && (
-                        <span className="text-xs bg-red-600/80 text-white px-2 py-1 rounded-full">Popular</span>
-                      )}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        service.popular ? 'bg-red-600/60' : 'bg-white/20 backdrop-blur-sm'
+                      }`}>
+                        <IconComponent className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-white">{service.name}</span>
+                          {service.popular && (
+                            <span className="text-xs bg-red-600/80 text-white px-2 py-1 rounded-full">Popular</span>
+                          )}
+                        </div>
+                        <span className="text-sm text-white/70">{service.duration}</span>
+                      </div>
                     </div>
-                    <span className="text-sm text-white/70">{service.duration}</span>
+                    <div className="text-right">
+                      <span className="font-bold text-white">{service.price}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-white">{service.price}</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        <button className="w-full mt-4 py-2 text-red-400 font-medium text-sm hover:bg-red-500/10 rounded-lg transition-colors border border-red-500/30 backdrop-blur-sm">
-          View All Services
-        </button>
+                );
+              })}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );

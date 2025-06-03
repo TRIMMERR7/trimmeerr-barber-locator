@@ -1,8 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 const Portfolio = () => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const portfolioImages = [
     {
       id: 1,
@@ -39,41 +43,48 @@ const Portfolio = () => {
   return (
     <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-3 md:p-6">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base md:text-lg font-semibold text-white">Recent Work</h3>
-          <span className="text-xs md:text-sm text-white/60">Portfolio</span>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-          {portfolioImages.map((image) => (
-            <div key={image.id} className="relative group cursor-pointer">
-              <div className="aspect-square w-full overflow-hidden rounded-lg md:rounded-xl border border-white/20 backdrop-blur-sm">
-                <img
-                  src={image.url}
-                  alt={image.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 shadow-md"
-                  loading="lazy"
-                  onLoad={() => {
-                    console.log(`Image loaded successfully: ${image.title}`);
-                  }}
-                  onError={(e) => {
-                    console.log(`Failed to load image: ${image.url}`);
-                    e.currentTarget.src = `https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop`;
-                  }}
-                />
-              </div>
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 rounded-lg md:rounded-xl transition-colors flex items-center justify-center backdrop-blur-sm">
-                <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity text-center px-2">
-                  {image.title}
-                </span>
-              </div>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full text-left mb-3">
+            <h3 className="text-base md:text-lg font-semibold text-white">Recent Work</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-xs md:text-sm text-white/60">Portfolio</span>
+              <ChevronDown className={`w-5 h-5 text-white transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
             </div>
-          ))}
-        </div>
-        
-        <button className="w-full mt-3 md:mt-4 py-2 text-red-400 font-medium text-sm hover:bg-red-500/10 rounded-lg transition-colors border border-red-500/30 backdrop-blur-sm">
-          View Full Portfolio
-        </button>
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="overflow-hidden">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+              {portfolioImages.map((image) => (
+                <div key={image.id} className="relative group cursor-pointer">
+                  <div className="aspect-square w-full overflow-hidden rounded-lg md:rounded-xl border border-white/20 backdrop-blur-sm">
+                    <img
+                      src={image.url}
+                      alt={image.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 shadow-md"
+                      loading="lazy"
+                      onLoad={() => {
+                        console.log(`Image loaded successfully: ${image.title}`);
+                      }}
+                      onError={(e) => {
+                        console.log(`Failed to load image: ${image.url}`);
+                        e.currentTarget.src = `https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop`;
+                      }}
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 rounded-lg md:rounded-xl transition-colors flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity text-center px-2">
+                      {image.title}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <button className="w-full mt-3 md:mt-4 py-2 text-red-400 font-medium text-sm hover:bg-red-500/10 rounded-lg transition-colors border border-red-500/30 backdrop-blur-sm">
+              View Full Portfolio
+            </button>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );

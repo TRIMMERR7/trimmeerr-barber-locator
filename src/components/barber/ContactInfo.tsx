@@ -1,74 +1,68 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Phone, MapPin, Clock, Globe } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { MapPin, Phone, Clock, ExternalLink, ChevronDown } from "lucide-react";
 
 const ContactInfo = () => {
-  const contactItems = [
-    {
-      icon: Phone,
-      label: "Phone",
-      value: "(555) 123-4567",
-      action: "tel:+15551234567"
-    },
-    {
-      icon: MapPin,
-      label: "Location",
-      value: "Downtown Barbershop",
-      subvalue: "123 Main St, Houston, TX"
-    },
-    {
-      icon: Clock,
-      label: "Hours",
-      value: "9 AM - 7 PM",
-      subvalue: "Mon - Sat"
-    },
-    {
-      icon: Globe,
-      label: "Website",
-      value: "Visit our site",
-      action: "https://example.com"
-    }
-  ];
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Card className="bg-white/5 backdrop-blur-2xl border border-white/10 shadow-2xl">
       <CardContent className="p-4 md:p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Contact & Hours</h3>
-        <div className="space-y-4">
-          {contactItems.map((item, index) => {
-            const IconComponent = item.icon;
-            return (
-              <div key={index} className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center flex-shrink-0 mt-1 border border-white/20">
-                  <IconComponent className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-white/60 uppercase tracking-wide mb-1">{item.label}</p>
-                  {item.action ? (
-                    <a 
-                      href={item.action}
-                      className="text-sm font-medium text-red-400 hover:text-red-300 transition-colors"
-                    >
-                      {item.value}
-                    </a>
-                  ) : (
-                    <p className="text-sm font-medium text-white">{item.value}</p>
-                  )}
-                  {item.subvalue && (
-                    <p className="text-xs text-white/50 mt-1">{item.subvalue}</p>
-                  )}
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full text-left">
+            <h3 className="text-lg font-semibold text-white">Contact & Hours</h3>
+            <ChevronDown className={`w-5 h-5 text-white transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent className="overflow-hidden">
+            <div className="space-y-4 mt-4">
+              <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <MapPin className="w-5 h-5 text-red-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-white">Location</p>
+                  <p className="text-sm text-white/80">123 Main Street, Downtown</p>
+                  <p className="text-sm text-white/80">New York, NY 10001</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-        
-        <div className="mt-4 pt-4 border-t border-white/20">
-          <button className="w-full bg-red-600/20 backdrop-blur-sm hover:bg-red-700/30 text-white py-2 rounded-lg font-medium text-sm transition-colors border border-red-500/30">
-            Call Now
-          </button>
-        </div>
+
+              <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <Phone className="w-5 h-5 text-red-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-white">Phone</p>
+                  <p className="text-sm text-white/80">(555) 123-4567</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+                <Clock className="w-5 h-5 text-red-400 mt-1 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-white mb-2">Hours</p>
+                  <div className="space-y-1 text-sm text-white/80">
+                    <div className="flex justify-between">
+                      <span>Mon - Fri</span>
+                      <span>9:00 AM - 8:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Saturday</span>
+                      <span>9:00 AM - 6:00 PM</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Sunday</span>
+                      <span>10:00 AM - 5:00 PM</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button className="w-full flex items-center justify-center gap-2 py-3 text-red-400 font-medium text-sm hover:bg-red-500/10 rounded-lg transition-colors border border-red-500/30 backdrop-blur-sm">
+                <ExternalLink className="w-4 h-4" />
+                Get Directions
+              </button>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );
