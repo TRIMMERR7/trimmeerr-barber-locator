@@ -16,25 +16,44 @@ export const useAppleMapInitialization = ({
   const map = useRef<any>(null);
 
   useEffect(() => {
-    if (!mapkitLoaded || !mapContainer.current) return;
+    if (!mapkitLoaded || !mapContainer.current || map.current) {
+      console.log('AppleMap: Skipping initialization - mapkitLoaded:', mapkitLoaded, 'container:', !!mapContainer.current, 'existing map:', !!map.current);
+      return;
+    }
 
-    console.log('AppleMap: Initializing Apple Maps with dark mode...');
+    console.log('AppleMap: Initializing Apple Maps...');
 
-    const center = userLocation 
-      ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
-      : getDefaultCenter();
+    try {
+      const center = userLocation 
+        ? new window.mapkit.Coordinate(userLocation[0], userLocation[1])
+        : getDefaultCenter();
 
-    const mapConfig = createMapConfig(center);
-    map.current = new window.mapkit.Map(mapContainer.current, mapConfig);
+      console.log('AppleMap: Using center:', center);
 
-    console.log('AppleMap: Map initialized with dark mode');
+      const mapConfig = createMapConfig(center);
+      console.log('AppleMap: Creating map with config:', mapConfig);
+
+      map.current = new window.mapkit.Map(mapContainer.current, mapConfig);
+
+      console.log('AppleMap: Map initialized successfully');
+
+      // Add load event listener to confirm map is ready
+      map.current.addEventListener('load', () => {
+        console.log('AppleMap: Map load event fired - map is ready');
+      });
+
+    } catch (error) {
+      console.error('AppleMap: Error initializing map:', error);
+      map.current = null;
+    }
 
     return () => {
       if (map.current) {
         try {
+          console.log('AppleMap: Cleaning up map...');
           map.current.destroy();
         } catch (error) {
-          console.warn('Error cleaning up map:', error);
+          console.warn('AppleMap: Error cleaning up map:', error);
         } finally {
           map.current = null;
         }

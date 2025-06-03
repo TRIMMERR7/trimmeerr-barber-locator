@@ -35,11 +35,14 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const { userLocation, error, loading } = useGeolocation();
   
-  console.log('AppleMap: Rendering with', nearbyBarbers.length, 'barbers');
+  console.log('AppleMap: Rendering with API key:', !!apiKey);
+  console.log('AppleMap: Barbers count:', nearbyBarbers.length);
   console.log('AppleMap: User location:', userLocation);
+  console.log('AppleMap: Geolocation error:', error);
   
   // Initialize MapKit
   const { mapkitLoaded } = useMapKitInitialization({ apiKey });
+  console.log('AppleMap: MapKit loaded:', mapkitLoaded);
   
   // Initialize the map
   const { map } = useAppleMapInitialization({
@@ -61,10 +64,24 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     }
   });
 
+  if (!apiKey) {
+    return (
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white text-center">
+          <p>No Apple Maps API key available</p>
+          <p className="text-sm text-gray-400 mt-2">Please check your configuration</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!mapkitLoaded) {
     return (
-      <div className="h-full flex items-center justify-center bg-gray-100 rounded-lg">
-        <div className="text-gray-700">Loading Apple Maps...</div>
+      <div className="h-full flex items-center justify-center bg-gray-900 rounded-lg">
+        <div className="text-white flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          Loading Apple Maps...
+        </div>
       </div>
     );
   }
@@ -73,9 +90,17 @@ const AppleMap = ({ nearbyBarbers, onBarberSelect, apiKey }: AppleMapProps) => {
     <div className="h-full relative">
       <div 
         ref={mapContainer} 
-        className="absolute inset-0 rounded-lg cursor-pointer" 
-        style={{ touchAction: 'manipulation' }}
+        className="absolute inset-0 rounded-lg" 
+        style={{ 
+          touchAction: 'manipulation',
+          minHeight: '400px' // Ensure minimum height for map container
+        }}
       />
+      {error && (
+        <div className="absolute top-4 left-4 right-4 bg-red-600/90 text-white p-3 rounded-lg text-sm">
+          Location access denied. Showing default location.
+        </div>
+      )}
     </div>
   );
 };
