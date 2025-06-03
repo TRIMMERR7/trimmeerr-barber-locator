@@ -1,24 +1,25 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import BarberProfileManager from './barber/BarberProfileManager';
+import CustomerDiscovery from './barber/CustomerDiscovery';
+import MessagingInterface from './barber/MessagingInterface';
 
 interface BarberProfileData {
+  id: string;
   name: string;
   specialty: string;
   experience: string;
   bio: string;
-  price: string;
+  hourlyRate: number;
   phone: string;
   location: string;
   services: string[];
   workingHours: { [key: string]: string };
   profileImage: string;
   portfolioImages: string[];
+  rating: number;
+  completedCuts: number;
 }
 
 interface BarberDashboardProps {
@@ -26,15 +27,19 @@ interface BarberDashboardProps {
 }
 
 const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
+  const [activeTab, setActiveTab] = useState<'profile' | 'customers' | 'messages'>('profile');
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+
   const [profile, setProfile] = useState<BarberProfileData>({
+    id: 'barber-1',
     name: 'Marcus Johnson',
     specialty: 'Fades & Braids',
     experience: '8 years',
     bio: 'Professional barber specializing in modern cuts and classic styles. Passionate about making every client look and feel their best.',
-    price: '$35',
+    hourlyRate: 35,
     phone: '(555) 123-4567',
     location: 'Downtown Barbershop, 123 Main St',
-    services: ['Haircut', 'Beard Trim', 'Hot Towel Shave', 'Hair Wash'],
+    services: ['Haircut', 'Beard Trim', 'Hot Towel Shave', 'Hair Wash', 'Styling'],
     workingHours: {
       monday: '9:00 AM - 6:00 PM',
       tuesday: '9:00 AM - 6:00 PM',
@@ -49,50 +54,36 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
       'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=400&fit=crop',
       'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=400&h=400&fit=crop',
       'https://images.unsplash.com/photo-1503951458645-643d911bc19c?w=400&h=400&fit=crop'
-    ]
+    ],
+    rating: 4.8,
+    completedCuts: 247
   });
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'portfolio' | 'schedule'>('profile');
-  const [newService, setNewService] = useState('');
-
-  const handleSaveProfile = () => {
-    // In a real app, this would save to backend
-    alert('Profile updated successfully!');
+  const handleUpdateProfile = (updatedProfile: BarberProfileData) => {
+    setProfile(updatedProfile);
+    // In real app, this would save to backend
+    console.log('Profile updated:', updatedProfile);
   };
 
-  const addService = () => {
-    if (newService.trim() && !profile.services.includes(newService.trim())) {
-      setProfile({
-        ...profile,
-        services: [...profile.services, newService.trim()]
-      });
-      setNewService('');
-    }
+  const handleMessageCustomer = (customerId: string) => {
+    setSelectedCustomerId(customerId);
+    setActiveTab('messages');
   };
 
-  const removeService = (service: string) => {
-    setProfile({
-      ...profile,
-      services: profile.services.filter(s => s !== service)
-    });
+  const handleBackFromMessages = () => {
+    setSelectedCustomerId(null);
+    setActiveTab('customers');
   };
 
-  const addPortfolioImage = () => {
-    const imageUrl = prompt('Enter image URL:');
-    if (imageUrl) {
-      setProfile({
-        ...profile,
-        portfolioImages: [...profile.portfolioImages, imageUrl]
-      });
-    }
-  };
-
-  const removePortfolioImage = (index: number) => {
-    setProfile({
-      ...profile,
-      portfolioImages: profile.portfolioImages.filter((_, i) => i !== index)
-    });
-  };
+  // If messaging a specific customer, show messaging interface
+  if (activeTab === 'messages') {
+    return (
+      <MessagingInterface 
+        onBack={handleBackFromMessages}
+        selectedCustomerId={selectedCustomerId || undefined}
+      />
+    );
+  }
 
   return (
     <div className="h-screen bg-black flex flex-col">
@@ -109,24 +100,17 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
             </Button>
             <h1 className="text-sm sm:text-xl font-semibold text-white">Barber Dashboard</h1>
           </div>
-          <Button 
-            onClick={handleSaveProfile}
-            className="bg-red-600 hover:bg-red-700 text-white h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm"
-          >
-            <span className="hidden sm:inline">Save Changes</span>
-            <span className="sm:hidden">Save</span>
-          </Button>
         </div>
       </div>
 
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Navigation Tabs - Mobile horizontal scroll, Desktop sidebar */}
+        {/* Navigation Tabs */}
         <div className="lg:w-64 bg-gray-900 border-b lg:border-r lg:border-b-0 border-gray-800 p-2 lg:p-4 overflow-x-auto lg:overflow-x-visible">
           <div className="flex lg:flex-col gap-1 lg:gap-2 min-w-max lg:min-w-0">
             {[
-              { id: 'profile', label: 'Profile Info', icon: '👤' },
-              { id: 'portfolio', label: 'Portfolio', icon: '📸' },
-              { id: 'schedule', label: 'Schedule', icon: '📅' }
+              { id: 'profile', label: 'My Profile', icon: '👤', description: 'Manage your profile' },
+              { id: 'customers', label: 'Discover Customers', icon: '👥', description: 'Find potential clients' },
+              { id: 'messages', label: 'Messages', icon: '💬', description: 'Chat with customers' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -138,7 +122,10 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
                 }`}
               >
                 <span className="text-sm lg:text-lg">{tab.icon}</span>
-                <span className="whitespace-nowrap">{tab.label}</span>
+                <div className="flex flex-col">
+                  <span className="whitespace-nowrap font-medium">{tab.label}</span>
+                  <span className="text-xs opacity-70 hidden lg:block">{tab.description}</span>
+                </div>
               </button>
             ))}
           </div>
@@ -147,180 +134,16 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
         {/* Content Area */}
         <div className="flex-1 p-2 sm:p-4 lg:p-6 overflow-y-auto">
           {activeTab === 'profile' && (
-            <div className="max-w-2xl space-y-4 lg:space-y-6">
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader className="p-3 lg:p-6">
-                  <CardTitle className="text-white text-sm lg:text-base">Basic Information</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 lg:space-y-4 p-3 lg:p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                    <div>
-                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Name</label>
-                      <Input
-                        value={profile.name}
-                        onChange={(e) => setProfile({...profile, name: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Specialty</label>
-                      <Input
-                        value={profile.specialty}
-                        onChange={(e) => setProfile({...profile, specialty: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                    <div>
-                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Experience</label>
-                      <Input
-                        value={profile.experience}
-                        onChange={(e) => setProfile({...profile, experience: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Base Price</label>
-                      <Input
-                        value={profile.price}
-                        onChange={(e) => setProfile({...profile, price: e.target.value})}
-                        placeholder="e.g. $35"
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Bio</label>
-                    <Textarea
-                      value={profile.bio}
-                      onChange={(e) => setProfile({...profile, bio: e.target.value})}
-                      className="bg-gray-800 border-gray-600 text-white text-xs lg:text-sm"
-                      rows={2}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4">
-                    <div>
-                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Phone</label>
-                      <Input
-                        value={profile.phone}
-                        onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-xs lg:text-sm font-medium text-gray-300 mb-1 lg:mb-2 block">Location</label>
-                      <Input
-                        value={profile.location}
-                        onChange={(e) => setProfile({...profile, location: e.target.value})}
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader className="p-3 lg:p-6">
-                  <CardTitle className="text-white text-sm lg:text-base">Services</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 lg:space-y-4 p-3 lg:p-6">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newService}
-                      onChange={(e) => setNewService(e.target.value)}
-                      placeholder="Add new service..."
-                      className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                      onKeyPress={(e) => e.key === 'Enter' && addService()}
-                    />
-                    <Button 
-                      onClick={addService} 
-                      className="bg-red-600 hover:bg-red-700 h-8 lg:h-10 px-2 lg:px-3 text-xs lg:text-sm"
-                    >
-                      Add
-                    </Button>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-1 lg:gap-2">
-                    {profile.services.map(service => (
-                      <Badge 
-                        key={service}
-                        variant="outline" 
-                        className="border-gray-600 text-white bg-gray-800 cursor-pointer hover:bg-red-600 text-xs lg:text-sm"
-                        onClick={() => removeService(service)}
-                      >
-                        {service} ✕
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            <BarberProfileManager 
+              profile={profile}
+              onUpdateProfile={handleUpdateProfile}
+            />
           )}
 
-          {activeTab === 'portfolio' && (
-            <div className="max-w-4xl space-y-4 lg:space-y-6">
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader className="flex flex-row items-center justify-between p-3 lg:p-6">
-                  <CardTitle className="text-white text-sm lg:text-base">Portfolio Images</CardTitle>
-                  <Button 
-                    onClick={addPortfolioImage} 
-                    className="bg-red-600 hover:bg-red-700 h-8 lg:h-10 px-2 lg:px-3 text-xs lg:text-sm"
-                  >
-                    <span className="hidden sm:inline">Add Image</span>
-                    <span className="sm:hidden">Add</span>
-                  </Button>
-                </CardHeader>
-                <CardContent className="p-3 lg:p-6">
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4">
-                    {profile.portfolioImages.map((image, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={image}
-                          alt={`Portfolio ${index + 1}`}
-                          className="w-full h-24 lg:h-32 object-cover rounded-lg"
-                        />
-                        <button
-                          onClick={() => removePortfolioImage(index)}
-                          className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-5 h-5 lg:w-6 lg:h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-
-          {activeTab === 'schedule' && (
-            <div className="max-w-2xl space-y-4 lg:space-y-6">
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader className="p-3 lg:p-6">
-                  <CardTitle className="text-white text-sm lg:text-base">Working Hours</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 lg:space-y-4 p-3 lg:p-6">
-                  {Object.entries(profile.workingHours).map(([day, hours]) => (
-                    <div key={day} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                      <div className="w-full sm:w-20 text-gray-300 capitalize text-xs lg:text-sm font-medium">{day}</div>
-                      <Input
-                        value={hours}
-                        onChange={(e) => setProfile({
-                          ...profile,
-                          workingHours: { ...profile.workingHours, [day]: e.target.value }
-                        })}
-                        className="bg-gray-800 border-gray-600 text-white h-8 lg:h-10 text-xs lg:text-sm"
-                        placeholder="e.g. 9:00 AM - 6:00 PM or Closed"
-                      />
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
+          {activeTab === 'customers' && (
+            <CustomerDiscovery 
+              onMessageCustomer={handleMessageCustomer}
+            />
           )}
         </div>
       </div>
