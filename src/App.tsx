@@ -20,32 +20,34 @@ const SecurityMonitor = () => {
   return null;
 };
 
-const AppWithSecurity = () => {
+const AppContent = () => {
   return (
-    <>
-      <SecurityMonitor />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-canceled" element={<PaymentCanceled />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/payment-canceled" element={<PaymentCanceled />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppWithSecurity />
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  console.log('App: Starting application...');
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <SecurityMonitor />
+            <AppContent />
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -28,72 +28,64 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userType, setUserTypeState] = useState<UserType>('client');
   const [loading, setLoading] = useState(true);
 
+  console.log('AuthProvider: Initializing...');
+
   useEffect(() => {
-    console.log('AuthProvider: Starting initialization...');
+    console.log('AuthProvider: Setting up auth listener...');
     
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('AuthProvider: Auth event:', event, !!session?.user);
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('AuthProvider: Initial session check:', !!session, error);
         
         if (session?.user) {
           setUser(session.user);
-          
-          // Get user type from metadata or localStorage
           const storedUserType = localStorage.getItem('userType') as UserType;
           const metadataUserType = session.user.user_metadata?.user_type as UserType;
           const finalUserType = metadataUserType || storedUserType || 'client';
-          
-          console.log('AuthProvider: Setting user type to:', finalUserType);
           setUserTypeState(finalUserType);
           localStorage.setItem('userType', finalUserType);
+          console.log('AuthProvider: User found, type:', finalUserType);
         } else {
-          console.log('AuthProvider: No user, clearing state');
           setUser(null);
           setUserTypeState('client');
           localStorage.removeItem('userType');
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Get initial session
-    const initializeAuth = async () => {
-      try {
-        console.log('AuthProvider: Getting initial session...');
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('AuthProvider: Error getting session:', error);
-          setLoading(false);
-          return;
-        }
-
-        if (session?.user) {
-          console.log('AuthProvider: Found existing session');
-          setUser(session.user);
-          
-          const storedUserType = localStorage.getItem('userType') as UserType;
-          const metadataUserType = session.user.user_metadata?.user_type as UserType;
-          const finalUserType = metadataUserType || storedUserType || 'client';
-          
-          console.log('AuthProvider: Initial user type:', finalUserType);
-          setUserTypeState(finalUserType);
-          localStorage.setItem('userType', finalUserType);
-        } else {
-          console.log('AuthProvider: No existing session');
+          console.log('AuthProvider: No user found');
         }
       } catch (error) {
-        console.error('AuthProvider: Exception during initialization:', error);
+        console.error('AuthProvider: Error getting session:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    initializeAuth();
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('AuthProvider: Auth state changed:', event, !!session);
+        
+        if (session?.user) {
+          setUser(session.user);
+          const storedUserType = localStorage.getItem('userType') as UserType;
+          const metadataUserType = session.user.user_metadata?.user_type as UserType;
+          const finalUserType = metadataUserType || storedUserType || 'client';
+          setUserTypeState(finalUserType);
+          localStorage.setItem('userType', finalUserType);
+        } else {
+          setUser(null);
+          setUserTypeState('client');
+          localStorage.removeItem('userType');
+        }
+        
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          setLoading(false);
+        }
+      }
+    );
 
-    // Cleanup subscription
+    getInitialSession();
+
     return () => {
       console.log('AuthProvider: Cleaning up subscription');
       subscription.unsubscribe();
@@ -109,6 +101,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('AuthProvider: Sign out error:', error);
+      } else {
+        console.log('AuthProvider: Sign out successful');
       }
     } catch (error) {
       console.error('AuthProvider: Sign out exception:', error);
@@ -118,7 +112,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const setUserType = (type: UserType) => {
-    console.log('AuthProvider: Manually setting user type to:', type);
+    console.log('AuthProvider: Setting user type to:', type);
     setUserTypeState(type);
     localStorage.setItem('userType', type);
   };
