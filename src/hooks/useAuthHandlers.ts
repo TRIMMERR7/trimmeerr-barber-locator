@@ -1,13 +1,12 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { validateEmail, sanitizeInput } from '@/utils/securityHelpers';
-import { useAuth } from '@/contexts/AuthContext';
 
 export const useAuthHandlers = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const { setUserType } = useAuth();
 
   const handleAuth = async (
     e: React.FormEvent,
@@ -19,7 +18,7 @@ export const useAuthHandlers = () => {
   ) => {
     e.preventDefault();
     
-    // Enhanced input validation
+    // Input validation
     if (!validateEmail(email)) {
       toast({
         title: "Invalid Email",
@@ -30,17 +29,16 @@ export const useAuthHandlers = () => {
       return;
     }
 
-    if (password.length < 8) {
+    if (password.length < 6) {
       toast({
         title: "Weak Password",
-        description: "Password must be at least 8 characters long",
+        description: "Password must be at least 6 characters long",
         variant: "destructive",
         duration: 2000
       });
       return;
     }
 
-    // Sanitize inputs
     const sanitizedEmail = sanitizeInput(email.toLowerCase().trim());
     const sanitizedFullName = sanitizeInput(fullName.trim());
 
@@ -48,6 +46,7 @@ export const useAuthHandlers = () => {
 
     try {
       if (isLogin) {
+        console.log('Attempting login for:', sanitizedEmail);
         const { data, error } = await supabase.auth.signInWithPassword({
           email: sanitizedEmail,
           password
@@ -59,7 +58,7 @@ export const useAuthHandlers = () => {
             title: "Login failed",
             description: error.message,
             variant: "destructive",
-            duration: 2000
+            duration: 3000
           });
         } else {
           console.log('Login successful for user:', data.user?.id);
@@ -80,13 +79,12 @@ export const useAuthHandlers = () => {
           return;
         }
 
-        const redirectUrl = `${window.location.origin}/`;
-        
+        console.log('Attempting signup for:', sanitizedEmail, 'as', userType);
         const { data, error } = await supabase.auth.signUp({
           email: sanitizedEmail,
           password,
           options: {
-            emailRedirectTo: redirectUrl,
+            emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: sanitizedFullName,
               user_type: userType
@@ -100,17 +98,15 @@ export const useAuthHandlers = () => {
             title: "Signup failed",
             description: error.message,
             variant: "destructive",
-            duration: 2000
+            duration: 3000
           });
         } else {
           console.log('Signup successful for user:', data.user?.id);
-          // Store user type for signup
           localStorage.setItem('userType', userType);
-          setUserType(userType);
           toast({
             title: "Account created!",
             description: "Please check your email to verify your account.",
-            duration: 2000
+            duration: 3000
           });
         }
       }
@@ -120,7 +116,7 @@ export const useAuthHandlers = () => {
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
-        duration: 2000
+        duration: 3000
       });
     } finally {
       setLoading(false);
@@ -139,8 +135,8 @@ export const useAuthHandlers = () => {
     }
 
     const sanitizedEmail = sanitizeInput(email.toLowerCase().trim());
-
     setLoading(true);
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(sanitizedEmail, {
         redirectTo: `${window.location.origin}/`
@@ -151,12 +147,12 @@ export const useAuthHandlers = () => {
           title: "Reset failed",
           description: error.message,
           variant: "destructive",
-          duration: 2000
+          duration: 3000
         });
       } else {
         toast({
           title: "Check your email",
-          description: "Password reset link has been sent to your email.",
+          description: "Password reset link has been sent.",
           duration: 3000
         });
       }
@@ -165,7 +161,7 @@ export const useAuthHandlers = () => {
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
-        duration: 2000
+        duration: 3000
       });
     } finally {
       setLoading(false);
@@ -186,7 +182,7 @@ export const useAuthHandlers = () => {
           title: "Authentication failed",
           description: error.message,
           variant: "destructive",
-          duration: 2000
+          duration: 3000
         });
       }
     } catch (error) {
@@ -194,7 +190,7 @@ export const useAuthHandlers = () => {
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
-        duration: 2000
+        duration: 3000
       });
     }
   };
@@ -213,7 +209,7 @@ export const useAuthHandlers = () => {
           title: "Authentication failed",
           description: error.message,
           variant: "destructive",
-          duration: 2000
+          duration: 3000
         });
       }
     } catch (error) {
@@ -221,7 +217,7 @@ export const useAuthHandlers = () => {
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
-        duration: 2000
+        duration: 3000
       });
     }
   };
