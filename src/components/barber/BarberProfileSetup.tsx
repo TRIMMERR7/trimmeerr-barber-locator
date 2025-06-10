@@ -1,13 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X } from "lucide-react";
+import { Plus, X, MapPin } from "lucide-react";
 import { useBarberProfile } from '@/hooks/useBarberProfile';
 import { sanitizeInput } from '@/utils/securityHelpers';
+import { geocodeAddress } from '@/utils/geocoding';
 import { toast } from 'sonner';
 
 interface BarberProfileSetupProps {
@@ -17,7 +17,9 @@ interface BarberProfileSetupProps {
 const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const { createProfile } = useBarberProfile();
   const [loading, setLoading] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
   const [newService, setNewService] = useState('');
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   
   const [formData, setFormData] = useState({
     business_name: '',
@@ -48,8 +50,43 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
     });
   };
 
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const location = e.target.value;
+    setFormData({ ...formData, location });
+    // Clear previous coordinates when location changes
+    setCoordinates(null);
+  };
+
+  const handleGeocodeLocation = async () => {
+    if (!formData.location.trim()) {
+      toast.error('Please enter a location first');
+      return;
+    }
+
+    setGeocoding(true);
+    try {
+      const coords = await geocodeAddress(formData.location);
+      if (coords) {
+        setCoordinates(coords);
+        toast.success('Location found and verified!');
+      } else {
+        toast.error('Could not find location. Please check the address.');
+      }
+    } catch (error) {
+      toast.error('Error verifying location. Please try again.');
+    } finally {
+      setGeocoding(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!coordinates) {
+      toast.error('Please verify your location before submitting');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -61,7 +98,9 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
         bio: sanitizeInput(formData.bio),
         phone: sanitizeInput(formData.phone),
         location: sanitizeInput(formData.location),
-        services: formData.services.map(service => sanitizeInput(service))
+        services: formData.services.map(service => sanitizeInput(service)),
+        latitude: coordinates.lat,
+        longitude: coordinates.lng
       };
 
       await createProfile(sanitizedData);
@@ -175,15 +214,37 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 
               <div>
                 <label className="text-sm font-medium text-gray-300 mb-2 block">
-                  Location
+                  Location *
                 </label>
-                <Input
-                  value={formData.location}
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  className="bg-gray-800 border-gray-600 text-white"
-                  placeholder="123 Main St, City, State"
-                  required
-                />
+                <div className="flex gap-2">
+                  <Input
+                    value={formData.location}
+                    onChange={handleLocationChange}
+                    className="bg-gray-800 border-gray-600 text-white flex-1"
+                    placeholder="123 Main St, City, State"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleGeocodeLocation}
+                    disabled={geocoding || !formData.location.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 px-3"
+                  >
+                    {geocoding ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <MapPin className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
+                {coordinates && (
+                  <p className="text-green-400 text-sm mt-1">
+                    ✓ Location verified: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
+                  </p>
+                )}
+                <p className="text-gray-500 text-sm mt-1">
+                  Click the map icon to verify your location appears correctly on the map
+                </p>
               </div>
 
               <div>
@@ -224,7 +285,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
               <Button 
                 type="submit" 
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
-                disabled={loading}
+                disabled={loading || !coordinates}
               >
                 {loading ? 'Creating Profile...' : 'Create Barber Profile'}
               </Button>

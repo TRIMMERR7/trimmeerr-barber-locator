@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
@@ -11,6 +10,7 @@ import MapLayout from './map/MapLayout';
 import MenuDialog from './map/MenuDialog';
 import { nearbyBarbers } from '@/data/barberData';
 import { useMapViewState } from '@/hooks/useMapViewState';
+import { useBarberMapData } from '@/hooks/useBarberMapData';
 
 interface MapViewProps {
   userType: 'barber' | 'client';
@@ -21,6 +21,9 @@ const MapView = ({ userType }: MapViewProps) => {
   
   const [isMapViewLoading, setIsMapViewLoading] = useState(true);
   const [showBarbersOfTheYearPage, setShowBarbersOfTheYearPage] = useState(false);
+  
+  // Fetch real barber data from database
+  const { barbers: databaseBarbers, loading: barbersLoading } = useBarberMapData();
   
   const {
     selectedBarber,
@@ -52,23 +55,28 @@ const MapView = ({ userType }: MapViewProps) => {
   useEffect(() => {
     console.log('MapView: Initializing...');
     
-    if (filteredBarbers.length === 0) {
-      setFilteredBarbers(nearbyBarbers);
+    if (!barbersLoading) {
+      // Combine database barbers with static barbers for now
+      const allBarbers = [...databaseBarbers, ...nearbyBarbers];
+      
+      if (filteredBarbers.length === 0) {
+        setFilteredBarbers(allBarbers);
+      }
+      
+      // Small delay to ensure everything is initialized
+      const timer = setTimeout(() => {
+        console.log('MapView: Initialization complete');
+        setIsMapViewLoading(false);
+      }, 500);
+      
+      return () => clearTimeout(timer);
     }
-    
-    // Small delay to ensure everything is initialized
-    const timer = setTimeout(() => {
-      console.log('MapView: Initialization complete');
-      setIsMapViewLoading(false);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [filteredBarbers.length, setFilteredBarbers]);
+  }, [barbersLoading, databaseBarbers, filteredBarbers.length, setFilteredBarbers]);
 
-  const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : nearbyBarbers;
+  const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : [...databaseBarbers, ...nearbyBarbers];
 
   // Show loading state for MapView initialization
-  if (isMapViewLoading) {
+  if (isMapViewLoading || barbersLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
         <div className="glass-morphism-dark rounded-2xl p-8 flex flex-col items-center space-y-6">
