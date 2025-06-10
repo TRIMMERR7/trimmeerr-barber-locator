@@ -1,67 +1,23 @@
+
 import React, { useState } from 'react';
 import DashboardHeader from './barber/dashboard/DashboardHeader';
 import DashboardNavigation from './barber/dashboard/DashboardNavigation';
 import DashboardContent from './barber/dashboard/DashboardContent';
 import MessagingInterface from './barber/MessagingInterface';
-
-interface BarberProfileData {
-  id: string;
-  name: string;
-  specialty: string;
-  experience: string;
-  bio: string;
-  hourlyRate: number;
-  phone: string;
-  location: string;
-  services: string[];
-  workingHours: { [key: string]: string };
-  profileImage: string;
-  portfolioImages: string[];
-  rating: number;
-  completedCuts: number;
-}
+import BarberProfileManager from './barber/BarberProfileManager';
+import BarberAdminPanel from './barber/BarberAdminPanel';
+import BarberProfileSetup from './barber/BarberProfileSetup';
+import { useBarberProfile } from '@/hooks/useBarberProfile';
 
 interface BarberDashboardProps {
   onBack: () => void;
 }
 
 const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'customers' | 'messages' | 'calendar' | 'bank'>('profile');
+  const { profile, loading } = useBarberProfile();
+  const [activeTab, setActiveTab] = useState<'profile' | 'admin' | 'customers' | 'messages' | 'calendar' | 'bank'>('admin');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-
-  const [profile, setProfile] = useState<BarberProfileData>({
-    id: 'barber-1',
-    name: 'Marcus Johnson',
-    specialty: 'Fades & Braids',
-    experience: '8 years',
-    bio: 'Professional barber specializing in modern cuts and classic styles. Passionate about making every client look and feel their best.',
-    hourlyRate: 35,
-    phone: '(555) 123-4567',
-    location: 'Downtown Barbershop, 123 Main St',
-    services: ['Haircut', 'Beard Trim', 'Hot Towel Shave', 'Hair Wash', 'Styling'],
-    workingHours: {
-      monday: '9:00 AM - 6:00 PM',
-      tuesday: '9:00 AM - 6:00 PM',
-      wednesday: '9:00 AM - 6:00 PM',
-      thursday: '9:00 AM - 6:00 PM',
-      friday: '9:00 AM - 7:00 PM',
-      saturday: '8:00 AM - 5:00 PM',
-      sunday: 'Closed'
-    },
-    profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face',
-    portfolioImages: [
-      'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=400&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=400&h=400&fit=crop',
-      'https://images.unsplash.com/photo-1503951458645-643d911bc19c?w=400&h=400&fit=crop'
-    ],
-    rating: 4.8,
-    completedCuts: 247
-  });
-
-  const handleUpdateProfile = (updatedProfile: BarberProfileData) => {
-    setProfile(updatedProfile);
-    console.log('Profile updated:', updatedProfile);
-  };
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
 
   const handleMessageCustomer = (customerId: string) => {
     setSelectedCustomerId(customerId);
@@ -73,13 +29,67 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
     setActiveTab('customers');
   };
 
-  // If messaging a specific customer, show messaging interface
+  const handleProfileSetupComplete = () => {
+    // Refresh the profile data and show admin panel
+    setActiveTab('admin');
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="h-screen bg-black flex items-center justify-center">
+        <div className="text-white">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show profile setup if no profile exists
+  if (!profile) {
+    return <BarberProfileSetup onComplete={handleProfileSetupComplete} />;
+  }
+
+  // Show messaging interface
   if (activeTab === 'messages') {
     return (
       <MessagingInterface 
         onBack={handleBackFromMessages}
         selectedCustomerId={selectedCustomerId || undefined}
       />
+    );
+  }
+
+  // Show profile editor
+  if (showProfileEditor) {
+    const handleUpdateProfile = (updatedProfile: any) => {
+      // This will be handled by the BarberProfileManager component
+      setShowProfileEditor(false);
+    };
+
+    return (
+      <div className="h-screen bg-black flex flex-col">
+        <DashboardHeader onBack={() => setShowProfileEditor(false)} />
+        <div className="flex-1 overflow-y-auto p-6">
+          <BarberProfileManager 
+            profile={{
+              id: profile.id,
+              name: profile.business_name || 'Unnamed Business',
+              bio: profile.bio || '',
+              specialty: profile.specialty || '',
+              experience: profile.experience || '',
+              hourlyRate: profile.hourly_rate || 0,
+              location: profile.location || '',
+              phone: profile.phone || '',
+              services: profile.services || [],
+              workingHours: profile.working_hours || {},
+              portfolioImages: profile.portfolio_images || [],
+              profileImage: profile.profile_image_url || '',
+              rating: Number(profile.rating) || 0,
+              completedCuts: profile.completed_cuts || 0
+            }}
+            onUpdateProfile={handleUpdateProfile}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -93,12 +103,37 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
           onTabChange={setActiveTab}
         />
 
-        <DashboardContent 
-          activeTab={activeTab}
-          profile={profile}
-          onUpdateProfile={handleUpdateProfile}
-          onMessageCustomer={handleMessageCustomer}
-        />
+        <div className="flex-1 overflow-y-auto">
+          {activeTab === 'admin' && (
+            <div className="p-6">
+              <BarberAdminPanel onEditProfile={() => setShowProfileEditor(true)} />
+            </div>
+          )}
+          
+          {activeTab !== 'admin' && (
+            <DashboardContent 
+              activeTab={activeTab}
+              profile={{
+                id: profile.id,
+                name: profile.business_name || 'Unnamed Business',
+                bio: profile.bio || '',
+                specialty: profile.specialty || '',
+                experience: profile.experience || '',
+                hourlyRate: profile.hourly_rate || 0,
+                location: profile.location || '',
+                phone: profile.phone || '',
+                services: profile.services || [],
+                workingHours: profile.working_hours || {},
+                portfolioImages: profile.portfolio_images || [],
+                profileImage: profile.profile_image_url || '',
+                rating: Number(profile.rating) || 0,
+                completedCuts: profile.completed_cuts || 0
+              }}
+              onUpdateProfile={() => {}}
+              onMessageCustomer={handleMessageCustomer}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

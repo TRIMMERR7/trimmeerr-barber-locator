@@ -75,6 +75,72 @@ export type Database = {
         }
         Relationships: []
       }
+      barber_profiles: {
+        Row: {
+          bio: string | null
+          business_name: string | null
+          completed_cuts: number | null
+          created_at: string | null
+          experience: string | null
+          hourly_rate: number | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          location: string | null
+          phone: string | null
+          portfolio_images: string[] | null
+          profile_image_url: string | null
+          rating: number | null
+          services: string[] | null
+          specialty: string | null
+          updated_at: string | null
+          user_id: string
+          working_hours: Json | null
+        }
+        Insert: {
+          bio?: string | null
+          business_name?: string | null
+          completed_cuts?: number | null
+          created_at?: string | null
+          experience?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string | null
+          portfolio_images?: string[] | null
+          profile_image_url?: string | null
+          rating?: number | null
+          services?: string[] | null
+          specialty?: string | null
+          updated_at?: string | null
+          user_id: string
+          working_hours?: Json | null
+        }
+        Update: {
+          bio?: string | null
+          business_name?: string | null
+          completed_cuts?: number | null
+          created_at?: string | null
+          experience?: string | null
+          hourly_rate?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          phone?: string | null
+          portfolio_images?: string[] | null
+          profile_image_url?: string | null
+          rating?: number | null
+          services?: string[] | null
+          specialty?: string | null
+          updated_at?: string | null
+          user_id?: string
+          working_hours?: Json | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           appointment_date: string
@@ -189,15 +255,46 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "barber" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -312,6 +409,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "barber", "client"],
+    },
   },
 } as const
