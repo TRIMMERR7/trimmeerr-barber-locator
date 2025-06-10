@@ -78,9 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           localStorage.removeItem('userType');
         }
         
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     );
 
@@ -94,7 +92,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     console.log('AuthProvider: Signing out...');
-    setLoading(true);
     
     try {
       localStorage.removeItem('userType');
@@ -103,11 +100,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('AuthProvider: Sign out error:', error);
       } else {
         console.log('AuthProvider: Sign out successful');
+        // The auth state change listener will handle setting user to null
+        // and the Index component will automatically show the login page
       }
     } catch (error) {
       console.error('AuthProvider: Sign out exception:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
