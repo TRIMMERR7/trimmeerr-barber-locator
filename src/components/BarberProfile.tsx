@@ -43,15 +43,26 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
         <div className={`p-3 sm:p-4 space-y-4 ${isMobile ? 'pb-safe' : ''}`}>
           <StepsIndicator />
           
-          {/* Top Booking Button */}
-          <div className="w-full">
-            <SimpleBookingDialog barber={barber}>
-              <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl">
-                <Calendar className="w-5 h-5 mr-2" />
-                Book Now - {barber.price}
-              </Button>
-            </SimpleBookingDialog>
-          </div>
+          {/* Booking Button - Only show for client users */}
+          {userType === 'client' && (
+            <div className="w-full">
+              <SimpleBookingDialog barber={barber}>
+                <Button className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white h-14 text-lg font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl">
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Book Now - {barber.price}
+                </Button>
+              </SimpleBookingDialog>
+            </div>
+          )}
+
+          {/* Message for barber users */}
+          {userType === 'barber' && (
+            <div className="w-full p-4 bg-gray-800/50 rounded-xl border border-gray-700">
+              <p className="text-gray-300 text-center">
+                This is how your profile appears to clients. Only clients can book appointments.
+              </p>
+            </div>
+          )}
 
           <BarberInfo barber={barber} />
           

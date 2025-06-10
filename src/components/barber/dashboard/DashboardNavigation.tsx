@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { User, Users, MessageSquare, Calendar, CreditCard } from 'lucide-react';
+import { User, Users, MessageSquare, Calendar, CreditCard, Settings } from 'lucide-react';
 
-type TabType = 'profile' | 'customers' | 'messages' | 'calendar' | 'bank';
+// Updated to match DashboardTabType in BarberDashboard
+type TabType = 'profile' | 'admin' | 'customers' | 'messages' | 'calendar' | 'bank';
 
 interface DashboardNavigationProps {
   activeTab: TabType;
@@ -12,6 +13,7 @@ interface DashboardNavigationProps {
 
 const DashboardNavigation = ({ activeTab, onTabChange }: DashboardNavigationProps) => {
   const tabs = [
+    { id: 'admin' as TabType, label: 'Admin', icon: Settings },
     { id: 'profile' as TabType, label: 'Profile', icon: User },
     { id: 'customers' as TabType, label: 'Customers', icon: Users },
     { id: 'calendar' as TabType, label: 'Calendar', icon: Calendar },
