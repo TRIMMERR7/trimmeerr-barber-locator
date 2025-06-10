@@ -13,9 +13,12 @@ interface BarberDashboardProps {
   onBack: () => void;
 }
 
+// Updated type definition to include 'admin'
+type DashboardTabType = 'profile' | 'admin' | 'customers' | 'messages' | 'calendar' | 'bank';
+
 const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
   const { profile, loading } = useBarberProfile();
-  const [activeTab, setActiveTab] = useState<'profile' | 'admin' | 'customers' | 'messages' | 'calendar' | 'bank'>('admin');
+  const [activeTab, setActiveTab] = useState<DashboardTabType>('admin');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
 

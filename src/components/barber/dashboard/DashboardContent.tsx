@@ -5,7 +5,8 @@ import CustomerDiscovery from '../CustomerDiscovery';
 import BarberCalendar from '../BarberCalendar';
 import BankAccountPage from '../BankAccountPage';
 
-type TabType = 'profile' | 'customers' | 'messages' | 'calendar' | 'bank';
+// Updated to match DashboardTabType in BarberDashboard
+type TabType = 'profile' | 'admin' | 'customers' | 'messages' | 'calendar' | 'bank';
 
 interface BarberProfileData {
   id: string;

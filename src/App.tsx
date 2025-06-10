@@ -11,19 +11,26 @@ import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
 
+// Create a client
 const queryClient = new QueryClient();
 
-const AppWithSecurity = () => {
+// Fixed: Move the hook into a separate component
+const SecurityMonitor = () => {
   useSecurityMonitoring();
-  
+  return null;
+};
+
+const AppWithSecurity = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/payment-success" element={<PaymentSuccess />} />
-      <Route path="/payment-canceled" element={<PaymentCanceled />} />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <SecurityMonitor />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-canceled" element={<PaymentCanceled />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 };
 
