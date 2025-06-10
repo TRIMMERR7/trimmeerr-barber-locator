@@ -25,6 +25,8 @@ interface MapContainerProps {
 const MapContainer = ({ nearbyBarbers, onBarberSelect }: MapContainerProps) => {
   const isMobile = useIsMobile();
 
+  console.log('MapContainer: Received onBarberSelect:', typeof onBarberSelect);
+
   return (
     <div className="h-full w-full flex flex-col relative mobile-full-height">
       {/* Map Provider - Takes most of the space */}

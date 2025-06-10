@@ -106,7 +106,7 @@ const MapView = ({ userType }: MapViewProps) => {
       <FilterPage
         barbers={nearbyBarbers}
         onBack={() => setShowFilterPage(false)}
-        onBarberSelect={userType === 'client' ? handleBarberSelect : undefined}
+        onBarberSelect={handleBarberSelect} // Allow both user types to view profiles
         onNavigate={openInAppleMaps}
       />
     );
@@ -164,7 +164,7 @@ const MapView = ({ userType }: MapViewProps) => {
 
       <MapLayout
         displayBarbers={displayBarbers}
-        onBarberSelect={userType === 'client' ? handleBarberSelect : undefined}
+        onBarberSelect={handleBarberSelect} // Allow both user types to select barbers
         onNavigate={openInAppleMaps}
       />
 

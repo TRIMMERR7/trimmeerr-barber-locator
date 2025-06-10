@@ -25,7 +25,7 @@ interface Barber {
 
 interface MapLayoutProps {
   displayBarbers: Barber[];
-  onBarberSelect: (barber: Barber) => void;
+  onBarberSelect?: (barber: Barber) => void;
   onNavigate: (barber: Barber) => void;
 }
 
@@ -38,7 +38,7 @@ const MapLayout = ({ displayBarbers, onBarberSelect, onNavigate }: MapLayoutProp
       <div className={`${isMobile ? 'flex-1' : 'flex-[0.7]'} h-full min-h-0 relative safe-area`}>
         <MapContainer 
           nearbyBarbers={displayBarbers}
-          onBarberSelect={onBarberSelect}
+          onBarberSelect={onBarberSelect || (() => {})} // Provide fallback function
         />
       </div>
 
