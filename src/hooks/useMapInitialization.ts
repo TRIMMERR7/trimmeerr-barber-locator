@@ -7,14 +7,18 @@ export const useMapInitialization = (mapContainer: React.RefObject<HTMLDivElemen
   const map = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    if (!mapContainer.current) return;
+    if (!mapContainer.current || map.current) return;
 
     console.log('useMapInitialization: Initializing map...');
 
-    // Initialize Leaflet map
+    // Initialize Leaflet map with better default settings
     map.current = L.map(mapContainer.current, {
-      zoomControl: false // Disable default zoom control
-    }).setView([40.7829, -73.9654], 14);
+      zoomControl: false,
+      attributionControl: true,
+      preferCanvas: true,
+      maxZoom: 18,
+      minZoom: 3
+    }).setView([29.7704, -95.3833], 13); // Houston coordinates as default
 
     // Add custom zoom control to top-right
     L.control.zoom({
@@ -32,8 +36,11 @@ export const useMapInitialization = (mapContainer: React.RefObject<HTMLDivElemen
 
     // Cleanup function
     return () => {
-      console.log('useMapInitialization: Cleaning up map...');
-      map.current?.remove();
+      if (map.current) {
+        console.log('useMapInitialization: Cleaning up map...');
+        map.current.remove();
+        map.current = null;
+      }
     };
   }, [mapContainer]);
 
