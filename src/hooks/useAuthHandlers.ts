@@ -48,12 +48,13 @@ export const useAuthHandlers = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email: sanitizedEmail,
           password
         });
 
         if (error) {
+          console.error('Login error:', error);
           toast({
             title: "Login failed",
             description: error.message,
@@ -61,6 +62,7 @@ export const useAuthHandlers = () => {
             duration: 2000
           });
         } else {
+          console.log('Login successful for user:', data.user?.id);
           toast({
             title: "Welcome back!",
             description: "You're successfully logged in.",
@@ -80,7 +82,7 @@ export const useAuthHandlers = () => {
 
         const redirectUrl = `${window.location.origin}/`;
         
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: sanitizedEmail,
           password,
           options: {
@@ -93,6 +95,7 @@ export const useAuthHandlers = () => {
         });
 
         if (error) {
+          console.error('Signup error:', error);
           toast({
             title: "Signup failed",
             description: error.message,
@@ -100,6 +103,7 @@ export const useAuthHandlers = () => {
             duration: 2000
           });
         } else {
+          console.log('Signup successful for user:', data.user?.id);
           // Store user type for signup
           localStorage.setItem('userType', userType);
           setUserType(userType);
@@ -111,6 +115,7 @@ export const useAuthHandlers = () => {
         }
       }
     } catch (error) {
+      console.error('Auth handler error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",

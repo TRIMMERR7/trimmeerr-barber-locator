@@ -29,9 +29,24 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
 
   const fetchAppleApiKey = async () => {
     console.log('MapProvider: Fetching Apple Maps API key... (attempt', retryCount + 1, ')');
+    
     try {
       setError(null);
+      
+      // Get current session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        console.error('MapProvider: No active session found');
+        setError('Please log in to use the map feature');
+        setIsLoadingApiKey(false);
+        return;
+      }
+
+      console.log('MapProvider: Session found, calling function...');
+      
       const { data, error } = await supabase.functions.invoke('get-apple-maps-key');
+      
       console.log('MapProvider: API key response:', { 
         hasData: !!data, 
         hasApiKey: !!(data?.apiKey),
@@ -49,7 +64,7 @@ const MapProvider = ({ nearbyBarbers, onBarberSelect }: MapProviderProps) => {
         console.warn('MapProvider: No API key in response');
         setError('No API key available in response');
       }
-    } catch (networkError) {
+    } catch (networkError: any) {
       console.error('MapProvider: Network error fetching Apple Maps API key:', networkError);
       setError(`Network error: ${networkError.message}`);
     } finally {
