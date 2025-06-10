@@ -100,18 +100,19 @@ const MapView = ({ userType }: MapViewProps) => {
     return <BarberDashboard onBack={() => setShowDashboard(false)} />;
   }
 
-  // Filter page - available for both user types but with different interactions
-  if (showFilterPage) {
+  // Filter page - for clients only, barbers don't need this
+  if (showFilterPage && userType === 'client') {
     return (
       <FilterPage
         barbers={nearbyBarbers}
         onBack={() => setShowFilterPage(false)}
-        onBarberSelect={handleBarberSelect} // Allow both user types to view profiles
+        onBarberSelect={handleBarberSelect}
         onNavigate={openInAppleMaps}
       />
     );
   }
 
+  // AI Assistant - available for both user types
   if (showAIGeminiPage) {
     return (
       <AIGeminiPage
@@ -164,7 +165,7 @@ const MapView = ({ userType }: MapViewProps) => {
 
       <MapLayout
         displayBarbers={displayBarbers}
-        onBarberSelect={handleBarberSelect} // Allow both user types to select barbers
+        onBarberSelect={handleBarberSelect}
         onNavigate={openInAppleMaps}
       />
 

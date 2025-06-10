@@ -18,7 +18,7 @@ type DashboardTabType = 'profile' | 'admin' | 'customers' | 'messages' | 'calend
 
 const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
   const { profile, loading } = useBarberProfile();
-  const [activeTab, setActiveTab] = useState<DashboardTabType>('admin');
+  const [activeTab, setActiveTab] = useState<DashboardTabType>('calendar'); // Changed default to calendar
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
 

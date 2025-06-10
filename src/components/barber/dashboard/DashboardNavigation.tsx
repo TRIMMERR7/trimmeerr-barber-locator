@@ -13,12 +13,12 @@ interface DashboardNavigationProps {
 
 const DashboardNavigation = ({ activeTab, onTabChange }: DashboardNavigationProps) => {
   const tabs = [
-    { id: 'admin' as TabType, label: 'Admin', icon: Settings },
-    { id: 'profile' as TabType, label: 'Profile', icon: User },
+    { id: 'calendar' as TabType, label: 'Schedule', icon: Calendar },
+    { id: 'bank' as TabType, label: 'Earnings', icon: CreditCard },
     { id: 'customers' as TabType, label: 'Customers', icon: Users },
-    { id: 'calendar' as TabType, label: 'Calendar', icon: Calendar },
-    { id: 'bank' as TabType, label: 'Bank Account', icon: CreditCard },
     { id: 'messages' as TabType, label: 'Messages', icon: MessageSquare },
+    { id: 'profile' as TabType, label: 'Profile', icon: User },
+    { id: 'admin' as TabType, label: 'Settings', icon: Settings },
   ];
 
   return (
