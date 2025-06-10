@@ -81,12 +81,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const finalUserType = metadataUserType || storedUserType || 'client';
           console.log('AuthProvider: Setting user type to:', finalUserType);
           setUserTypeState(finalUserType);
+        } else {
+          // User signed out, reset to default
+          setUserTypeState('client');
         }
         
-        if (!loading) {
-          clearTimeout(loadingTimeout);
-          setLoading(false);
-        }
+        clearTimeout(loadingTimeout);
+        setLoading(false);
       }
     );
 
@@ -100,9 +101,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     console.log('AuthProvider: Signing out...');
     localStorage.removeItem('userType');
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('AuthProvider: Error signing out:', error);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('AuthProvider: Error signing out:', error);
+      }
+    } catch (error) {
+      console.error('AuthProvider: Exception during sign out:', error);
     }
   };
 

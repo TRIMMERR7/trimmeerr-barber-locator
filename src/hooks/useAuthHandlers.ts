@@ -61,12 +61,9 @@ export const useAuthHandlers = () => {
             duration: 2000
           });
         } else {
-          // Store user type in localStorage for login
-          localStorage.setItem('userType', userType);
-          setUserType(userType);
           toast({
             title: "Welcome back!",
-            description: userType === 'barber' ? "Ready to manage your clients!" : "You're ready to book appointments.",
+            description: "You're successfully logged in.",
             duration: 1500
           });
         }
