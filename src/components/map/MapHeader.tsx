@@ -14,6 +14,11 @@ interface MapHeaderProps {
 const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick }: MapHeaderProps) => {
   const { signOut } = useAuth();
 
+  const handleMenuClick = () => {
+    console.log('Menu button clicked');
+    onMenuClick();
+  };
+
   return (
     <div className="bg-black/10 backdrop-blur-2xl border-b border-white/10 p-2 sm:p-4 flex-shrink-0">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
@@ -30,7 +35,7 @@ const MapHeader = ({ userType, onAIAssistantClick, onDashboardClick, onMenuClick
         <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           <Button 
             variant="ghost" 
-            onClick={onMenuClick}
+            onClick={handleMenuClick}
             className="text-white hover:text-red-300 hover:bg-white/10 rounded-xl touch-manipulation h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold backdrop-blur-sm"
           >
             <Menu className="w-4 h-4 text-white" />
