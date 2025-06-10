@@ -46,8 +46,8 @@ export const useBarberMapData = () => {
         price: `$${barber.hourly_rate || 35}/hr`,
         distance: '0.5 mi', // This would need geolocation calculation
         experience: barber.experience || 'New',
-        lat: barber.latitude,
-        lng: barber.longitude,
+        lat: Number(barber.latitude) || 0,
+        lng: Number(barber.longitude) || 0,
         ethnicity: 'Unknown', // These fields might need to be added to the profile
         age: 25,
         languages: ['English'],
