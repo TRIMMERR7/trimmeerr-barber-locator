@@ -1,130 +1,100 @@
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import type { Barber } from '@/types/booking';
 
-const services = [
-  {
-    id: '1',
-    name: 'Classic Cut',
-    description: 'Traditional haircut with scissors and clipper',
-    price: 35,
-    duration: '45 min',
-    popular: true
-  },
-  {
-    id: '2',
-    name: 'Fade & Style',
-    description: 'Modern fade with styling',
-    price: 45,
-    duration: '60 min'
-  },
-  {
-    id: '3',
-    name: 'Beard Trim',
-    description: 'Professional beard shaping and trim',
-    price: 25,
-    duration: '30 min'
-  },
-  {
-    id: '4',
-    name: 'Full Service',
-    description: 'Cut, wash, style, and beard trim',
-    price: 65,
-    duration: '90 min'
-  }
-];
+interface Barber {
+  id: string;
+  name: string;
+  rating: number;
+  specialty: string;
+  image: string;
+  price: string;
+  distance: string;
+  experience: string;
+  lat: number;
+  lng: number;
+}
 
-const availableTimes = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM', '7:00 PM'];
+interface Service {
+  id: string;
+  name: string;
+  duration: number;
+  price: number;
+  description: string;
+}
 
 export const useSimpleBooking = (barber: Barber) => {
   const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<any>(null);
-  const [selectedTime, setSelectedTime] = useState('');
-  const [userPhone, setUserPhone] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const convertTo24Hour = (time12h: string) => {
-    const [time, modifier] = time12h.split(' ');
-    let [hours, minutes] = time.split(':');
-    if (hours === '12') {
-      hours = '00';
-    }
-    if (modifier === 'PM') {
-      hours = parseInt(hours, 10) + 12;
-    }
-    return `${hours}:${minutes}:00`;
-  };
-
-  const handleBooking = async () => {
+  const createBooking = async (
+    service: Service,
+    selectedDate: string,
+    selectedTime: string,
+    userPhone: string
+  ) => {
     if (!user) {
-      toast.error('Please sign in to book an appointment');
+      toast.error('Please log in to book an appointment');
       return;
     }
 
-    if (!selectedService || !selectedTime) {
-      toast.error('Please select a service and time');
-      return;
-    }
-
-    setIsProcessing(true);
-
+    setIsLoading(true);
+    
     try {
-      const appointmentDate = new Date().toISOString().split('T')[0];
-      const appointmentTime = convertTo24Hour(selectedTime);
-
-      const { data, error } = await supabase.functions.invoke('create-payment', {
-        body: {
-          barberId: barber.id,
-          clientName: user.user_metadata?.full_name || 'Client',
-          clientPhone: userPhone,
-          serviceName: selectedService.name,
-          servicePrice: selectedService.price * 100,
-          appointmentDate,
-          appointmentTime
+      // Convert 12-hour time to 24-hour format for database
+      const convertTo24Hour = (time12h: string) => {
+        const [time, modifier] = time12h.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') {
+          hours = '00';
         }
-      });
+        if (modifier === 'PM') {
+          hours = String(parseInt(hours, 10) + 12);
+        }
+        return `${hours}:${minutes}:00`;
+      };
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert({
+          barber_id: barber.id,
+          client_id: user.id,
+          client_name: user.user_metadata?.full_name || 'Client',
+          client_phone: userPhone,
+          service_name: service.name,
+          service_price: service.price,
+          appointment_date: selectedDate,
+          appointment_time: convertTo24Hour(selectedTime),
+          status: 'confirmed'
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
-        toast.success('Redirecting to secure checkout...');
-        setIsOpen(false);
-      }
-    } catch (error) {
+      toast.success('Booking confirmed! The barber has been notified.');
+      setIsOpen(false);
+      return data;
+    } catch (error: any) {
       console.error('Booking error:', error);
-      toast.error('Failed to create booking. Please try again.');
+      
+      if (error.message?.includes('Time slot already booked')) {
+        toast.error('This time slot is no longer available. Please choose another time.');
+      } else {
+        toast.error('Failed to create booking. Please try again.');
+      }
     } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleDialogChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      setSelectedService(null);
-      setSelectedTime('');
-      setUserPhone('');
+      setIsLoading(false);
     }
   };
 
   return {
+    createBooking,
+    isLoading,
     isOpen,
-    selectedService,
-    selectedTime,
-    userPhone,
-    isProcessing,
-    services,
-    availableTimes,
-    user,
-    setSelectedService,
-    setSelectedTime,
-    setUserPhone,
-    handleBooking,
-    handleDialogChange
+    setIsOpen
   };
 };

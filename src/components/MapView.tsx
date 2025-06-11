@@ -56,10 +56,11 @@ const MapView = ({ userType }: MapViewProps) => {
     console.log('MapView: Initializing...');
     
     if (!barbersLoading) {
-      // Combine database barbers with static barbers for now
-      const allBarbers = [...databaseBarbers, ...nearbyBarbers];
+      // Prioritize database barbers, fallback to static data if needed
+      const allBarbers = databaseBarbers.length > 0 ? databaseBarbers : nearbyBarbers;
       
       if (filteredBarbers.length === 0) {
+        console.log('MapView: Setting up barbers for map display:', allBarbers.length);
         setFilteredBarbers(allBarbers);
       }
       
@@ -73,7 +74,7 @@ const MapView = ({ userType }: MapViewProps) => {
     }
   }, [barbersLoading, databaseBarbers, filteredBarbers.length, setFilteredBarbers]);
 
-  const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : [...databaseBarbers, ...nearbyBarbers];
+  const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : (databaseBarbers.length > 0 ? databaseBarbers : nearbyBarbers);
 
   // Show loading state for MapView initialization
   if (isMapViewLoading || barbersLoading) {
@@ -90,7 +91,7 @@ const MapView = ({ userType }: MapViewProps) => {
             <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
               TRIMMERR
             </h2>
-            <p className="text-gray-300 text-lg animate-pulse">Initializing map...</p>
+            <p className="text-gray-300 text-lg animate-pulse">Loading barbers on map...</p>
           </div>
           
           <div className="flex space-x-1">
@@ -161,7 +162,7 @@ const MapView = ({ userType }: MapViewProps) => {
     );
   }
 
-  console.log('MapView: Rendering main map view for user type:', userType);
+  console.log('MapView: Rendering main map view with', displayBarbers.length, 'barbers for user type:', userType);
   return (
     <div className="h-screen w-full bg-gradient-to-br from-black via-gray-900 to-black flex flex-col overflow-hidden">
       <MapHeader 

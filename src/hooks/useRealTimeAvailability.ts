@@ -22,7 +22,7 @@ export const useRealTimeAvailability = (barberId: string, selectedDate: string) 
       hours = '00';
     }
     if (modifier === 'PM') {
-      hours = parseInt(hours, 10) + 12;
+      hours = String(parseInt(hours, 10) + 12);
     }
     return `${hours}:${minutes}:00`;
   };

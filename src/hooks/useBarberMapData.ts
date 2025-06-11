@@ -40,7 +40,7 @@ export const useBarberMapData = () => {
       const transformedBarbers: BarberMapData[] = data.map(barber => ({
         id: barber.id,
         name: barber.business_name || 'Unnamed Barber',
-        rating: Number(barber.rating) || 0,
+        rating: Number(barber.rating) || 4.5,
         specialty: barber.specialty || 'General Barber',
         image: barber.profile_image_url || '/placeholder.svg',
         price: `$${barber.hourly_rate || 35}/hr`,
@@ -55,6 +55,7 @@ export const useBarberMapData = () => {
         videoUrl: undefined
       }));
 
+      console.log('Fetched barbers for map:', transformedBarbers.length);
       setBarbers(transformedBarbers);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch barbers');
@@ -66,6 +67,27 @@ export const useBarberMapData = () => {
 
   useEffect(() => {
     fetchBarbers();
+
+    // Set up real-time subscription for barber profile changes
+    const channel = supabase
+      .channel('barber-profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'barber_profiles'
+        },
+        () => {
+          console.log('Barber profile changed, refetching data...');
+          fetchBarbers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return { barbers, loading, error, refetch: fetchBarbers };
