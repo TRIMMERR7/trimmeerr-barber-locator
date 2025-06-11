@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X, MapPin, CheckCircle } from "lucide-react";
+import { Plus, X, MapPin, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useBarberProfile } from '@/hooks/useBarberProfile';
 import { sanitizeInput } from '@/utils/securityHelpers';
-import { geocodeAddress } from '@/utils/geocoding';
+import { geocodeAddress, validateCoordinates } from '@/utils/geocoding';
 import { toast } from 'sonner';
 
 interface BarberProfileSetupProps {
@@ -23,6 +23,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const [profileCreated, setProfileCreated] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
   const [locationVerified, setLocationVerified] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     business_name: '',
@@ -56,9 +57,10 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const location = e.target.value;
     setFormData({ ...formData, location });
-    // Clear previous coordinates and verification when location changes
+    // Clear previous verification state when location changes
     setCoordinates(null);
     setLocationVerified(false);
+    setLocationError(null);
   };
 
   const handleGeocodeLocation = async () => {
@@ -69,22 +71,29 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 
     setGeocoding(true);
     setLocationVerified(false);
+    setLocationError(null);
     
     try {
+      console.log('Starting geocoding for:', formData.location);
       const coords = await geocodeAddress(formData.location);
-      if (coords) {
+      
+      if (coords && validateCoordinates(coords.lat, coords.lng)) {
         setCoordinates(coords);
         setLocationVerified(true);
+        setLocationError(null);
         toast.success('Location verified successfully!');
+        console.log('Location verified:', coords);
       } else {
         setCoordinates(null);
         setLocationVerified(false);
-        toast.error('Could not verify location. Please check the address and try again.');
+        setLocationError('Could not verify this address. Please check the format and try again.');
+        toast.error('Could not verify location. Please check the address format.');
       }
     } catch (error) {
       console.error('Geocoding error:', error);
       setCoordinates(null);
       setLocationVerified(false);
+      setLocationError('Error verifying location. Please try again.');
       toast.error('Error verifying location. Please try again.');
     } finally {
       setGeocoding(false);
@@ -303,37 +312,63 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 
               <div>
                 <label className="text-sm font-medium text-gray-300 mb-2 block">
-                  Location *
+                  Location * <span className="text-xs text-gray-500">(Include street address, city, state, and ZIP)</span>
                 </label>
                 <div className="flex gap-2">
-                  <Input
-                    value={formData.location}
-                    onChange={handleLocationChange}
-                    className="bg-gray-800 border-gray-600 text-white flex-1"
-                    placeholder="123 Main St, City, State ZIP"
-                    required
-                  />
+                  <div className="flex-1">
+                    <Input
+                      value={formData.location}
+                      onChange={handleLocationChange}
+                      className="bg-gray-800 border-gray-600 text-white"
+                      placeholder="123 Main Street, Houston, Texas 77001"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Example: "2795 Katy Service Road, Houston, Texas 77007"
+                    </p>
+                  </div>
                   <Button
                     type="button"
                     onClick={handleGeocodeLocation}
                     disabled={geocoding || !formData.location.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 px-3"
+                    className="bg-blue-600 hover:bg-blue-700 px-3 min-w-[44px]"
                   >
                     {geocoding ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
                       <MapPin className="w-4 h-4" />
                     )}
                   </Button>
                 </div>
+                
+                {/* Location verification status */}
                 {locationVerified && coordinates && (
-                  <p className="text-green-400 text-sm mt-1 flex items-center gap-1">
-                    <CheckCircle className="w-4 h-4" />
-                    Location verified successfully! ({coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)})
-                  </p>
+                  <div className="mt-2 p-3 bg-green-900/30 border border-green-700 rounded-lg">
+                    <p className="text-green-400 text-sm flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" />
+                      Location verified successfully!
+                    </p>
+                    <p className="text-xs text-green-300 mt-1">
+                      Coordinates: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
+                    </p>
+                  </div>
                 )}
-                {!locationVerified && formData.location.trim() && (
-                  <p className="text-yellow-400 text-sm mt-1">
+                
+                {locationError && (
+                  <div className="mt-2 p-3 bg-red-900/30 border border-red-700 rounded-lg">
+                    <p className="text-red-400 text-sm flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      {locationError}
+                    </p>
+                    <p className="text-xs text-red-300 mt-1">
+                      Try including more details like street number, city, state, and ZIP code
+                    </p>
+                  </div>
+                )}
+                
+                {!locationVerified && formData.location.trim() && !geocoding && !locationError && (
+                  <p className="text-yellow-400 text-sm mt-2 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
                     Please click the location button to verify your address
                   </p>
                 )}
@@ -426,3 +461,5 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 };
 
 export default BarberProfileSetup;
+
+}
