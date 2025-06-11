@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,7 @@ interface BarberProfileSetupProps {
 }
 
 const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
-  const { createProfile, updateProfile } = useBarberProfile();
+  const { profile, createProfile, updateProfile } = useBarberProfile();
   const [loading, setLoading] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [newService, setNewService] = useState('');
@@ -36,6 +36,30 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
     services: [] as string[],
     profile_image_url: ''
   });
+
+  // Pre-populate form if profile exists
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        business_name: profile.business_name || '',
+        specialty: profile.specialty || '',
+        experience: profile.experience || '',
+        bio: profile.bio || '',
+        hourly_rate: profile.hourly_rate || 0,
+        phone: profile.phone || '',
+        location: profile.location || '',
+        services: profile.services || [],
+        profile_image_url: profile.profile_image_url || ''
+      });
+      
+      if (profile.latitude && profile.longitude) {
+        setCoordinates({ lat: profile.latitude, lng: profile.longitude });
+        setLocationVerified(true);
+      }
+      
+      setProfileId(profile.id);
+    }
+  }, [profile]);
 
   const addService = () => {
     if (newService.trim() && !formData.services.includes(newService.trim())) {
@@ -139,12 +163,12 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
         is_active: false // Profile created but not active yet
       };
 
-      const profile = await createProfile(sanitizedData);
+      const savedProfile = await createProfile(sanitizedData);
       setProfileCreated(true);
-      setProfileId(profile.id);
-      toast.success('Profile created successfully! Click "Go Live" to appear on the map.');
+      setProfileId(savedProfile.id);
+      toast.success('Profile saved successfully! Click "Go Live" to appear on the map.');
     } catch (error) {
-      toast.error('Failed to create profile. Please try again.');
+      toast.error('Failed to save profile. Please try again.');
       console.error('Profile creation error:', error);
     } finally {
       setLoading(false);
@@ -168,7 +192,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   };
 
   // Show success state with Go Live button
-  if (profileCreated) {
+  if (profileCreated || (profile && !profile.is_active && isFormComplete())) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 flex items-center justify-center">
         <Card className="bg-gray-900 border-gray-700 max-w-md w-full">
@@ -177,7 +201,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
               <CheckCircle className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-white text-2xl">
-              Profile Created Successfully!
+              Profile {profileCreated ? 'Created' : 'Ready'} Successfully!
             </CardTitle>
             <p className="text-gray-400">
               Your barber profile is ready. Click "Go Live" to start appearing on the map and receiving bookings from clients.
@@ -218,7 +242,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
         <Card className="bg-gray-900 border-gray-700">
           <CardHeader>
             <CardTitle className="text-white text-2xl text-center">
-              Set Up Your Barber Profile
+              {profile ? 'Update Your Barber Profile' : 'Set Up Your Barber Profile'}
             </CardTitle>
             <p className="text-gray-400 text-center">
               Complete all fields to create your profile, then go live to start receiving bookings
@@ -287,8 +311,8 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                   </label>
                   <Input
                     type="number"
-                    value={formData.hourly_rate}
-                    onChange={(e) => setFormData({...formData, hourly_rate: parseInt(e.target.value)})}
+                    value={formData.hourly_rate || ''}
+                    onChange={(e) => setFormData({...formData, hourly_rate: parseInt(e.target.value) || 0})}
                     className="bg-gray-800 border-gray-600 text-white"
                     placeholder="35"
                     min="1"
@@ -450,12 +474,12 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                 disabled={loading || !isFormComplete()}
               >
-                {loading ? 'Creating Profile...' : 'Create Profile'}
+                {loading ? 'Saving Profile...' : (profile ? 'Update Profile' : 'Create Profile')}
               </Button>
 
               {!isFormComplete() && (
                 <p className="text-yellow-400 text-sm text-center">
-                  Please complete all required fields and verify your location to create your profile
+                  Please complete all required fields and verify your location to save your profile
                 </p>
               )}
             </form>

@@ -21,6 +21,8 @@ interface BarberProfile {
   completed_cuts: number;
   is_active: boolean;
   is_verified: boolean;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export const useBarberProfile = () => {
@@ -55,18 +57,43 @@ export const useBarberProfile = () => {
     if (!user) throw new Error('No authenticated user');
 
     try {
-      const { data, error } = await supabase
+      // First check if profile already exists
+      const { data: existingProfile } = await supabase
         .from('barber_profiles')
-        .insert({
-          user_id: user.id,
-          ...profileData
-        })
-        .select()
-        .single();
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
 
-      if (error) throw error;
-      setProfile(data);
-      return data;
+      if (existingProfile) {
+        // Update existing profile instead of creating new one
+        const { data, error } = await supabase
+          .from('barber_profiles')
+          .update({
+            ...profileData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        setProfile(data);
+        return data;
+      } else {
+        // Create new profile
+        const { data, error } = await supabase
+          .from('barber_profiles')
+          .insert({
+            user_id: user.id,
+            ...profileData
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        setProfile(data);
+        return data;
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create profile';
       setError(errorMessage);
