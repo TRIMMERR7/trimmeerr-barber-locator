@@ -5,14 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useBarberProfile } from '@/hooks/useBarberProfile';
-import { Settings, Eye, EyeOff, Edit } from "lucide-react";
+import { Settings, Eye, EyeOff, Edit, MapPin, AlertCircle } from "lucide-react";
 import { toast } from 'sonner';
 
 interface BarberAdminPanelProps {
   onEditProfile: () => void;
+  onCompleteProfile?: () => void;
 }
 
-const BarberAdminPanel = ({ onEditProfile }: BarberAdminPanelProps) => {
+const BarberAdminPanel = ({ onEditProfile, onCompleteProfile }: BarberAdminPanelProps) => {
   const { profile, updateProfile, loading } = useBarberProfile();
   const [updating, setUpdating] = useState(false);
 
@@ -29,13 +30,48 @@ const BarberAdminPanel = ({ onEditProfile }: BarberAdminPanelProps) => {
 
   if (!profile) {
     return (
-      <div className="p-6 text-center text-gray-400">
-        <p>No barber profile found.</p>
+      <div className="space-y-6">
+        <Card className="bg-gray-900 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+              Complete Your Profile Setup
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-400">
+              You haven't set up your barber profile yet. Complete your profile to appear on the map and start receiving bookings from clients.
+            </p>
+            <Button 
+              onClick={onCompleteProfile}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              Complete Profile & Go Live
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  const isProfileComplete = () => {
+    return profile.business_name && 
+           profile.specialty && 
+           profile.experience && 
+           profile.hourly_rate && 
+           profile.phone && 
+           profile.location && 
+           profile.services && 
+           profile.services.length > 0;
+  };
+
   const toggleActive = async () => {
+    if (!isProfileComplete()) {
+      toast.error('Please complete your profile before going live');
+      return;
+    }
+
     setUpdating(true);
     try {
       await updateProfile({ is_active: !profile.is_active });
@@ -53,6 +89,30 @@ const BarberAdminPanel = ({ onEditProfile }: BarberAdminPanelProps) => {
 
   return (
     <div className="space-y-6">
+      {/* Profile Completion Check */}
+      {!isProfileComplete() && (
+        <Card className="bg-red-900/20 border-red-700">
+          <CardHeader>
+            <CardTitle className="text-red-400 flex items-center gap-2">
+              <AlertCircle className="w-5 h-5" />
+              Profile Incomplete
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-300">
+              Your profile is missing required information. Complete your profile to appear on the map and receive bookings.
+            </p>
+            <Button 
+              onClick={onCompleteProfile}
+              className="w-full bg-red-600 hover:bg-red-700"
+            >
+              <MapPin className="w-4 h-4 mr-2" />
+              Complete Profile Setup
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Admin Header */}
       <Card className="bg-gray-900 border-gray-700">
         <CardHeader>
@@ -81,7 +141,7 @@ const BarberAdminPanel = ({ onEditProfile }: BarberAdminPanelProps) => {
               <Switch
                 checked={profile.is_active}
                 onCheckedChange={toggleActive}
-                disabled={updating}
+                disabled={updating || !isProfileComplete()}
               />
             </div>
           </div>
@@ -93,15 +153,31 @@ const BarberAdminPanel = ({ onEditProfile }: BarberAdminPanelProps) => {
             <Badge variant={profile.is_active ? "default" : "secondary"}>
               {profile.is_active ? "Active" : "Inactive"}
             </Badge>
+            <Badge variant={isProfileComplete() ? "default" : "destructive"}>
+              {isProfileComplete() ? "Complete" : "Incomplete"}
+            </Badge>
           </div>
 
-          <Button 
-            onClick={onEditProfile}
-            className="w-full bg-red-600 hover:bg-red-700"
-          >
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Profile Information
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={onEditProfile}
+              className="flex-1 bg-red-600 hover:bg-red-700"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Profile Information
+            </Button>
+            
+            {!isProfileComplete() && onCompleteProfile && (
+              <Button 
+                onClick={onCompleteProfile}
+                variant="outline"
+                className="flex-1 border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Complete Setup
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 

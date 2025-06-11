@@ -18,9 +18,10 @@ type DashboardTabType = 'profile' | 'admin' | 'customers' | 'messages' | 'calend
 
 const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
   const { profile, loading } = useBarberProfile();
-  const [activeTab, setActiveTab] = useState<DashboardTabType>('calendar'); // Changed default to calendar
+  const [activeTab, setActiveTab] = useState<DashboardTabType>('admin'); // Start with admin for profile setup
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
 
   const handleMessageCustomer = (customerId: string) => {
     setSelectedCustomerId(customerId);
@@ -33,8 +34,13 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
   };
 
   const handleProfileSetupComplete = () => {
-    // Refresh the profile data and show admin panel
+    // Profile setup completed, stay on admin tab
+    setShowProfileSetup(false);
     setActiveTab('admin');
+  };
+
+  const handleCompleteProfile = () => {
+    setShowProfileSetup(true);
   };
 
   // Show loading state
@@ -46,9 +52,22 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
     );
   }
 
-  // Show profile setup if no profile exists
-  if (!profile) {
-    return <BarberProfileSetup onComplete={handleProfileSetupComplete} />;
+  // Show profile setup if explicitly requested or no profile exists
+  if (showProfileSetup || !profile) {
+    return (
+      <div className="h-screen bg-black flex flex-col">
+        <DashboardHeader onBack={() => {
+          if (profile) {
+            setShowProfileSetup(false);
+          } else {
+            onBack();
+          }
+        }} />
+        <div className="flex-1 overflow-y-auto">
+          <BarberProfileSetup onComplete={handleProfileSetupComplete} />
+        </div>
+      </div>
+    );
   }
 
   // Show messaging interface
@@ -109,7 +128,10 @@ const BarberDashboard = ({ onBack }: BarberDashboardProps) => {
         <div className="flex-1 overflow-y-auto">
           {activeTab === 'admin' && (
             <div className="p-6">
-              <BarberAdminPanel onEditProfile={() => setShowProfileEditor(true)} />
+              <BarberAdminPanel 
+                onEditProfile={() => setShowProfileEditor(true)}
+                onCompleteProfile={handleCompleteProfile}
+              />
             </div>
           )}
           
