@@ -461,5 +461,3 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 };
 
 export default BarberProfileSetup;
-
-}
