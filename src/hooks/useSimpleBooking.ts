@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useRealTimeAvailability } from './useRealTimeAvailability';
 
 interface Barber {
   id: string;
@@ -29,6 +30,22 @@ export const useSimpleBooking = (barber: Barber) => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [userPhone, setUserPhone] = useState<string>('');
+
+  // Get availability for the selected date
+  const { availability } = useRealTimeAvailability(barber.id, selectedDate);
+
+  // Mock services for now - this should come from the barber's profile
+  const services: Service[] = [
+    { id: '1', name: 'Haircut', duration: 30, price: 35, description: 'Professional haircut' },
+    { id: '2', name: 'Beard Trim', duration: 15, price: 20, description: 'Beard styling and trim' },
+    { id: '3', name: 'Full Service', duration: 45, price: 50, description: 'Haircut + Beard Trim' }
+  ];
+
+  const availableTimes = availability.filter(slot => slot.available).map(slot => slot.time);
 
   const createBooking = async (
     service: Service,
@@ -91,10 +108,43 @@ export const useSimpleBooking = (barber: Barber) => {
     }
   };
 
+  const handleBooking = async () => {
+    if (!selectedService || !selectedTime || !userPhone.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    await createBooking(selectedService, selectedDate, selectedTime, userPhone);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      // Reset form when closing
+      setSelectedService(null);
+      setSelectedTime('');
+      setUserPhone('');
+    }
+  };
+
   return {
     createBooking,
     isLoading,
+    isProcessing: isLoading,
     isOpen,
-    setIsOpen
+    setIsOpen,
+    selectedService,
+    setSelectedService,
+    selectedTime,
+    setSelectedTime,
+    selectedDate,
+    setSelectedDate,
+    userPhone,
+    setUserPhone,
+    user,
+    services,
+    availableTimes,
+    handleBooking,
+    handleDialogChange
   };
 };

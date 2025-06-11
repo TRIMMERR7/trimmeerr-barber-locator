@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X, MapPin } from "lucide-react";
+import { Plus, X, MapPin, CheckCircle } from "lucide-react";
 import { useBarberProfile } from '@/hooks/useBarberProfile';
 import { sanitizeInput } from '@/utils/securityHelpers';
 import { geocodeAddress } from '@/utils/geocoding';
@@ -16,11 +16,13 @@ interface BarberProfileSetupProps {
 }
 
 const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
-  const { createProfile } = useBarberProfile();
+  const { createProfile, updateProfile } = useBarberProfile();
   const [loading, setLoading] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
   const [newService, setNewService] = useState('');
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [profileCreated, setProfileCreated] = useState(false);
+  const [profileId, setProfileId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     business_name: '',
@@ -80,6 +82,19 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
     }
   };
 
+  const isFormComplete = () => {
+    return (
+      formData.business_name.trim() &&
+      formData.specialty.trim() &&
+      formData.experience.trim() &&
+      formData.hourly_rate > 0 &&
+      formData.phone.trim() &&
+      formData.location.trim() &&
+      coordinates &&
+      formData.services.length > 0
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -101,12 +116,14 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
         location: sanitizeInput(formData.location),
         services: formData.services.map(service => sanitizeInput(service)),
         latitude: coordinates.lat,
-        longitude: coordinates.lng
+        longitude: coordinates.lng,
+        is_active: false // Profile created but not active yet
       };
 
-      await createProfile(sanitizedData);
-      toast.success('Barber profile created successfully!');
-      onComplete();
+      const profile = await createProfile(sanitizedData);
+      setProfileCreated(true);
+      setProfileId(profile.id);
+      toast.success('Profile created successfully! Click "Go Live" to appear on the map.');
     } catch (error) {
       toast.error('Failed to create profile. Please try again.');
       console.error('Profile creation error:', error);
@@ -114,6 +131,67 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
       setLoading(false);
     }
   };
+
+  const handleGoLive = async () => {
+    if (!profileId) return;
+
+    setLoading(true);
+    try {
+      await updateProfile({ is_active: true });
+      toast.success('Congratulations! You are now live on the map and clients can book with you!');
+      onComplete();
+    } catch (error) {
+      toast.error('Failed to activate profile. Please try again.');
+      console.error('Profile activation error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Show success state with Go Live button
+  if (profileCreated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 flex items-center justify-center">
+        <Card className="bg-gray-900 border-gray-700 max-w-md w-full">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <CardTitle className="text-white text-2xl">
+              Profile Created Successfully!
+            </CardTitle>
+            <p className="text-gray-400">
+              Your barber profile is ready. Click "Go Live" to start appearing on the map and receiving bookings from clients.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-white font-medium mb-2">Profile Summary:</h3>
+              <div className="space-y-1 text-sm text-gray-300">
+                <p><span className="text-gray-400">Business:</span> {formData.business_name}</p>
+                <p><span className="text-gray-400">Specialty:</span> {formData.specialty}</p>
+                <p><span className="text-gray-400">Rate:</span> ${formData.hourly_rate}/hr</p>
+                <p><span className="text-gray-400">Location:</span> {formData.location}</p>
+                <p><span className="text-gray-400">Services:</span> {formData.services.join(', ')}</p>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={handleGoLive}
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3"
+            >
+              {loading ? 'Going Live...' : '🚀 Go Live on Map'}
+            </Button>
+            
+            <p className="text-xs text-gray-500 text-center">
+              Once you go live, clients will be able to see your profile and book appointments with you.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
@@ -124,7 +202,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
               Set Up Your Barber Profile
             </CardTitle>
             <p className="text-gray-400 text-center">
-              Complete your profile to start receiving bookings
+              Complete all fields to create your profile, then go live to start receiving bookings
             </p>
           </CardHeader>
           <CardContent>
@@ -132,7 +210,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-2 block">
-                    Business Name
+                    Business Name *
                   </label>
                   <Input
                     value={formData.business_name}
@@ -145,7 +223,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                 
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-2 block">
-                    Specialty
+                    Specialty *
                   </label>
                   <Input
                     value={formData.specialty}
@@ -173,7 +251,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-2 block">
-                    Experience
+                    Experience *
                   </label>
                   <Input
                     value={formData.experience}
@@ -186,7 +264,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                 
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-2 block">
-                    Hourly Rate ($)
+                    Hourly Rate ($) *
                   </label>
                   <Input
                     type="number"
@@ -194,14 +272,14 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                     onChange={(e) => setFormData({...formData, hourly_rate: parseInt(e.target.value)})}
                     className="bg-gray-800 border-gray-600 text-white"
                     placeholder="35"
-                    min="0"
+                    min="1"
                     required
                   />
                 </div>
                 
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-2 block">
-                    Phone
+                    Phone *
                   </label>
                   <Input
                     value={formData.phone}
@@ -243,14 +321,11 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                     ✓ Location verified: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
                   </p>
                 )}
-                <p className="text-gray-500 text-sm mt-1">
-                  Click the map icon to verify your location appears correctly on the map
-                </p>
               </div>
 
               <div>
                 <label className="text-sm font-medium text-gray-300 mb-2 block">
-                  Services
+                  Services *
                 </label>
                 <div className="flex gap-2 mb-3">
                   <Input
@@ -281,15 +356,51 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                     </Badge>
                   ))}
                 </div>
+                {formData.services.length === 0 && (
+                  <p className="text-red-400 text-sm mt-1">Please add at least one service</p>
+                )}
+              </div>
+
+              <div className="bg-gray-800 p-4 rounded-lg">
+                <h3 className="text-white font-medium mb-2">Profile Completion</h3>
+                <div className="space-y-2 text-sm">
+                  <div className={`flex items-center gap-2 ${formData.business_name ? 'text-green-400' : 'text-gray-400'}`}>
+                    {formData.business_name ? '✓' : '○'} Business Name
+                  </div>
+                  <div className={`flex items-center gap-2 ${formData.specialty ? 'text-green-400' : 'text-gray-400'}`}>
+                    {formData.specialty ? '✓' : '○'} Specialty
+                  </div>
+                  <div className={`flex items-center gap-2 ${formData.experience ? 'text-green-400' : 'text-gray-400'}`}>
+                    {formData.experience ? '✓' : '○'} Experience
+                  </div>
+                  <div className={`flex items-center gap-2 ${formData.hourly_rate > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                    {formData.hourly_rate > 0 ? '✓' : '○'} Hourly Rate
+                  </div>
+                  <div className={`flex items-center gap-2 ${formData.phone ? 'text-green-400' : 'text-gray-400'}`}>
+                    {formData.phone ? '✓' : '○'} Phone Number
+                  </div>
+                  <div className={`flex items-center gap-2 ${coordinates ? 'text-green-400' : 'text-gray-400'}`}>
+                    {coordinates ? '✓' : '○'} Verified Location
+                  </div>
+                  <div className={`flex items-center gap-2 ${formData.services.length > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                    {formData.services.length > 0 ? '✓' : '○'} Services ({formData.services.length})
+                  </div>
+                </div>
               </div>
 
               <Button 
                 type="submit" 
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
-                disabled={loading || !coordinates}
+                disabled={loading || !isFormComplete()}
               >
-                {loading ? 'Creating Profile...' : 'Create Barber Profile'}
+                {loading ? 'Creating Profile...' : 'Create Profile'}
               </Button>
+
+              {!isFormComplete() && (
+                <p className="text-yellow-400 text-sm text-center">
+                  Please complete all required fields above to create your profile
+                </p>
+              )}
             </form>
           </CardContent>
         </Card>
