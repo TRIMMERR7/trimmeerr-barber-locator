@@ -25,6 +25,24 @@ export const useBarberMapData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const transformBarberData = (barber: any): BarberMapData => ({
+    id: barber.id,
+    name: barber.business_name || 'Unnamed Barber',
+    rating: Number(barber.rating) || 4.5,
+    specialty: barber.specialty || 'General Barber',
+    image: barber.profile_image_url || '/placeholder.svg',
+    price: `$${barber.hourly_rate || 35}/hr`,
+    distance: '0.5 mi', // This would need geolocation calculation
+    experience: barber.experience || 'New',
+    lat: Number(barber.latitude) || 0,
+    lng: Number(barber.longitude) || 0,
+    ethnicity: 'Unknown', // These fields might need to be added to the profile
+    age: 25,
+    languages: ['English'],
+    personalityTraits: ['Professional'],
+    videoUrl: undefined
+  });
+
   const fetchBarbers = async () => {
     try {
       const { data, error } = await supabase
@@ -37,23 +55,7 @@ export const useBarberMapData = () => {
       if (error) throw error;
 
       // Transform the data to match the expected format
-      const transformedBarbers: BarberMapData[] = data.map(barber => ({
-        id: barber.id,
-        name: barber.business_name || 'Unnamed Barber',
-        rating: Number(barber.rating) || 4.5,
-        specialty: barber.specialty || 'General Barber',
-        image: barber.profile_image_url || '/placeholder.svg',
-        price: `$${barber.hourly_rate || 35}/hr`,
-        distance: '0.5 mi', // This would need geolocation calculation
-        experience: barber.experience || 'New',
-        lat: Number(barber.latitude) || 0,
-        lng: Number(barber.longitude) || 0,
-        ethnicity: 'Unknown', // These fields might need to be added to the profile
-        age: 25,
-        languages: ['English'],
-        personalityTraits: ['Professional'],
-        videoUrl: undefined
-      }));
+      const transformedBarbers: BarberMapData[] = data.map(transformBarberData);
 
       console.log('Fetched barbers for map:', transformedBarbers.length);
       setBarbers(transformedBarbers);
@@ -82,53 +84,50 @@ export const useBarberMapData = () => {
         },
         (payload) => {
           console.log('Real-time barber profile change detected:', payload);
+          console.log('Event type:', payload.eventType);
+          console.log('New data:', payload.new);
+          console.log('Old data:', payload.old);
           
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             const updatedBarber = payload.new;
+            console.log('Processing UPDATE/INSERT for barber:', updatedBarber.business_name);
             
             // Only include active barbers with valid coordinates
             if (updatedBarber.is_active && updatedBarber.latitude && updatedBarber.longitude) {
-              const transformedBarber: BarberMapData = {
-                id: updatedBarber.id,
-                name: updatedBarber.business_name || 'Unnamed Barber',
-                rating: Number(updatedBarber.rating) || 4.5,
-                specialty: updatedBarber.specialty || 'General Barber',
-                image: updatedBarber.profile_image_url || '/placeholder.svg',
-                price: `$${updatedBarber.hourly_rate || 35}/hr`,
-                distance: '0.5 mi',
-                experience: updatedBarber.experience || 'New',
-                lat: Number(updatedBarber.latitude),
-                lng: Number(updatedBarber.longitude),
-                ethnicity: 'Unknown',
-                age: 25,
-                languages: ['English'],
-                personalityTraits: ['Professional'],
-                videoUrl: undefined
-              };
+              const transformedBarber = transformBarberData(updatedBarber);
+              console.log('Adding/updating barber on map:', transformedBarber.name);
 
               setBarbers(prevBarbers => {
                 const existingIndex = prevBarbers.findIndex(b => b.id === updatedBarber.id);
+                console.log('Existing barber index:', existingIndex);
+                
                 if (existingIndex >= 0) {
                   // Update existing barber
                   const updated = [...prevBarbers];
                   updated[existingIndex] = transformedBarber;
+                  console.log('Updated existing barber:', transformedBarber.name);
                   return updated;
                 } else {
                   // Add new barber
+                  console.log('Adding new barber:', transformedBarber.name);
                   return [...prevBarbers, transformedBarber];
                 }
               });
             } else if (!updatedBarber.is_active) {
+              console.log('Removing inactive barber from map:', updatedBarber.business_name);
               // Remove inactive barber from map
               setBarbers(prevBarbers => prevBarbers.filter(b => b.id !== updatedBarber.id));
             }
           } else if (payload.eventType === 'DELETE') {
+            console.log('Removing deleted barber from map');
             // Remove deleted barber
             setBarbers(prevBarbers => prevBarbers.filter(b => b.id !== payload.old.id));
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
       console.log('Cleaning up barber map real-time subscription');

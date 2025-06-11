@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
@@ -55,10 +54,12 @@ const MapView = ({ userType }: MapViewProps) => {
   // Update filtered barbers when database barbers change (real-time updates)
   useEffect(() => {
     console.log('MapView: Database barbers updated, count:', databaseBarbers.length);
+    console.log('MapView: Current database barbers:', databaseBarbers.map(b => ({ id: b.id, name: b.name, lat: b.lat, lng: b.lng })));
     
-    if (!barbersLoading && databaseBarbers.length > 0) {
+    if (!barbersLoading) {
       console.log('MapView: Updating filtered barbers with real-time data');
-      setFilteredBarbers(databaseBarbers);
+      // Always update filtered barbers when database barbers change
+      setFilteredBarbers(databaseBarbers.length > 0 ? databaseBarbers : nearbyBarbers);
     }
   }, [databaseBarbers, barbersLoading, setFilteredBarbers]);
 
@@ -70,10 +71,8 @@ const MapView = ({ userType }: MapViewProps) => {
       // Prioritize database barbers, fallback to static data if needed
       const allBarbers = databaseBarbers.length > 0 ? databaseBarbers : nearbyBarbers;
       
-      if (filteredBarbers.length === 0) {
-        console.log('MapView: Setting up barbers for map display:', allBarbers.length);
-        setFilteredBarbers(allBarbers);
-      }
+      console.log('MapView: Setting up barbers for map display:', allBarbers.length);
+      console.log('MapView: Using barbers:', allBarbers.map(b => ({ id: b.id, name: b.name })));
       
       // Small delay to ensure everything is initialized
       const timer = setTimeout(() => {
@@ -83,9 +82,12 @@ const MapView = ({ userType }: MapViewProps) => {
       
       return () => clearTimeout(timer);
     }
-  }, [barbersLoading, databaseBarbers, filteredBarbers.length, setFilteredBarbers]);
+  }, [barbersLoading, databaseBarbers]);
 
   const displayBarbers = filteredBarbers.length > 0 ? filteredBarbers : (databaseBarbers.length > 0 ? databaseBarbers : nearbyBarbers);
+
+  console.log('MapView: Final display barbers count:', displayBarbers.length);
+  console.log('MapView: Display barbers:', displayBarbers.map(b => ({ id: b.id, name: b.name, lat: b.lat, lng: b.lng })));
 
   // Show loading state for MapView initialization
   if (isMapViewLoading || barbersLoading) {
