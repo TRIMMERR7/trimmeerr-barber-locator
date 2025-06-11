@@ -20,12 +20,14 @@ serve(async (req) => {
       return createErrorResponse("Stripe configuration error: Secret key not found", 500);
     }
     
-    if (!stripeKey.startsWith("sk_")) {
-      console.error("❌ Invalid Stripe secret key format. Key should start with 'sk_'");
+    // More flexible validation - accept both test and live keys
+    if (!stripeKey.startsWith("sk_test_") && !stripeKey.startsWith("sk_live_")) {
+      console.error("❌ Invalid Stripe secret key format. Key should start with 'sk_test_' or 'sk_live_'");
+      console.error("Current key starts with:", stripeKey.substring(0, 10));
       return createErrorResponse("Stripe configuration error: Invalid secret key format", 500);
     }
     
-    console.log("✅ Stripe secret key format is valid:", stripeKey.substring(0, 7) + "***");
+    console.log("✅ Stripe secret key format is valid:", stripeKey.substring(0, 12) + "***");
 
     // Enhanced authentication validation
     const authHeader = req.headers.get("Authorization");
