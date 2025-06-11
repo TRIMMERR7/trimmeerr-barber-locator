@@ -547,5 +547,3 @@ const BarberProfileSetup = ({ onComplete, editMode = false }: BarberProfileSetup
 };
 
 export default BarberProfileSetup;
-
-}
