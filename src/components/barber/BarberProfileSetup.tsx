@@ -86,8 +86,8 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
       } else {
         setCoordinates(null);
         setLocationVerified(false);
-        setLocationError('Could not verify this address. Please check the format and try again.');
-        toast.error('Could not verify location. Please check the address format.');
+        setLocationError('Could not verify this address. Please try a different format or check for typos.');
+        toast.error('Could not verify location. Try simplifying the address or checking for typos.');
       }
     } catch (error) {
       console.error('Geocoding error:', error);
@@ -320,12 +320,14 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                       value={formData.location}
                       onChange={handleLocationChange}
                       className="bg-gray-800 border-gray-600 text-white"
-                      placeholder="123 Main Street, Houston, Texas 77001"
+                      placeholder="1234 Main St, Houston, TX 77001"
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Example: "2795 Katy Service Road, Houston, Texas 77007"
-                    </p>
+                    <div className="text-xs text-gray-500 mt-1 space-y-1">
+                      <p>✓ Good: "1234 Main St, Houston, TX 77001"</p>
+                      <p>✓ Good: "5678 Westheimer Rd, Houston, Texas 77057"</p>
+                      <p>✓ Good: "900 Louisiana St, Houston, TX 77002"</p>
+                    </div>
                   </div>
                   <Button
                     type="button"
@@ -360,9 +362,13 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                       <AlertCircle className="w-4 h-4" />
                       {locationError}
                     </p>
-                    <p className="text-xs text-red-300 mt-1">
-                      Try including more details like street number, city, state, and ZIP code
-                    </p>
+                    <div className="text-xs text-red-300 mt-2 space-y-1">
+                      <p>Try these formats:</p>
+                      <p>• "Street Number Street Name, Houston, TX ZIP"</p>
+                      <p>• Use "TX" instead of "Texas"</p>
+                      <p>• Include the ZIP code</p>
+                      <p>• Avoid complex descriptions like "Service Road"</p>
+                    </div>
                   </div>
                 )}
                 

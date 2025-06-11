@@ -1,12 +1,12 @@
 
-// Enhanced geocoding utility with better address handling and fallbacks
+// Enhanced geocoding utility with better address handling and multiple fallbacks
 export const geocodeAddress = async (address: string): Promise<{ lat: number; lng: number } | null> => {
   if (!address.trim()) {
     console.warn('Empty address provided for geocoding');
     return null;
   }
 
-  // Clean and format the address
+  // Clean and format the address with better normalization
   const cleanAddress = address
     .trim()
     .replace(/\s+/g, ' ') // Replace multiple spaces with single space
@@ -14,48 +14,46 @@ export const geocodeAddress = async (address: string): Promise<{ lat: number; ln
     .replace(/\btx\b/gi, 'Texas') // Replace 'tx' with 'Texas'
     .replace(/\bfl\b/gi, 'Florida') // Common state abbreviations
     .replace(/\bca\b/gi, 'California')
-    .replace(/\bny\b/gi, 'New York');
+    .replace(/\bny\b/gi, 'New York')
+    .replace(/\bfreeway\b/gi, 'Fwy') // Normalize freeway abbreviations
+    .replace(/\bservice road\b/gi, 'Service Rd')
+    .replace(/\bservcie\b/gi, 'Service') // Fix common typo
+    .replace(/\bread\b/gi, 'Rd')
+    .replace(/\bstreet\b/gi, 'St')
+    .replace(/\bavenue\b/gi, 'Ave')
+    .replace(/\bboulevard\b/gi, 'Blvd');
 
   console.log('Geocoding address:', cleanAddress);
 
-  try {
-    // Primary geocoding attempt with OpenStreetMap Nominatim
-    const encodedAddress = encodeURIComponent(cleanAddress);
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=1&countrycodes=us`,
-      {
-        headers: {
-          'User-Agent': 'TrimmerrApp/1.0'
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Geocoding request failed: ${response.status}`);
+  const fallbackStrategies = [
+    cleanAddress, // Original cleaned address
+    cleanAddress.replace(/\bservice rd\b/gi, ''), // Remove "Service Rd"
+    cleanAddress.replace(/\bkaty\s+(freeway|fwy)\s+service\s+(rd|road)\b/gi, 'Katy Fwy'), // Simplify Katy Freeway Service Road
+    cleanAddress.replace(/\d+\s+/, ''), // Remove street number for broader search
+  ];
+
+  // Extract city, state, zip for fallback
+  const cityStateMatch = cleanAddress.match(/([^,]+),?\s*([a-zA-Z\s]+)\s*(\d{5})?$/);
+  if (cityStateMatch) {
+    const [, , state, zip] = cityStateMatch;
+    // Add city-level fallbacks
+    if (zip) {
+      fallbackStrategies.push(`Houston, ${state} ${zip}`);
+      fallbackStrategies.push(`${zip}, USA`); // ZIP code only
     }
-    
-    const data = await response.json();
-    
-    if (data && data.length > 0) {
-      const result = data[0];
-      const coords = {
-        lat: parseFloat(result.lat),
-        lng: parseFloat(result.lon)
-      };
+    fallbackStrategies.push(`Houston, ${state}, USA`);
+  }
+
+  for (let i = 0; i < fallbackStrategies.length; i++) {
+    const searchAddress = fallbackStrategies[i].trim();
+    if (!searchAddress) continue;
+
+    try {
+      console.log(`Trying strategy ${i + 1}:`, searchAddress);
       
-      console.log('Geocoding successful:', coords);
-      return coords;
-    }
-    
-    // Fallback: Try with just city and state if full address fails
-    const cityStateMatch = cleanAddress.match(/([^,]+),?\s*([a-zA-Z\s]+)\s*(\d{5})?$/);
-    if (cityStateMatch) {
-      const [, city, state] = cityStateMatch;
-      const fallbackAddress = `${city.trim()}, ${state.trim()}, USA`;
-      console.log('Trying fallback address:', fallbackAddress);
-      
-      const fallbackResponse = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fallbackAddress)}&limit=1&countrycodes=us`,
+      const encodedAddress = encodeURIComponent(searchAddress);
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}&limit=3&countrycodes=us&addressdetails=1`,
         {
           headers: {
             'User-Agent': 'TrimmerrApp/1.0'
@@ -63,27 +61,49 @@ export const geocodeAddress = async (address: string): Promise<{ lat: number; ln
         }
       );
       
-      if (fallbackResponse.ok) {
-        const fallbackData = await fallbackResponse.json();
-        if (fallbackData && fallbackData.length > 0) {
-          const result = fallbackData[0];
-          const coords = {
-            lat: parseFloat(result.lat),
-            lng: parseFloat(result.lon)
-          };
-          
-          console.log('Fallback geocoding successful:', coords);
-          return coords;
-        }
+      if (!response.ok) {
+        console.warn(`Strategy ${i + 1} request failed:`, response.status);
+        continue;
       }
+      
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        // Prefer results with house numbers for street addresses
+        let bestResult = data[0];
+        if (i === 0 && data.length > 1) { // Only for first strategy (exact address)
+          const resultWithHouseNumber = data.find((result: any) => 
+            result.address && result.address.house_number
+          );
+          if (resultWithHouseNumber) {
+            bestResult = resultWithHouseNumber;
+          }
+        }
+        
+        const coords = {
+          lat: parseFloat(bestResult.lat),
+          lng: parseFloat(bestResult.lon)
+        };
+        
+        console.log(`Strategy ${i + 1} successful:`, coords, bestResult.display_name);
+        return coords;
+      }
+      
+      console.log(`Strategy ${i + 1} returned no results`);
+      
+      // Add delay between requests to respect rate limits
+      if (i < fallbackStrategies.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+    } catch (error) {
+      console.error(`Strategy ${i + 1} error:`, error);
+      continue;
     }
-    
-    console.warn('No geocoding results found for address:', cleanAddress);
-    return null;
-  } catch (error) {
-    console.error('Geocoding error:', error);
-    return null;
   }
+  
+  console.warn('All geocoding strategies failed for address:', address);
+  return null;
 };
 
 // Additional helper function to validate coordinates
@@ -94,7 +114,8 @@ export const validateCoordinates = (lat: number, lng: number): boolean => {
     lat >= -90 && 
     lat <= 90 && 
     lng >= -180 && 
-    lng <= 180
+    lng <= 180 &&
+    lat !== 0 || lng !== 0 // Avoid 0,0 coordinates which are likely errors
   );
 };
 
