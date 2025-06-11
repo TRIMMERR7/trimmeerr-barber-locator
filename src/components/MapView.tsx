@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import BarberProfile from './BarberProfile';
 import BarberDashboard from './BarberDashboard';
@@ -22,7 +23,7 @@ const MapView = ({ userType }: MapViewProps) => {
   const [isMapViewLoading, setIsMapViewLoading] = useState(true);
   const [showBarbersOfTheYearPage, setShowBarbersOfTheYearPage] = useState(false);
   
-  // Fetch real barber data from database
+  // Fetch real barber data from database with real-time updates
   const { barbers: databaseBarbers, loading: barbersLoading } = useBarberMapData();
   
   const {
@@ -50,6 +51,16 @@ const MapView = ({ userType }: MapViewProps) => {
   const handleBarbersOfTheYearClick = () => {
     setShowBarbersOfTheYearPage(true);
   };
+
+  // Update filtered barbers when database barbers change (real-time updates)
+  useEffect(() => {
+    console.log('MapView: Database barbers updated, count:', databaseBarbers.length);
+    
+    if (!barbersLoading && databaseBarbers.length > 0) {
+      console.log('MapView: Updating filtered barbers with real-time data');
+      setFilteredBarbers(databaseBarbers);
+    }
+  }, [databaseBarbers, barbersLoading, setFilteredBarbers]);
 
   // Initialize filtered barbers and mark as loaded
   useEffect(() => {

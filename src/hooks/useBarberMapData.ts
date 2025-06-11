@@ -69,8 +69,10 @@ export const useBarberMapData = () => {
     fetchBarbers();
 
     // Set up real-time subscription for barber profile changes
+    console.log('Setting up real-time subscription for barber map data');
+    
     const channel = supabase
-      .channel('barber-profile-changes')
+      .channel('barber-map-changes')
       .on(
         'postgres_changes',
         {
@@ -78,14 +80,58 @@ export const useBarberMapData = () => {
           schema: 'public',
           table: 'barber_profiles'
         },
-        () => {
-          console.log('Barber profile changed, refetching data...');
-          fetchBarbers();
+        (payload) => {
+          console.log('Real-time barber profile change detected:', payload);
+          
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            const updatedBarber = payload.new;
+            
+            // Only include active barbers with valid coordinates
+            if (updatedBarber.is_active && updatedBarber.latitude && updatedBarber.longitude) {
+              const transformedBarber: BarberMapData = {
+                id: updatedBarber.id,
+                name: updatedBarber.business_name || 'Unnamed Barber',
+                rating: Number(updatedBarber.rating) || 4.5,
+                specialty: updatedBarber.specialty || 'General Barber',
+                image: updatedBarber.profile_image_url || '/placeholder.svg',
+                price: `$${updatedBarber.hourly_rate || 35}/hr`,
+                distance: '0.5 mi',
+                experience: updatedBarber.experience || 'New',
+                lat: Number(updatedBarber.latitude),
+                lng: Number(updatedBarber.longitude),
+                ethnicity: 'Unknown',
+                age: 25,
+                languages: ['English'],
+                personalityTraits: ['Professional'],
+                videoUrl: undefined
+              };
+
+              setBarbers(prevBarbers => {
+                const existingIndex = prevBarbers.findIndex(b => b.id === updatedBarber.id);
+                if (existingIndex >= 0) {
+                  // Update existing barber
+                  const updated = [...prevBarbers];
+                  updated[existingIndex] = transformedBarber;
+                  return updated;
+                } else {
+                  // Add new barber
+                  return [...prevBarbers, transformedBarber];
+                }
+              });
+            } else if (!updatedBarber.is_active) {
+              // Remove inactive barber from map
+              setBarbers(prevBarbers => prevBarbers.filter(b => b.id !== updatedBarber.id));
+            }
+          } else if (payload.eventType === 'DELETE') {
+            // Remove deleted barber
+            setBarbers(prevBarbers => prevBarbers.filter(b => b.id !== payload.old.id));
+          }
         }
       )
       .subscribe();
 
     return () => {
+      console.log('Cleaning up barber map real-time subscription');
       supabase.removeChannel(channel);
     };
   }, []);
