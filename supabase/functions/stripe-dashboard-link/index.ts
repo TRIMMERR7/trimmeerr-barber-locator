@@ -59,7 +59,13 @@ serve(async (req) => {
       });
     }
 
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    
+    // Determine if we're in test or live mode based on the secret key
+    const isTestMode = stripeSecretKey.startsWith("sk_test_");
+    console.log("Operating in mode:", isTestMode ? "test" : "live");
+
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16",
     });
 
@@ -147,24 +153,90 @@ serve(async (req) => {
       });
     }
 
-    // Create login link for the connected account with enhanced security
-    const loginLink = await stripe.accounts.createLoginLink(stripe_account_id);
+    try {
+      // First, check the account status to provide better error messages
+      const account = await stripe.accounts.retrieve(stripe_account_id);
+      
+      console.log("Account details:", {
+        id: account.id,
+        details_submitted: account.details_submitted,
+        charges_enabled: account.charges_enabled,
+        payouts_enabled: account.payouts_enabled
+      });
 
-    // Validate the returned URL
-    if (!loginLink.url || !loginLink.url.startsWith('https://connect.stripe.com/')) {
-      console.error("Invalid login link URL received from Stripe:", loginLink.url);
-      return new Response(JSON.stringify({ error: "Invalid login link generated" }), {
+      // Check if account onboarding is complete
+      if (!account.details_submitted) {
+        console.log("Account onboarding not completed, redirecting to onboarding");
+        
+        // Create account link for onboarding instead of login link
+        const accountLink = await stripe.accountLinks.create({
+          account: stripe_account_id,
+          refresh_url: `${req.headers.get("origin")}/dashboard`,
+          return_url: `${req.headers.get("origin")}/dashboard`,
+          type: 'account_onboarding',
+        });
+
+        return new Response(JSON.stringify({ 
+          url: accountLink.url,
+          message: "Completing account setup..."
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        });
+      }
+
+      // Create login link for the connected account
+      const loginLink = await stripe.accounts.createLoginLink(stripe_account_id);
+
+      // Validate the returned URL
+      if (!loginLink.url || !loginLink.url.startsWith('https://connect.stripe.com/')) {
+        console.error("Invalid login link URL received from Stripe:", loginLink.url);
+        return new Response(JSON.stringify({ error: "Invalid login link generated" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
+      }
+
+      console.log("Successfully created dashboard link for account:", stripe_account_id);
+
+      return new Response(JSON.stringify({ url: loginLink.url }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+
+    } catch (stripeError: any) {
+      console.error("Stripe API error:", stripeError);
+      
+      // Handle specific Stripe errors with helpful messages
+      if (stripeError.message?.includes("testmode key")) {
+        return new Response(JSON.stringify({ 
+          error: "This account was created in test mode but you're now using live mode. Please create a new Stripe account or switch back to test mode.",
+          needsNewAccount: true
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+      
+      if (stripeError.message?.includes("not completed onboarding")) {
+        return new Response(JSON.stringify({ 
+          error: "Account setup is incomplete. Please complete your Stripe onboarding first.",
+          needsOnboarding: true
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+
+      return new Response(JSON.stringify({ 
+        error: "Failed to access Stripe dashboard. Please try again or contact support.",
+        details: stripeError.message
+      }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
       });
     }
 
-    console.log("Successfully created dashboard link for account:", stripe_account_id);
-
-    return new Response(JSON.stringify({ url: loginLink.url }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
   } catch (error) {
     console.error("Unexpected error creating dashboard link:", error);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
