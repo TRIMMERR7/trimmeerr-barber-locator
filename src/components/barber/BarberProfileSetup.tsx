@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +22,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [profileCreated, setProfileCreated] = useState(false);
   const [profileId, setProfileId] = useState<string | null>(null);
+  const [locationVerified, setLocationVerified] = useState(false);
   
   const [formData, setFormData] = useState({
     business_name: '',
@@ -56,8 +56,9 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const location = e.target.value;
     setFormData({ ...formData, location });
-    // Clear previous coordinates when location changes
+    // Clear previous coordinates and verification when location changes
     setCoordinates(null);
+    setLocationVerified(false);
   };
 
   const handleGeocodeLocation = async () => {
@@ -67,15 +68,23 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
     }
 
     setGeocoding(true);
+    setLocationVerified(false);
+    
     try {
       const coords = await geocodeAddress(formData.location);
       if (coords) {
         setCoordinates(coords);
-        toast.success('Location found and verified!');
+        setLocationVerified(true);
+        toast.success('Location verified successfully!');
       } else {
-        toast.error('Could not find location. Please check the address.');
+        setCoordinates(null);
+        setLocationVerified(false);
+        toast.error('Could not verify location. Please check the address and try again.');
       }
     } catch (error) {
+      console.error('Geocoding error:', error);
+      setCoordinates(null);
+      setLocationVerified(false);
       toast.error('Error verifying location. Please try again.');
     } finally {
       setGeocoding(false);
@@ -90,6 +99,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
       formData.hourly_rate > 0 &&
       formData.phone.trim() &&
       formData.location.trim() &&
+      locationVerified &&
       coordinates &&
       formData.services.length > 0
     );
@@ -98,7 +108,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!coordinates) {
+    if (!locationVerified || !coordinates) {
       toast.error('Please verify your location before submitting');
       return;
     }
@@ -300,7 +310,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                     value={formData.location}
                     onChange={handleLocationChange}
                     className="bg-gray-800 border-gray-600 text-white flex-1"
-                    placeholder="123 Main St, City, State"
+                    placeholder="123 Main St, City, State ZIP"
                     required
                   />
                   <Button
@@ -316,9 +326,15 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                     )}
                   </Button>
                 </div>
-                {coordinates && (
-                  <p className="text-green-400 text-sm mt-1">
-                    ✓ Location verified: {coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)}
+                {locationVerified && coordinates && (
+                  <p className="text-green-400 text-sm mt-1 flex items-center gap-1">
+                    <CheckCircle className="w-4 h-4" />
+                    Location verified successfully! ({coordinates.lat.toFixed(4)}, {coordinates.lng.toFixed(4)})
+                  </p>
+                )}
+                {!locationVerified && formData.location.trim() && (
+                  <p className="text-yellow-400 text-sm mt-1">
+                    Please click the location button to verify your address
                   </p>
                 )}
               </div>
@@ -379,8 +395,8 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                   <div className={`flex items-center gap-2 ${formData.phone ? 'text-green-400' : 'text-gray-400'}`}>
                     {formData.phone ? '✓' : '○'} Phone Number
                   </div>
-                  <div className={`flex items-center gap-2 ${coordinates ? 'text-green-400' : 'text-gray-400'}`}>
-                    {coordinates ? '✓' : '○'} Verified Location
+                  <div className={`flex items-center gap-2 ${locationVerified ? 'text-green-400' : 'text-gray-400'}`}>
+                    {locationVerified ? '✓' : '○'} Verified Location
                   </div>
                   <div className={`flex items-center gap-2 ${formData.services.length > 0 ? 'text-green-400' : 'text-gray-400'}`}>
                     {formData.services.length > 0 ? '✓' : '○'} Services ({formData.services.length})
@@ -398,7 +414,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 
               {!isFormComplete() && (
                 <p className="text-yellow-400 text-sm text-center">
-                  Please complete all required fields above to create your profile
+                  Please complete all required fields and verify your location to create your profile
                 </p>
               )}
             </form>

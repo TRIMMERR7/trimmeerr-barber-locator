@@ -110,15 +110,6 @@ const SimpleBookingDialog = ({ barber, children }: SimpleBookingDialogProps) => 
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <h3 className="font-medium text-white">{service.name}</h3>
-                              {service.popular && (
-                                <motion.span 
-                                  className="text-xs bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full"
-                                  animate={{ scale: [1, 1.05, 1] }}
-                                  transition={{ repeat: Infinity, duration: 2 }}
-                                >
-                                  Popular
-                                </motion.span>
-                              )}
                               {selectedService?.id === service.id && (
                                 <motion.div
                                   initial={{ scale: 0 }}
@@ -130,7 +121,7 @@ const SimpleBookingDialog = ({ barber, children }: SimpleBookingDialogProps) => 
                               )}
                             </div>
                             <p className="text-sm text-gray-300 mt-1">{service.description}</p>
-                            <p className="text-sm text-gray-400">{service.duration}</p>
+                            <p className="text-sm text-gray-400">{service.duration} minutes</p>
                           </div>
                           <div className="text-right">
                             <span className="text-lg font-bold text-red-400">${service.price}</span>
@@ -207,7 +198,7 @@ const SimpleBookingDialog = ({ barber, children }: SimpleBookingDialogProps) => 
                   <div className="space-y-1 text-sm">
                     <p className="text-gray-300"><span className="font-medium text-white">Service:</span> {selectedService.name}</p>
                     <p className="text-gray-300"><span className="font-medium text-white">Time:</span> {selectedTime}</p>
-                    <p className="text-gray-300"><span className="font-medium text-white">Duration:</span> {selectedService.duration}</p>
+                    <p className="text-gray-300"><span className="font-medium text-white">Duration:</span> {selectedService.duration} minutes</p>
                     <p className="text-gray-300"><span className="font-medium text-red-400">Price:</span> ${selectedService.price}</p>
                   </div>
                 </motion.div>
