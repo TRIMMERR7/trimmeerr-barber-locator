@@ -80,7 +80,7 @@ export const usePaymentProcessing = ({
     setPaymentLoading(true);
     
     try {
-      console.log('BookingDialog: Starting secure payment process...');
+      console.log('BookingDialog: Starting marketplace payment process...');
       
       toast({
         title: "Creating Payment Session",
@@ -95,7 +95,8 @@ export const usePaymentProcessing = ({
         serviceName: sanitizeInput(selectedService.name),
         barberName: sanitizeInput(barber.name),
         appointmentTime: sanitizeInput(selectedTime),
-        userPhone: userPhone ? sanitizeInput(userPhone) : ''
+        userPhone: userPhone ? sanitizeInput(userPhone) : '',
+        barberId: sanitizeInput(barber.id) // Include barber ID for Connect payments
       };
 
       const { data, error } = await supabase.functions.invoke('create-payment', {
