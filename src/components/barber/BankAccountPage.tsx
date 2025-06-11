@@ -22,6 +22,7 @@ const BankAccountPage = () => {
   const [account, setAccount] = useState<BarberAccount | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
+  const [needsReset, setNeedsReset] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -50,6 +51,49 @@ const BankAccountPage = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const resetAndCreateNewAccount = async () => {
+    setConnecting(true);
+    try {
+      // First, delete the old account record
+      if (account?.stripe_account_id) {
+        await supabase
+          .from('barber_accounts')
+          .delete()
+          .eq('barber_id', user?.id);
+      }
+
+      // Create a fresh Stripe account
+      const { data, error } = await supabase.functions.invoke('create-stripe-account', {
+        body: { barber_id: user?.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        toast({
+          title: "Creating New Account",
+          description: "Opening Stripe setup in a new tab. Complete the onboarding to connect your bank account.",
+        });
+        
+        // Refresh the page data after a short delay
+        setTimeout(() => {
+          fetchBarberAccount();
+          setNeedsReset(false);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error creating new Stripe account:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create new Stripe account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setConnecting(false);
     }
   };
 
@@ -87,16 +131,29 @@ const BankAccountPage = () => {
         body: { stripe_account_id: account?.stripe_account_id }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check if this is a test/live mode mismatch
+        if (error.message?.includes('testmode') || error.message?.includes('test mode')) {
+          setNeedsReset(true);
+          toast({
+            title: "Account Needs Update",
+            description: "Your account was created in test mode but we're now in live mode. Please reset and create a new account.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       if (data?.url) {
         window.open(data.url, '_blank');
       }
     } catch (error) {
       console.error('Error opening Stripe dashboard:', error);
+      setNeedsReset(true);
       toast({
-        title: "Error",
-        description: "Failed to open Stripe dashboard",
+        title: "Dashboard Access Issue",
+        description: "There's an issue with your account. Please reset and create a new one.",
         variant: "destructive",
       });
     }
@@ -114,16 +171,19 @@ const BankAccountPage = () => {
     <div className="max-w-4xl mx-auto space-y-6">
       <BankAccountHeader />
 
-      {!account?.stripe_account_id ? (
+      {/* Show reset option if there's an account but it needs to be reset */}
+      {(needsReset || (!account?.stripe_account_id)) ? (
         <BankConnectionCard 
           connecting={connecting}
-          onCreateAccount={createStripeAccount}
+          onCreateAccount={account?.stripe_account_id ? resetAndCreateNewAccount : createStripeAccount}
+          resetMode={!!account?.stripe_account_id}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <AccountStatusCard 
             account={account}
             onOpenDashboard={openStripeDashboard}
+            onReset={() => setNeedsReset(true)}
           />
           <PaymentInformationCard account={account} />
         </div>
