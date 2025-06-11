@@ -66,7 +66,7 @@ const BarberProfile = ({ barber, onBack, userType, onNavigate }: BarberProfilePr
 
           <BarberInfo barber={barber} />
           
-          <ContactInfo />
+          <ContactInfo barberId={barber.id} />
 
           <Portfolio />
           <Reviews />
