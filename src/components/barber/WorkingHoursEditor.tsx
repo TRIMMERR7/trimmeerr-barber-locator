@@ -3,12 +3,20 @@ import React from 'react';
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
+interface DayHours {
+  open: string;
+  close: string;
+  closed: boolean;
+}
+
 interface WorkingHours {
-  [key: string]: {
-    open: string;
-    close: string;
-    closed: boolean;
-  };
+  monday: DayHours;
+  tuesday: DayHours;
+  wednesday: DayHours;
+  thursday: DayHours;
+  friday: DayHours;
+  saturday: DayHours;
+  sunday: DayHours;
 }
 
 interface WorkingHoursEditorProps {
@@ -24,7 +32,7 @@ const DAYS = [
   'friday',
   'saturday',
   'sunday'
-];
+] as const;
 
 const DAY_LABELS = {
   monday: 'Monday',
@@ -34,10 +42,10 @@ const DAY_LABELS = {
   friday: 'Friday',
   saturday: 'Saturday',
   sunday: 'Sunday'
-};
+} as const;
 
 const WorkingHoursEditor = ({ workingHours, onChange }: WorkingHoursEditorProps) => {
-  const updateDay = (day: string, field: string, value: string | boolean) => {
+  const updateDay = (day: keyof WorkingHours, field: keyof DayHours, value: string | boolean) => {
     const newHours = {
       ...workingHours,
       [day]: {
@@ -59,7 +67,7 @@ const WorkingHoursEditor = ({ workingHours, onChange }: WorkingHoursEditorProps)
           return (
             <div key={day} className="flex items-center gap-4 p-3 bg-gray-800 rounded-lg">
               <div className="w-20">
-                <span className="text-sm text-gray-300">{DAY_LABELS[day as keyof typeof DAY_LABELS]}</span>
+                <span className="text-sm text-gray-300">{DAY_LABELS[day]}</span>
               </div>
               
               <div className="flex items-center space-x-2">

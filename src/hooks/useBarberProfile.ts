@@ -129,6 +129,40 @@ export const useBarberProfile = () => {
     fetchProfile();
   }, [user]);
 
+  // Set up real-time subscription for profile updates
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('Setting up real-time subscription for barber profile');
+    
+    const channel = supabase
+      .channel('barber-profile-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'barber_profiles',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Real-time profile update:', payload);
+          
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            setProfile(payload.new as BarberProfile);
+          } else if (payload.eventType === 'DELETE') {
+            setProfile(null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      console.log('Cleaning up real-time subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   return {
     profile,
     loading,
