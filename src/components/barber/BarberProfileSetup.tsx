@@ -4,17 +4,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, X, MapPin, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Plus, X, MapPin, CheckCircle, AlertCircle, Loader2, Edit } from "lucide-react";
 import { useBarberProfile } from '@/hooks/useBarberProfile';
 import { sanitizeInput } from '@/utils/securityHelpers';
 import { geocodeAddress, validateCoordinates } from '@/utils/geocoding';
 import { toast } from 'sonner';
+import ImageUploader from './ImageUploader';
+import WorkingHoursEditor from './WorkingHoursEditor';
 
 interface BarberProfileSetupProps {
   onComplete: () => void;
+  editMode?: boolean;
 }
 
-const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
+const BarberProfileSetup = ({ onComplete, editMode = false }: BarberProfileSetupProps) => {
   const { profile, createProfile, updateProfile } = useBarberProfile();
   const [loading, setLoading] = useState(false);
   const [geocoding, setGeocoding] = useState(false);
@@ -34,7 +37,17 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
     phone: '',
     location: '',
     services: [] as string[],
-    profile_image_url: ''
+    profile_image_url: '',
+    portfolio_images: [] as string[],
+    working_hours: {
+      monday: { open: '09:00', close: '18:00', closed: false },
+      tuesday: { open: '09:00', close: '18:00', closed: false },
+      wednesday: { open: '09:00', close: '18:00', closed: false },
+      thursday: { open: '09:00', close: '18:00', closed: false },
+      friday: { open: '09:00', close: '18:00', closed: false },
+      saturday: { open: '09:00', close: '17:00', closed: false },
+      sunday: { open: '10:00', close: '16:00', closed: true }
+    }
   });
 
   // Pre-populate form if profile exists
@@ -49,7 +62,9 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
         phone: profile.phone || '',
         location: profile.location || '',
         services: profile.services || [],
-        profile_image_url: profile.profile_image_url || ''
+        profile_image_url: profile.profile_image_url || '',
+        portfolio_images: profile.portfolio_images || [],
+        working_hours: profile.working_hours || formData.working_hours
       });
       
       if (profile.latitude && profile.longitude) {
@@ -81,7 +96,6 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const location = e.target.value;
     setFormData({ ...formData, location });
-    // Clear previous verification state when location changes
     setCoordinates(null);
     setLocationVerified(false);
     setLocationError(null);
@@ -160,16 +174,25 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
         services: formData.services.map(service => sanitizeInput(service)),
         latitude: coordinates.lat,
         longitude: coordinates.lng,
-        is_active: false // Profile created but not active yet
+        is_active: editMode ? profile?.is_active : false
       };
 
-      const savedProfile = await createProfile(sanitizedData);
+      const savedProfile = editMode && profile 
+        ? await updateProfile(sanitizedData)
+        : await createProfile(sanitizedData);
+        
       setProfileCreated(true);
       setProfileId(savedProfile.id);
-      toast.success('Profile saved successfully! Click "Go Live" to appear on the map.');
+      
+      if (editMode) {
+        toast.success('Profile updated successfully!');
+        onComplete();
+      } else {
+        toast.success('Profile saved successfully! Click "Go Live" to appear on the map.');
+      }
     } catch (error) {
-      toast.error('Failed to save profile. Please try again.');
-      console.error('Profile creation error:', error);
+      toast.error(editMode ? 'Failed to update profile. Please try again.' : 'Failed to save profile. Please try again.');
+      console.error('Profile save error:', error);
     } finally {
       setLoading(false);
     }
@@ -191,8 +214,8 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
     }
   };
 
-  // Show success state with Go Live button
-  if (profileCreated || (profile && !profile.is_active && isFormComplete())) {
+  // Show success state with Go Live button (only for new profiles)
+  if (profileCreated && !editMode) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4 flex items-center justify-center">
         <Card className="bg-gray-900 border-gray-700 max-w-md w-full">
@@ -238,18 +261,40 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black p-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <Card className="bg-gray-900 border-gray-700">
           <CardHeader>
-            <CardTitle className="text-white text-2xl text-center">
-              {profile ? 'Update Your Barber Profile' : 'Set Up Your Barber Profile'}
+            <CardTitle className="text-white text-2xl text-center flex items-center justify-center gap-2">
+              {editMode ? <Edit className="w-6 h-6" /> : null}
+              {editMode ? 'Edit Your Barber Profile' : 'Set Up Your Barber Profile'}
             </CardTitle>
             <p className="text-gray-400 text-center">
-              Complete all fields to create your profile, then go live to start receiving bookings
+              {editMode 
+                ? 'Update your profile information and settings'
+                : 'Complete all fields to create your profile, then go live to start receiving bookings'
+              }
             </p>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Profile Image Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ImageUploader
+                  images={formData.profile_image_url ? [formData.profile_image_url] : []}
+                  onImagesChange={(images) => setFormData({...formData, profile_image_url: images[0] || ''})}
+                  single={true}
+                  label="Profile Picture"
+                />
+                
+                <ImageUploader
+                  images={formData.portfolio_images}
+                  onImagesChange={(images) => setFormData({...formData, portfolio_images: images})}
+                  maxImages={6}
+                  label="Portfolio Images"
+                />
+              </div>
+
+              {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-2 block">
@@ -334,6 +379,7 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                 </div>
               </div>
 
+              {/* Location Section */}
               <div>
                 <label className="text-sm font-medium text-gray-300 mb-2 block">
                   Location * <span className="text-xs text-gray-500">(Include street address, city, state, and ZIP)</span>
@@ -404,6 +450,13 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                 )}
               </div>
 
+              {/* Working Hours */}
+              <WorkingHoursEditor
+                workingHours={formData.working_hours}
+                onChange={(hours) => setFormData({...formData, working_hours: hours})}
+              />
+
+              {/* Services */}
               <div>
                 <label className="text-sm font-medium text-gray-300 mb-2 block">
                   Services *
@@ -442,42 +495,45 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
                 )}
               </div>
 
-              <div className="bg-gray-800 p-4 rounded-lg">
-                <h3 className="text-white font-medium mb-2">Profile Completion</h3>
-                <div className="space-y-2 text-sm">
-                  <div className={`flex items-center gap-2 ${formData.business_name ? 'text-green-400' : 'text-gray-400'}`}>
-                    {formData.business_name ? '✓' : '○'} Business Name
-                  </div>
-                  <div className={`flex items-center gap-2 ${formData.specialty ? 'text-green-400' : 'text-gray-400'}`}>
-                    {formData.specialty ? '✓' : '○'} Specialty
-                  </div>
-                  <div className={`flex items-center gap-2 ${formData.experience ? 'text-green-400' : 'text-gray-400'}`}>
-                    {formData.experience ? '✓' : '○'} Experience
-                  </div>
-                  <div className={`flex items-center gap-2 ${formData.hourly_rate > 0 ? 'text-green-400' : 'text-gray-400'}`}>
-                    {formData.hourly_rate > 0 ? '✓' : '○'} Hourly Rate
-                  </div>
-                  <div className={`flex items-center gap-2 ${formData.phone ? 'text-green-400' : 'text-gray-400'}`}>
-                    {formData.phone ? '✓' : '○'} Phone Number
-                  </div>
-                  <div className={`flex items-center gap-2 ${locationVerified ? 'text-green-400' : 'text-gray-400'}`}>
-                    {locationVerified ? '✓' : '○'} Verified Location
-                  </div>
-                  <div className={`flex items-center gap-2 ${formData.services.length > 0 ? 'text-green-400' : 'text-gray-400'}`}>
-                    {formData.services.length > 0 ? '✓' : '○'} Services ({formData.services.length})
+              {/* Profile Completion */}
+              {!editMode && (
+                <div className="bg-gray-800 p-4 rounded-lg">
+                  <h3 className="text-white font-medium mb-2">Profile Completion</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className={`flex items-center gap-2 ${formData.business_name ? 'text-green-400' : 'text-gray-400'}`}>
+                      {formData.business_name ? '✓' : '○'} Business Name
+                    </div>
+                    <div className={`flex items-center gap-2 ${formData.specialty ? 'text-green-400' : 'text-gray-400'}`}>
+                      {formData.specialty ? '✓' : '○'} Specialty
+                    </div>
+                    <div className={`flex items-center gap-2 ${formData.experience ? 'text-green-400' : 'text-gray-400'}`}>
+                      {formData.experience ? '✓' : '○'} Experience
+                    </div>
+                    <div className={`flex items-center gap-2 ${formData.hourly_rate > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                      {formData.hourly_rate > 0 ? '✓' : '○'} Hourly Rate
+                    </div>
+                    <div className={`flex items-center gap-2 ${formData.phone ? 'text-green-400' : 'text-gray-400'}`}>
+                      {formData.phone ? '✓' : '○'} Phone Number
+                    </div>
+                    <div className={`flex items-center gap-2 ${locationVerified ? 'text-green-400' : 'text-gray-400'}`}>
+                      {locationVerified ? '✓' : '○'} Verified Location
+                    </div>
+                    <div className={`flex items-center gap-2 ${formData.services.length > 0 ? 'text-green-400' : 'text-gray-400'}`}>
+                      {formData.services.length > 0 ? '✓' : '○'} Services ({formData.services.length})
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <Button 
                 type="submit" 
                 className="w-full bg-red-600 hover:bg-red-700 text-white"
                 disabled={loading || !isFormComplete()}
               >
-                {loading ? 'Saving Profile...' : (profile ? 'Update Profile' : 'Create Profile')}
+                {loading ? (editMode ? 'Updating Profile...' : 'Saving Profile...') : (editMode ? 'Update Profile' : 'Create Profile')}
               </Button>
 
-              {!isFormComplete() && (
+              {!editMode && !isFormComplete() && (
                 <p className="text-yellow-400 text-sm text-center">
                   Please complete all required fields and verify your location to save your profile
                 </p>
@@ -491,3 +547,5 @@ const BarberProfileSetup = ({ onComplete }: BarberProfileSetupProps) => {
 };
 
 export default BarberProfileSetup;
+
+}

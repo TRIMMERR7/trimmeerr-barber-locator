@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { useBarberProfile } from '@/hooks/useBarberProfile';
 import { Settings, Eye, EyeOff, Edit, MapPin, AlertCircle } from "lucide-react";
 import { toast } from 'sonner';
+import BarberProfileSetup from './BarberProfileSetup';
 
 interface BarberAdminPanelProps {
   onEditProfile: () => void;
@@ -16,6 +17,7 @@ interface BarberAdminPanelProps {
 const BarberAdminPanel = ({ onEditProfile, onCompleteProfile }: BarberAdminPanelProps) => {
   const { profile, updateProfile, loading } = useBarberProfile();
   const [updating, setUpdating] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   if (loading) {
     return (
@@ -52,6 +54,15 @@ const BarberAdminPanel = ({ onEditProfile, onCompleteProfile }: BarberAdminPanel
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  if (showEditModal) {
+    return (
+      <BarberProfileSetup 
+        editMode={true}
+        onComplete={() => setShowEditModal(false)}
+      />
     );
   }
 
@@ -160,7 +171,7 @@ const BarberAdminPanel = ({ onEditProfile, onCompleteProfile }: BarberAdminPanel
 
           <div className="flex gap-2">
             <Button 
-              onClick={onEditProfile}
+              onClick={() => setShowEditModal(true)}
               className="flex-1 bg-red-600 hover:bg-red-700"
             >
               <Edit className="w-4 h-4 mr-2" />
