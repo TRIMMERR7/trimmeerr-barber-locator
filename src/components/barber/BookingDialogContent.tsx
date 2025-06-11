@@ -12,6 +12,7 @@ interface BookingDialogContentProps {
   isProcessingPayment: boolean;
   paymentUrl: string;
   paymentLoading: boolean;
+  barberId: string; // Add barberId prop
   onServiceSelect: (service: Service) => void;
   onTimeSelect: (time: string) => void;
   setUserPhone: (phone: string) => void;

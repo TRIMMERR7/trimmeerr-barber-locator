@@ -2,7 +2,7 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import ServiceSelection from './ServiceSelection';
-import TimeSelection from './TimeSelection';
+import RealTimeTimeSelection from './RealTimeTimeSelection';
 import BookingDetails from './BookingDetails';
 import BookingAnimations from './BookingAnimations';
 import SuccessConfetti from './SuccessConfetti';
@@ -17,6 +17,7 @@ interface BookingStepContentProps {
   isProcessingPayment: boolean;
   paymentUrl: string;
   paymentLoading: boolean;
+  barberId: string; // Add barberId prop
   onServiceSelect: (service: Service) => void;
   onTimeSelect: (time: string) => void;
   setUserPhone: (phone: string) => void;
@@ -34,6 +35,7 @@ const BookingStepContent = ({
   isProcessingPayment,
   paymentUrl,
   paymentLoading,
+  barberId,
   onServiceSelect,
   onTimeSelect,
   setUserPhone,
@@ -71,9 +73,10 @@ const BookingStepContent = ({
                 </div>
               </div>
             )}
-            <TimeSelection 
+            <RealTimeTimeSelection 
               selectedTime={selectedTime}
               onTimeSelect={onTimeSelect}
+              barberId={barberId}
             />
           </div>
         );

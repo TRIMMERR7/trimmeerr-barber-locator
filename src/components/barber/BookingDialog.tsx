@@ -57,6 +57,7 @@ const BookingDialog = ({ barber, children }: BookingDialogProps) => {
             isProcessingPayment={isProcessingPayment}
             paymentUrl={paymentUrl}
             paymentLoading={paymentLoading}
+            barberId={barber.id}
             onServiceSelect={handleServiceSelect}
             onTimeSelect={handleTimeSelect}
             setUserPhone={setUserPhone}

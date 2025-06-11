@@ -1,149 +1,114 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { validatePhoneNumber } from '@/utils/bookingValidation';
-import type { Service, Barber } from '@/types/booking';
+import { toast } from 'sonner';
+import type { Barber } from '@/types/booking';
+
+const services = [
+  {
+    id: '1',
+    name: 'Classic Cut',
+    description: 'Traditional haircut with scissors and clipper',
+    price: 35,
+    duration: '45 min',
+    popular: true
+  },
+  {
+    id: '2',
+    name: 'Fade & Style',
+    description: 'Modern fade with styling',
+    price: 45,
+    duration: '60 min'
+  },
+  {
+    id: '3',
+    name: 'Beard Trim',
+    description: 'Professional beard shaping and trim',
+    price: 25,
+    duration: '30 min'
+  },
+  {
+    id: '4',
+    name: 'Full Service',
+    description: 'Cut, wash, style, and beard trim',
+    price: 65,
+    duration: '90 min'
+  }
+];
+
+const availableTimes = ['9:00 AM', '11:00 AM', '1:00 PM', '3:00 PM', '5:00 PM', '7:00 PM'];
 
 export const useSimpleBooking = (barber: Barber) => {
   const { user } = useAuth();
-  const { toast } = useToast();
-  
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string>('');
-  const [userPhone, setUserPhone] = useState<string>('');
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [selectedTime, setSelectedTime] = useState('');
+  const [userPhone, setUserPhone] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const availableTimes = [
-    '9:00 AM', '11:00 AM', '1:00 PM', 
-    '3:00 PM', '5:00 PM', '7:00 PM'
-  ];
-
-  const services: Service[] = [
-    {
-      id: 'classic-cut',
-      name: 'Classic Haircut',
-      price: 30,
-      duration: '30 min',
-      icon: () => null,
-      popular: false,
-      description: 'Traditional haircut with scissor and clipper work'
-    },
-    {
-      id: 'fade-cut',
-      name: 'Fade Cut',
-      price: 35,
-      duration: '35 min',
-      icon: () => null,
-      popular: true,
-      description: 'Modern fade with precise blending and styling'
-    },
-    {
-      id: 'beard-trim',
-      name: 'Beard Trim',
-      price: 20,
-      duration: '20 min',
-      icon: () => null,
-      popular: false,
-      description: 'Professional beard shaping and trimming'
-    },
-    {
-      id: 'premium-package',
-      name: 'Premium Package',
-      price: 60,
-      duration: '60 min',
-      icon: () => null,
-      popular: true,
-      description: 'Haircut + beard trim + hot towel treatment'
+  const convertTo24Hour = (time12h: string) => {
+    const [time, modifier] = time12h.split(' ');
+    let [hours, minutes] = time.split(':');
+    if (hours === '12') {
+      hours = '00';
     }
-  ];
+    if (modifier === 'PM') {
+      hours = parseInt(hours, 10) + 12;
+    }
+    return `${hours}:${minutes}:00`;
+  };
 
   const handleBooking = async () => {
-    if (!selectedService || !selectedTime) {
-      toast({
-        title: "Missing Information",
-        description: "Please select a service and time slot",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to book an appointment",
-        variant: "destructive",
-      });
+      toast.error('Please sign in to book an appointment');
       return;
     }
 
-    if (userPhone && !validatePhoneNumber(userPhone)) {
-      toast({
-        title: "Invalid Phone Number",
-        description: "Please enter a valid phone number",
-        variant: "destructive",
-      });
+    if (!selectedService || !selectedTime) {
+      toast.error('Please select a service and time');
       return;
     }
 
     setIsProcessing(true);
-    
+
     try {
+      const appointmentDate = new Date().toISOString().split('T')[0];
+      const appointmentTime = convertTo24Hour(selectedTime);
+
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
-          amount: selectedService.price * 100,
-          currency: 'usd',
-          serviceType: `barber_service_${barber.id}`,
+          barberId: barber.id,
+          clientName: user.user_metadata?.full_name || 'Client',
+          clientPhone: userPhone,
           serviceName: selectedService.name,
-          barberName: barber.name,
-          appointmentTime: selectedTime,
-          userPhone: userPhone
+          servicePrice: selectedService.price * 100,
+          appointmentDate,
+          appointmentTime
         }
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (data?.url) {
-        // Open payment in new tab
         window.open(data.url, '_blank');
-        
-        toast({
-          title: "Payment Opened",
-          description: "Complete your payment in the new tab to confirm your booking",
-        });
-        
-        // Close dialog after opening payment
-        setTimeout(() => {
-          setIsOpen(false);
-          resetForm();
-        }, 1000);
+        toast.success('Redirecting to secure checkout...');
+        setIsOpen(false);
       }
     } catch (error) {
       console.error('Booking error:', error);
-      toast({
-        title: "Booking Error",
-        description: "Failed to process booking. Please try again.",
-        variant: "destructive",
-      });
+      toast.error('Failed to create booking. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const resetForm = () => {
-    setSelectedService(null);
-    setSelectedTime('');
-    setUserPhone('');
-  };
-
   const handleDialogChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      resetForm();
+      setSelectedService(null);
+      setSelectedTime('');
+      setUserPhone('');
     }
   };
 

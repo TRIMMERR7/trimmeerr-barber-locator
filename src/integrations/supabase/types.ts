@@ -75,6 +75,51 @@ export type Database = {
         }
         Relationships: []
       }
+      barber_notifications: {
+        Row: {
+          barber_id: string
+          booking_id: string
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          type: string
+        }
+        Insert: {
+          barber_id: string
+          booking_id: string
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          type?: string
+        }
+        Update: {
+          barber_id?: string
+          booking_id?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "barber_notifications_barber_id_fkey"
+            columns: ["barber_id"]
+            isOneToOne: false
+            referencedRelation: "barber_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "barber_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       barber_profiles: {
         Row: {
           bio: string | null
@@ -287,6 +332,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_time_slot_availability: {
+        Args: {
+          barber_id_param: string
+          appointment_date_param: string
+          appointment_time_param: string
+        }
+        Returns: boolean
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
